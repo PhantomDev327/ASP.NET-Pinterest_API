@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>nxPinterest - @ViewBag.Title</title>
+
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="~/images/favicon.png">
+    <!-- App css -->
+    <link href="~/lib/Hyper_v4.4/Bootstrap_5x/hyper/dist/modern/assets/css/icons.min.css" rel="stylesheet" />
+    <link href="~/lib/Hyper_v4.4/Bootstrap_5x/hyper/dist/modern/assets/css/app-modern.min.css" rel="stylesheet" />
+
+    <link href="~/css/main.css" rel="stylesheet" asp-append-version="true"/>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- bundle -->
+    <script src="~/lib/Hyper_v4.4/Bootstrap_5x/hyper/dist/modern/assets/js/vendor.min.js"></script>
+    <script src="~/lib/Hyper_v4.4/Bootstrap_5x/hyper/dist/modern/assets/js/app.min.js"></script>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+</head>
+<body class="loading" data-layout="detached" data-layout-config='{"leftSidebarCondensed":false,"darkMode":false, "showRightSidebarOnStart": true}'>
+    <!-- Topbar Start -->
+    <div class="navbar-custom topnav-navbar topnav-navbar-dark">
+        <div class="container-fluid">
+            <!-- LOGO -->
+            <a href="index.html" class="topnav-logo">
+                <span class="topnav-logo-lg">
+                    <img src="~/lib/Hyper_v4.4/Bootstrap_5x/hyper/dist/modern/assets/images/logo-light.png" alt="" height="16" />
+                </span>
+                <span class="topnav-logo-sm">
+                    <img src="~/lib/Hyper_v4.4/Bootstrap_5x/hyper/dist/modern/assets/images/logo_sm.png" alt="" height="16" />
+                </span>
+            </a>
+        </div>
+    </div>
+    <!-- end Topbar -->
+    <!-- Start Content-->
+    <div class="container-fluid text-align-center">
+        <img class="company-banner" src="~/images/banner.png" />
+        <div class="wrapper">
+            <div class="content-page">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

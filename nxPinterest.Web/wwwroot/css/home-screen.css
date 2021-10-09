@@ -1,0 +1,212 @@
+﻿body {
+    color: #ffffff;
+    background-color: #000;
+}
+
+.page-header {
+    background-color: #343a40;
+    padding: 2%;
+    display:flex;
+}
+
+    .page-header .search-wrapper {
+        width: 100%;
+        position: relative;
+        margin-left: 2%;
+    }
+
+    .page-header  .company-banner-wrapper {
+        padding-top:6px;
+    }
+
+/*thumbnail design*/
+
+.gallery {
+    margin-top:1%;
+}
+
+.thumbnail-container {
+    display: inline-block;
+    margin: 5px;
+    width: 330px;
+}
+
+    .thumbnail-container a,
+    .thumbnail-container a:hover{
+        color: #ffffff
+    }
+
+    .thumbnail-container img {
+        width: 100%;
+        border-radius: 8px;
+    }
+
+    .thumbnail-container img:hover {
+        width: 400px;
+        opacity: 0.3;
+        cursor: pointer;
+    }
+
+    .thumbnail-container .text-wrapper {
+        position: absolute;
+        padding: 1%;
+        width:18%;
+    }
+
+    .add-image-container {
+        position: fixed;
+        bottom: 0;
+        margin-left: 90%;
+        margin-bottom: 5%;
+    }
+
+    .add-image-container a,
+    .add-image-container a:hover{
+       color: #ffffff
+    }
+
+.modal-registration {
+    width:950px;
+}
+
+.modal-registration .container {
+    display: flex;
+    padding-bottom: 5%;
+}
+
+.modal-registration .content {
+    margin-right: 3%;
+}
+
+
+.modal-registration .image-uploader-wrapper {
+    width: 420px;
+    border: 1px solid #e7ebf0;
+    border-radius: 3%;
+    padding: 1%;
+}
+
+    .modal-registration .image-uploader-wrapper img.main {
+        width: 100%;
+        border-radius: 3%;
+    }
+
+.modal-registration .input-control {
+    width: 420px;
+    margin-bottom: 5%;
+    border: none;
+    border-bottom: 1px solid #808080;
+    border-radius: 0;
+}
+
+    .modal-registration .input-control.input-title {
+        margin-top:10%;
+    }
+
+    .btn-default {
+        background-color: #343a40;
+        border: none;
+        border-radius: 20px;
+        position: relative;
+        color: #eef2f7
+    }
+
+        .btn-default:hover {
+            color: #ffffff;
+        }
+
+
+.tag-text {
+    font-weight:bold
+}
+
+.text-align-center {
+    text-align:center;
+}
+
+.text-black {
+    color:#000000;
+}
+
+.btn-save {
+    width: 230px;
+    height: 50px;
+}
+
+.modal-registration .thumbnail-wrapper {
+    width: 76px;
+    height: 50px;
+    border: none;
+    position: relative;
+    margin-top: 2%;
+    margin-right: 6%;
+    display: inline-block;
+}
+
+    .modal-registration .thumbnail-wrapper img.thumbnail {
+        width: 100px;
+        border-radius: 3%;
+    }
+
+.modal-registration .tag-control-container {
+    padding-bottom:5%;
+}
+
+.modal-registration .btn-save {
+    margin-left: 22%;
+}
+
+.modal {
+    position: absolute;
+    margin-top: 12%;
+    bottom: 0;
+    left: 0;
+    z-index: 10040;
+    overflow: auto;
+    overflow-y: auto;
+}
+
+
+
+/*bootstrap-tagsinput*/
+.bootstrap-tagsinput {
+    width: 100%;
+}
+
+.bootstrap-tagsinput {
+    background-color: rgb(255, 255, 255);
+    box-shadow: rgba(0, 0, 0, 0.075) 0px 1px 1px inset;
+    display: inline-block;
+    color: rgb(85, 85, 85);
+    vertical-align: middle;
+    max-width: 100%;
+    line-height: 45px;
+    cursor: text;
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(204, 204, 204);
+    border-image: initial;
+    padding: 4px 6px;
+    border-radius: 4px;
+}
+
+    .bootstrap-tagsinput .tag {
+        margin-right: 2px;
+        color: white;
+    }
+
+.label-info {
+    background-color: #343a40;
+    padding: 2% 5%;
+    background-color: #343a40;
+    border-radius: 5px;
+}
+
+.bootstrap-tagsinput .tag [data-role="remove"] {
+    margin-left: 18px;
+}
+
+.bootstrap-tagsinput .tag [data-role="remove"]:after {
+    content: "\f2ed";
+    font-family: 'Font Awesome 5 Free';
+}
