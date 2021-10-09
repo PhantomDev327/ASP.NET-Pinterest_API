@@ -1,1 +1,3 @@
-# nxPinterest
+# pinterestライクに社内の写真を管理できるWebアプリケーション
+Azure cognitive serviceを使用して写真の解析
+Azure cognitive searchを使用して類似写真の検索
