@@ -1,0 +1,27 @@
+﻿@model nxPinterest.Services.Models.Request.RegistrationRequest
+@{
+    ViewData["Title"] = "Register";
+    Layout = "~/Views/Shared/_LoginLayout.cshtml";
+}
+
+<div class="content">
+    <div class="card certification-card">
+        <div class="card-body">
+            <div class="form-text text-danger">
+                @if (ViewData["custom-validation-message"] != null)
+                {
+                    <span>@ViewData["custom-validation-message"]</span>
+                }
+            </div>
+            <form class="certification text-color-white" method="post" asp-action="Register" asp-controller="Account">
+                <input type="email" class="form-control input-control useremail" placeholder="メールアドレス" asp-for="Email" />
+                <div class="form-text text-danger">@Html.ValidationMessageFor(c => c.Email)</div>
+                <input type="password" class="form-control input-control password" placeholder="パスワード" asp-for="Password" />
+                <div class="form-text text-danger">@Html.ValidationMessageFor(c => c.Password)</div>
+                <input type="password" class="form-control input-control confirm-password" placeholder="Confirm Password" asp-for="ConfirmPassword" />
+                <div class="form-text text-danger">@Html.ValidationMessageFor(c => c.ConfirmPassword)</div>
+                <input type="submit" value="登録" class="btn btn-default btn-register" />
+            </form>
+        </div>
+    </div>
+</div>

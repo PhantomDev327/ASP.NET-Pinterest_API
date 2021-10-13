@@ -6,7 +6,7 @@
 
 .certification-card {
     width: 300px;
-    height: 400px;
+    min-height: 400px;
     margin: 0 auto;
     position: relative;
     margin-top: 2%;
@@ -16,10 +16,21 @@
     text-align:center;
 }
 
-img.company-banner {
-    position:relative;
-    margin-top: 8%;
+.text-register {
+    float: right;
+    position: relative;
+    margin-top: 28px;
+    color: #fff;
 }
+
+    .text-register:hover {
+        color: #fff;
+    }
+
+    img.company-banner {
+        position: relative;
+        margin-top: 8%;
+    }
 
 .certification {
     text-align: center;
@@ -68,7 +79,8 @@ img.company-banner {
     color: #eef2f7
 }
 
-.btn-login {
+.btn-login,
+.btn-register {
     width: 230px;
     height: 50px;
     margin-top: 20%;

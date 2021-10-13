@@ -116,12 +116,28 @@
         }
 
 
+
+.text-logout {
+    float: right;
+    position: relative;
+    margin-top: 28px;
+    color: #fff;
+}
+
+    .text-logout:hover {
+        color: #fff;
+    }
+
 .tag-text {
     font-weight:bold
 }
 
 .text-align-center {
     text-align:center;
+}
+
+.text-white {
+    
 }
 
 .text-black {
