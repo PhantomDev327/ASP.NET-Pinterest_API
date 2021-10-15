@@ -1,4 +1,5 @@
-﻿@{
+﻿@model nxPinterest.Web.Models.HomeViewModel
+@{
     ViewData["Title"] = "ホーム";
 }
 
@@ -11,4 +12,5 @@
 
 @{
     await Html.RenderPartialAsync("/Views/Shared/_ImageViewer.cshtml");
+    await Html.RenderPartialAsync("/Views/Shared/_ImageRegistration.cshtml", Model.ImageRegistrationRequests);
 }

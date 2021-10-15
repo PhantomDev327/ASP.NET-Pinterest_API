@@ -2,11 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using nxPinterest.Web.Models;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace nxPinterest.Web.Controllers
 {
@@ -22,7 +18,8 @@ namespace nxPinterest.Web.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            HomeViewModel vm = new HomeViewModel();
+            return View(vm);
         }
 
         public IActionResult Privacy()
