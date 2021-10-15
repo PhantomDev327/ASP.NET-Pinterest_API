@@ -1,5 +1,3 @@
-using System;
-
 namespace nxPinterest.Web.Models
 {
     public class ErrorViewModel

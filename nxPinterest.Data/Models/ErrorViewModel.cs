@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace nxPinterest.Data.Models
+﻿namespace nxPinterest.Data.Models
 {
     public class ErrorViewModel
     {

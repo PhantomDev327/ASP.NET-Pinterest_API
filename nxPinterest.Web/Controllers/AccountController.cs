@@ -1,13 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using nxPinterest.Data.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
-using nxPinterest.Services.Models;
-using Microsoft.AspNetCore.Identity;
-
-using nxPinterest.Data.Models;
 
 namespace nxPinterest.Web.Controllers
 {
@@ -38,7 +34,8 @@ namespace nxPinterest.Web.Controllers
                     var result = await _signInManager.PasswordSignInAsync(request.Email, request.Password, true, false);
                     if (result.Succeeded)
                         return RedirectToAction("Index", "Home");
-                    else {
+                    else
+                    {
                         throw new Exception("Incorrect User name or Password");
                     }
                 }
@@ -51,7 +48,8 @@ namespace nxPinterest.Web.Controllers
             return View("Certification", request);
         }
 
-        public async Task<IActionResult> LogOut() {
+        public async Task<IActionResult> LogOut()
+        {
             await this._signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }
