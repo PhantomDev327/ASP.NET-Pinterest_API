@@ -1,14 +1,6 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model nxPinterest.Data.Models.UserMedia
 
-
-@*
-    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
-*@
-
-
-<div class="modal fade" id="image-viewier-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="image-viewer-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-image-viewer" role="document">
         <div class="modal-content">
             <div class="modal-body">
@@ -19,30 +11,26 @@
                                 <div class="row">
                                     <div class="col">
                                         <div class="image-uploader-wrapper">
-                                            <img src="https://i.pinimg.com/originals/66/d9/f5/66d9f5afdc5337d3f9eac362b970c426.jpg" class="main" />
+                                            <img src="@Model.MediaUrl" class="main" />
                                         </div>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col">
-                                        <div class="thumbnail-wrapper">
-                                            <img src="https://i.pinimg.com/originals/66/d9/f5/66d9f5afdc5337d3f9eac362b970c426.jpg" class="thumbnail" />
-                                        </div>
-                                        <div class="thumbnail-wrapper">
-                                            <img src="https://i.pinimg.com/originals/66/d9/f5/66d9f5afdc5337d3f9eac362b970c426.jpg" class="thumbnail" />
-                                        </div>
-                                        <div class="thumbnail-wrapper">
-                                            <img src="https://i.pinimg.com/originals/66/d9/f5/66d9f5afdc5337d3f9eac362b970c426.jpg" class="thumbnail" />
-                                        </div>
-                                        <div class="thumbnail-wrapper">
-                                            <img src="https://i.pinimg.com/originals/66/d9/f5/66d9f5afdc5337d3f9eac362b970c426.jpg" class="thumbnail" />
-                                        </div>
+                                        @for (int i = 0; i < Model.UserMediaThumbnails.Count(); i++)
+                                        {
+                                            var userMediaThumbnail = Model.UserMediaThumbnails[i];
+
+                                            <div class="thumbnail-wrapper">
+                                                <img src="@userMediaThumbnail.MediaUrl" class="thumbnail" />
+                                            </div>
+                                        }
                                     </div>
                                 </div>
                             </div>
                             <div class="content">
-                                <input type="text" class="form-control input-control input-title" placeholder="田代歯科医院" />
-                                <textarea rows="3" class="form-control input-control input-explanation" placeholder="ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。"></textarea>
+                                <input type="text" class="form-control input-control input-title" placeholder="田代歯科医院" asp-for="MediaTitle"/>
+                                <textarea rows="3" class="form-control input-control input-explanation" placeholder="ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。" asp-for="MediaDescription"></textarea>
 
                                 <div class="tag-control-container">
                                     <p class="text-black tag-text">Project Tag</p>

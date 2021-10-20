@@ -1,16 +1,20 @@
 ﻿@model nxPinterest.Web.Models.HomeViewModel
 @{
     ViewData["Title"] = "ホーム";
+
+    IList<nxPinterest.Data.Models.UserMedia> userMediaList = Model.UserMediaList;
 }
 
 <div class="content gallery">
-    @for (int i = 0; i < 15; i++)
+    @for (int i = 0; i < userMediaList.Count(); i++)
     {
-        await Html.RenderPartialAsync("/Views/Shared/_HomeImageContainer.cshtml");
+
+        nxPinterest.Data.Models.UserMedia userMedia = userMediaList[i];
+
+        await Html.RenderPartialAsync("/Views/Shared/_HomeImageContainer.cshtml", userMedia);
     }
 </div>
 
 @{
-    await Html.RenderPartialAsync("/Views/Shared/_ImageViewer.cshtml");
     await Html.RenderPartialAsync("/Views/Shared/_ImageRegistration.cshtml", Model.ImageRegistrationRequests);
 }

@@ -1,21 +1,48 @@
-﻿
-@*
-    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model nxPinterest.Data.Models.UserMedia;
 
 <div class="thumbnail-container">
-    <a href="" data-toggle="modal" data-target="#image-viewier-modal">
+    <a href="" data-toggle="modal" onclick="onViewUserMediaDetails('@Model.MediaId')">
         <div class="text-wrapper">
             <div class="img-title">
-                <p>Facilisi morbi tempus iaculis...</p>
+                <p>@Model.MediaTitle</p>
             </div>
             <div class="img-description">
-                <p>Facilisi morbi tempus iaculis urna id volutpat lacus laoreet. Dui accumsan sit amet nulla facilisi morbi tempus iaculis...</p>
+                @{ 
+                    string description = Model.MediaDescription;
+                    if (description.Length > 150)
+                        description = description.Substring(0, 150) + "...";
+                }
+                <p>@description</p>
             </div>
 
         </div>
         <div class="img-container">
-            <img src="https://i.pinimg.com/originals/66/d9/f5/66d9f5afdc5337d3f9eac362b970c426.jpg" />
+            <img src="@Model.MediaUrl" />
         </div>
     </a>
 </div>
+
+<script>
+    function onViewUserMediaDetails(media_id) {
+        OnGetUserMediaDetails(media_id).then(function (html) {
+            $("#image-viewer-modal").remove();
+            $("body").append(html);
+            $("#image-viewer-modal").modal('show');
+        });
+    }
+
+    async function OnGetUserMediaDetails(media_id) {
+        var promise = await new Promise(function (resolve, reject) {
+            $.ajax({
+                url: "@Url.Action("GetUserMediaDetails", "Home")",
+                method: "Post",
+                data: { media_id },
+                success: function (sResult) {
+                    resolve(sResult);
+                }
+            });
+        });
+
+        return promise;
+    }
+</script>
