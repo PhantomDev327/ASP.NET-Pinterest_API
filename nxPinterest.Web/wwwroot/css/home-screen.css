@@ -207,13 +207,13 @@
 }
 
     .bootstrap-tagsinput .tag {
-        margin-right: 2px;
+        margin-right: 1px;
         color: white;
     }
 
 .label-info {
     background-color: #343a40;
-    padding: 2% 5%;
+    padding: 1% 2%;
     background-color: #343a40;
     border-radius: 5px;
 }
@@ -225,4 +225,28 @@
 .bootstrap-tagsinput .tag [data-role="remove"]:after {
     content: "\f2ed";
     font-family: 'Font Awesome 5 Free';
+}
+
+/* file input */
+
+.file-drop-zone {
+    margin:0;
+    padding: 0;
+}
+
+.file-preview .fileinput-remove {
+    display: none
+}
+
+.indicator-loader {
+    position: absolute;
+    left: 50%;
+    top: 45%;
+    z-index: 99999;
+}
+
+.section-pagination {
+    margin-top: 1%;
+    position: absolute;
+    left: 40%;
 }

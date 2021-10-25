@@ -1,54 +1,99 @@
 ﻿@model nxPinterest.Data.Models.UserMedia
 
+<script src="~/lib/bootstrap-fileinput/js/fileinput.min.js" asp-append-version="true"></script>
+<script src="~/lib/bootstrap-tagsinput/bootstrap-tagsinput.min.js" asp-append-version="true"></script>
+<script src="~/lib/bootstrap-fileinput/js/locales/LANG.js" asp-append-version="true"></script>
+
 <div class="modal fade" id="image-viewer-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-image-viewer" role="document">
-        <div class="modal-content">
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col">
-                        <div class="container">
-                            <div class="content text-align-center ">
-                                <div class="row">
-                                    <div class="col">
-                                        <div class="image-uploader-wrapper">
-                                            <img src="@Model.MediaUrl" class="main" />
+        <form method="post" id="update-user-media-form" enctype="multipart/form-data" asp-action="UpdateMediaFile" asp-controller="ImageManagement">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="container">
+                                <div class="content text-align-center ">
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="image-uploader-wrapper">
+                                               <input type="file" multiple class="form-control file" accept="image/*" name="Images"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            @for (int i = 0; i < Model.UserMediaThumbnails.Count(); i++)
+                                            {
+                                                var userMediaThumbnail = Model.UserMediaThumbnails[i];
+
+                                                <div class="thumbnail-wrapper">
+                                                    <img src="@userMediaThumbnail.MediaUrl" class="thumbnail" />
+                                                </div>
+                                            }
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="col">
-                                        @for (int i = 0; i < Model.UserMediaThumbnails.Count(); i++)
-                                        {
-                                            var userMediaThumbnail = Model.UserMediaThumbnails[i];
+                                <div class="content">
+                                    <input type="text" class="form-control input-control input-title" placeholder="田代歯科医院" asp-for="MediaTitle" />
+                                    <textarea rows="3" class="form-control input-control input-explanation" placeholder="ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。" asp-for="MediaDescription"></textarea>
 
-                                            <div class="thumbnail-wrapper">
-                                                <img src="@userMediaThumbnail.MediaUrl" class="thumbnail" />
-                                            </div>
-                                        }
+                                    <div class="tag-control-container">
+                                        <p class="text-black tag-text">Project Tag</p>
+                                        <input class="form-control text-black" data-role="tagsinput" asp-for="PhotoTags" />
                                     </div>
+
+                                    <div class="tag-control-container">
+                                        <p class="text-black tag-text">Photo Tag</p>
+                                        <input class="form-control text-black" data-role="tagsinput" value="@ViewBag.PhotoTags" />
+                                    </div>
+
+
+                                    <input type="button" value="写真を投稿" class="btn btn-default btn-save" />
                                 </div>
-                            </div>
-                            <div class="content">
-                                <input type="text" class="form-control input-control input-title" placeholder="田代歯科医院" asp-for="MediaTitle"/>
-                                <textarea rows="3" class="form-control input-control input-explanation" placeholder="ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。" asp-for="MediaDescription"></textarea>
-
-                                <div class="tag-control-container">
-                                    <p class="text-black tag-text">Project Tag</p>
-                                    <input class="form-control text-black" data-role="tagsinput" />
-                                </div>
-
-                                <div class="tag-control-container">
-                                    <p class="text-black tag-text">Photo Tag</p>
-                                    <input class="form-control text-black" data-role="tagsinput" />
-                                </div>
-
-
-                                <input type="submit" value="写真を投稿" class="btn btn-default btn-save" />
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
 </div>
+
+<script>
+        (function () {
+            function configureFileUploadControl() {
+                var imageUrl = '@Model.MediaUrl';
+
+                $('input[name="Images"]').fileinput({
+                    allowedFileTypes: ['image'],
+                    initialPreviewAsData: true,
+                    overwriteInitial: true,
+                    browseOnZoneClick: true,
+                    initialPreview: [
+                        imageUrl
+                    ],
+                    showUpload: false,
+                    showBrowse: false,
+                    showCaption: false,
+                    showRemove: false
+                });
+            }
+
+            $('input.btn-save').on('click', function () {
+                var formData = new FormData(document.querySelector('form'))
+
+                $.ajax({
+                    url: '@Url.Action("UploadMediaFile", "ImageManagement")',
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (sResponse) {
+                        window.location.reload();
+                    }
+                });
+            });
+
+           configureFileUploadControl();
+        }());
+</script>

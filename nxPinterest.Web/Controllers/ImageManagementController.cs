@@ -194,6 +194,17 @@ namespace nxPinterest.Web.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+        public async Task<IActionResult> UpdateMediaFile(ImageRegistrationRequests request) {
+            try
+            {
+
+            }
+            catch (Exception ex) {
+                throw ex;
+            }
+            return RedirectToAction("Index", "Home");
+        }
+
         private async Task UploadThumbnails(IFormFile _imageFile, int media_id) {
             try
             {

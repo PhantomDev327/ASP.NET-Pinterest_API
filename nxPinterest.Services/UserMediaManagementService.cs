@@ -25,6 +25,8 @@ namespace nxPinterest.Services
                                      .Include(c => c.UserMediaThumbnails)
                                      .Where(c => c.UserId.Equals(userId)));
 
+           
+
             if (!string.IsNullOrEmpty(searchKey))
             {
                 query = query.Where(c => c.MediaTitle.Trim().ToLower().Contains(searchKey.Trim().ToLower()) ||
@@ -32,9 +34,9 @@ namespace nxPinterest.Services
             }
 
             IList<Data.Models.UserMedia> userMediaList = await query.OrderByDescending(c => c.MediaId)
-                                                                    //.Skip((pageSize - 1) * pageSize)
-                                                                    //.Take(pageSize)
                                                                     .ToListAsync();
+
+
             return userMediaList;
         }
 
