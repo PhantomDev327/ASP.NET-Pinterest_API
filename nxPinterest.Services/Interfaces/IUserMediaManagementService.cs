@@ -8,7 +8,8 @@ namespace nxPinterest.Services.Interfaces
 {
     public interface IUserMediaManagementService
     {
-        Task<IList<Data.Models.UserMedia>> ListUserMediaAsyc(int pageIndex = 1, int pageSize = 5, string userId = "", string searchKey = "");
+        Task<IList<Data.Models.UserMedia>> ListUserMediaAsyc(string userId = "");
+        Task<IList<Data.Models.UserMedia>> SearchUserMediaAsync(string searchKey, string userId);
         Task<Data.Models.UserMedia> GetUserMediaDetailsByIDAsync(int media_id);
     }
 }

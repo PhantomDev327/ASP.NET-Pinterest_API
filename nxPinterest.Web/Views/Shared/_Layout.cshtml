@@ -52,7 +52,14 @@
                     <img class="company-banner" src="~/images/banner.png" />
                 </div>
                 <div class="search-wrapper">
-                    <input type="text" class="form-control" placeholder="検索" asp-for="SearchKey" />
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="検索" asp-for="SearchKey" autocomplete="off"/>
+                        <div class="input-group-append">
+                            <button class="btn btn-secondary btn-search">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
             <a href="/account/logout" class="text-logout">
@@ -96,6 +103,24 @@
         function hideLoader() {
             $('.indicator-loader').fadeOut("slow");
         }
+
+        $.urlParam = function (name) {
+            var results = new RegExp('[\?&]' + name + '=([^&#]*)')
+                .exec(window.location.search);
+
+            return (results !== null) ? results[1] || 0 : false;
+        }
+
+        $('.btn-search').on('click', function () {
+            var pageIndex = $.urlParam('pageIndex');
+            var searchKey = $('input[name="SearchKey"]').val();
+
+            if (pageIndex == false)
+                pageIndex = 1;
+
+            var url = '@Url.Action("Index","Home")' + "?pageIndex=" + pageIndex + "&searchKey=" + searchKey;
+            window.location = url;
+        });
 
         $(document).ready(function () {
             hideLoader();

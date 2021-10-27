@@ -26,7 +26,11 @@ namespace nxPinterest.Web.Controllers
         public async Task<IActionResult> Index(int pageIndex = 1, string searchKey = "")
         {
             HomeViewModel vm = new HomeViewModel();
-            vm.UserMediaList = await this.userMediaManagementService.ListUserMediaAsyc(pageIndex, pageSize, this.UserId, searchKey);
+
+            if (string.IsNullOrEmpty(searchKey))
+                vm.UserMediaList = await this.userMediaManagementService.ListUserMediaAsyc(this.UserId);
+            else
+                vm.UserMediaList = await this.userMediaManagementService.SearchUserMediaAsync(searchKey, this.UserId);
 
             int totalPages = (int)System.Math.Ceiling((decimal)(vm.UserMediaList.Count / (decimal)pageSize));
             int skip = (pageIndex - 1) * pageSize;
@@ -37,6 +41,7 @@ namespace nxPinterest.Web.Controllers
 
             vm.PageIndex = pageIndex;
             vm.TotalPages = totalPages;
+            vm.SearchKey = searchKey;
 
             return View(vm);
         }

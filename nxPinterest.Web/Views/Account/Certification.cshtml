@@ -8,9 +8,15 @@
     <div class="card certification-card">
         <div class="card-body">
             <div class="form-text text-danger">
-                @if (ViewData["custom-validation-message"] != null)
+                @if (TempData["custom-validation-message"] != null)
                 {
-                    <span>@ViewData["custom-validation-message"]</span>
+                    <span>@TempData["custom-validation-message"]</span>
+                }
+            </div>
+            <div class="form-text text-success">
+                @if (TempData["custom-validation-success-message"] != null)
+                {
+                    <span>@TempData["custom-validation-success-message"]</span>
                 }
             </div>
             <form class="certification text-color-white" method="post" asp-action="Certify" asp-controller="Account">
@@ -22,7 +28,7 @@
                 <div class="form-text text-danger">
                     @Html.ValidationMessageFor(c => c.Password)
                 </div>
-                <a class="text-color-default" href="">
+                <a class="text-color-default" href="/account/forgot-password">
                     <h5>パスワードを忘れた場合</h5>
                 </a>
                 <input type="submit" value="ログイン" class="btn btn-default btn-login" />

@@ -9,6 +9,7 @@
 
     var prevDisabled = !hasPreviousPage ? "disabled" : "";
     var nextDisabled = !hasNextPage ? "disabled" : "";
+    string searchKey = Model.SearchKey;
 }
 
 
@@ -32,21 +33,21 @@
     <div style="text-align:center">
         <span style="color:dimgrey">@Model.PageIndex / @Model.TotalPages ページ (@ViewBag.ItemCount 件)</span>
     </div>
-    <a href="@Url.Action("Index", "Home", new { pageIndex = 1 })" class="btn btn-secondary @prevDisabled">
+    <a href="@Url.Action("Index", "Home", new { pageIndex = 1, searchKey})" class="btn btn-secondary @prevDisabled">
         最初
     </a>
 
 
-    <a href="@Url.Action("Index", "Home", new { pageIndex = Model.PageIndex - 1 })" class="btn btn-secondary @prevDisabled">
+    <a href="@Url.Action("Index", "Home", new { pageIndex = (Model.PageIndex - 1), searchKey })" class="btn btn-secondary @prevDisabled">
         前へ
     </a>
 
 
-    <a href="@Url.Action("Index", "Home", new { pageIndex = Model.PageIndex + 1 })" class="btn btn-secondary @nextDisabled">
+    <a href="@Url.Action("Index", "Home", new { pageIndex = (Model.PageIndex + 1), searchKey })" class="btn btn-secondary @nextDisabled">
         次へ
     </a>
 
-    <a href="@Url.Action("Index", "Home", new { pageIndex = Model.TotalPages })" class="btn btn-secondary @nextDisabled">
+    <a href="@Url.Action("Index", "Home", new { pageIndex = Model.TotalPages, searchKey })" class="btn btn-secondary @nextDisabled">
         最後
     </a>
 </div>

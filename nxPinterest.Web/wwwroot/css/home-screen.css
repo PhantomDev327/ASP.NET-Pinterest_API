@@ -222,10 +222,10 @@
     margin-left: 18px;
 }
 
-.bootstrap-tagsinput .tag [data-role="remove"]:after {
-    content: "\f2ed";
-    font-family: 'Font Awesome 5 Free';
-}
+    .bootstrap-tagsinput .tag [data-role="remove"]:after {
+        content: "\f410";
+        font-family: 'Font Awesome 5 Free';
+    }
 
 /* file input */
 

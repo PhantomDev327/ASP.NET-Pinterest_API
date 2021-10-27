@@ -20,6 +20,9 @@
                 <div class="form-text text-danger">@Html.ValidationMessageFor(c => c.Password)</div>
                 <input type="password" class="form-control input-control confirm-password" placeholder="Confirm Password" asp-for="ConfirmPassword" />
                 <div class="form-text text-danger">@Html.ValidationMessageFor(c => c.ConfirmPassword)</div>
+                <a class="text-color-default" href="/account/certification">
+                    <h5>ログインへ</h5>
+                </a>
                 <input type="submit" value="登録" class="btn btn-default btn-register" />
             </form>
         </div>

@@ -53,6 +53,6 @@
         public const double tag_confidence_threshold = 0.80;        // Tag confidence threshold for search
         public const int displayMaxItems_search = 250;
         public const int pageSize_manage = 100;
-        public const int pageSize_regist = 3;
+        public const int pageSize_regist = 15;
     }
 }

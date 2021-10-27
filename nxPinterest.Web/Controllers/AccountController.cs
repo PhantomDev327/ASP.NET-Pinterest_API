@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using nxPinterest.Services.Models;
 using nxPinterest.Data.Models;
 using System;
 using System.Linq;
@@ -60,6 +61,44 @@ namespace nxPinterest.Web.Controllers
             return View(vm);
         }
 
+        [Route("Account/Forgot-Password")]
+        public IActionResult ForgotPassword() {
+            Services.Models.Request.ForgotPasswordRequest vm = new Services.Models.Request.ForgotPasswordRequest();
+            return View(vm);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(Services.Models.Request.ForgotPasswordRequest request) {
+            try
+            {
+                bool isValid = ModelState.IsValid;
+
+                if (isValid)
+                {
+                    var user = await this._userManager.FindByEmailAsync(request.Email);
+                    if (user == null) throw new Exception("User email not found!");
+
+                    var result = await this._userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
+                    if (result.Succeeded)
+                        TempData["custom-validation-success-message"] = "Password has been successfully changed!";
+                    else
+                        throw new Exception(result.Errors.FirstOrDefault().Description);
+                }
+                else
+                {
+                    var errMsgs = ModelState.SelectMany(c => c.Value.Errors);
+                    throw new Exception(errMsgs.First().ErrorMessage);
+                }
+              
+                return Redirect(nameof(Certification));
+            }
+            catch (Exception ex)
+            {
+                TempData["custom-validation-message"] = ex.Message;
+                return Redirect("/account/forgot-password");
+            }
+        }
+
         [HttpPost]
         public async Task<IActionResult> Register(Services.Models.Request.RegistrationRequest vm)
         {
@@ -73,18 +112,19 @@ namespace nxPinterest.Web.Controllers
                         Email = vm.Email
                     }, vm.Password);
 
-                    if (result.Succeeded)
+                    if (result.Succeeded) {
+                        TempData["custom-validation-success-message"] = "User has been successfully registered!";
                         return RedirectToAction(nameof(Certification));
+                    }
                     else
                     {
                         throw new Exception(result.Errors.FirstOrDefault().Description);
                     }
-
                 }
             }
             catch (Exception ex)
             {
-                ViewData["custom-validation-message"] = ex.Message;
+                TempData["custom-validation-message"] = ex.Message;
             }
 
             return View(vm);

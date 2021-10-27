@@ -80,7 +80,8 @@
 }
 
 .btn-login,
-.btn-register {
+.btn-register,
+.btn-submit {
     width: 230px;
     height: 50px;
     margin-top: 20%;
