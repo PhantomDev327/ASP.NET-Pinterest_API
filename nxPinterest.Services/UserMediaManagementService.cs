@@ -11,6 +11,7 @@ using Azure;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
 using nxPinterest.Data.Models;
+using nxPinterest.Services.Models.Response;
 
 namespace nxPinterest.Services
 {
@@ -26,8 +27,8 @@ namespace nxPinterest.Services
         public async Task<IList<Data.Models.UserMedia>> ListUserMediaAsyc(string userId = "")
         {
             var query = (this._context.UserMedia.AsNoTracking()
-                                     .Include(c => c.UserMediaThumbnails)
-                                     .Where(c => c.UserId.Equals(userId)));
+                                     .Where(c => c.UserId.Equals(userId) &&
+                                                 c.IsPrimary.Equals(false)));
 
 
             IList<Data.Models.UserMedia> userMediaList = await query.OrderByDescending(c => c.MediaId)
@@ -37,7 +38,8 @@ namespace nxPinterest.Services
             return userMediaList;
         }
 
-        public async Task<IList<Data.Models.UserMedia>> SearchUserMediaAsync(string searchKey, string userId) {
+        public async Task<IList<Data.Models.UserMedia>> SearchUserMediaAsync(string searchKey, string userId)
+        {
             try
             {
                 Uri endpoint = new Uri(dev_Settings.cognitivesearch_endpoint);
@@ -53,16 +55,18 @@ namespace nxPinterest.Services
                 SearchResults<SearchIndexUserMediaTable> response = client.Search<SearchIndexUserMediaTable>(searchKey, options);
                 IList<Data.Models.UserMedia> searchResult = new List<Data.Models.UserMedia>();
 
-                if (response != null) {
+                if (response != null)
+                {
 
-                    foreach (SearchResult<SearchIndexUserMediaTable> result in response.GetResults()) {
+                    foreach (SearchResult<SearchIndexUserMediaTable> result in response.GetResults())
+                    {
                         string key = string.Format("{0}|{1}", result.Document.PartitionKey, result.Document.RowKey);
 
                         var userMediaQueryResult = (from usm in this._context.UserMedia
-                                                  join mid in this._context.MediaId
-                                                  on usm.MediaId equals mid.Sql_id
-                                                  where mid.Storage_table == key
-                                                  select usm)
+                                                    join mid in this._context.MediaId
+                                                    on usm.MediaId equals mid.Sql_id
+                                                    where mid.Storage_table == key
+                                                    select usm)
                                                   .FirstOrDefault();
 
                         if (userMediaQueryResult != null)
@@ -80,14 +84,32 @@ namespace nxPinterest.Services
             }
         }
 
-        public async Task<Data.Models.UserMedia> GetUserMediaDetailsByIDAsync(int media_id) {
+        public async Task<UserMediaDetailViewModel> GetUserMediaDetailsByIDAsync(int media_id)
+        {
 
             Data.Models.UserMedia userMedia = await (this._context.UserMedia.AsNoTracking()
-                                             .Include(c => c.UserMediaThumbnails)
                                              .FirstOrDefaultAsync(c => c.MediaId.Equals(media_id)));
-            return userMedia;
 
+            UserMediaDetailViewModel result = new UserMediaDetailViewModel();
+
+            IList<UserMedia> mediaList = new List<UserMedia>();
+
+            if (userMedia != null)
+            {
+                var query = await (this._context.UserMedia.AsNoTracking()
+                             .Where(c => c.MediaTitle.Equals(userMedia.MediaTitle) &&
+                                         c.MediaDescription.Equals(userMedia.MediaDescription) &&
+                                         c.IsPrimary.Equals(true)))
+                             .ToListAsync();
+
+                mediaList = query;
+            }
+
+            result.UserMediaDetail = userMedia;
+            result.UserMediaList = mediaList;
+
+            return result;
         }
 
-}
+    }
 }

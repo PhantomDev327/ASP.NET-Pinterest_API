@@ -70,29 +70,5 @@ namespace nxPinterest.Utils
                 return null;
             }
         }
-
-        public static string AddImageInfoToTag_json(string tags_json, UserMediaThumbnails thumbnails, string userId)
-        {
-
-            try
-            {
-                ImageAnalysisJSON imageAnalysisJSON = JsonConvert.DeserializeObject<ImageAnalysisJSON>(tags_json);
-                UserMediaJSON userMediaJSON = new UserMediaJSON();
-
-                userMediaJSON.UserId = userId;
-                userMediaJSON.MediaFileName = thumbnails.MediaFileName;
-                userMediaJSON.MediaFileType = thumbnails.MediaFileType;
-                userMediaJSON.MediaUrl = thumbnails.MediaUrl;
-                userMediaJSON.DateTimeUploaded = thumbnails.DateTimeUploaded;
-                userMediaJSON.Tags = imageAnalysisJSON.Tags;
-
-                return JsonConvert.SerializeObject(userMediaJSON, Formatting.None);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"addImageInfo_json Error: {e.Message}");
-                return null;
-            }
-        }
     }
 }

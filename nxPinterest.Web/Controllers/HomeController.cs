@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using nxPinterest.Services.Models.Response;
 using nxPinterest.Web.Models;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -48,8 +49,8 @@ namespace nxPinterest.Web.Controllers
 
         [HttpPost]
         public async Task<IActionResult> GetUserMediaDetails(int media_id) {
-            Data.Models.UserMedia userMedia = await this.userMediaManagementService.GetUserMediaDetailsByIDAsync(media_id);
-            string[] tags = userMedia.Tags.Split('|');
+            UserMediaDetailViewModel result = await this.userMediaManagementService.GetUserMediaDetailsByIDAsync(media_id);
+            string[] tags = result.UserMediaDetail.Tags.Split('|');
             IList<string> photo_tags = new List<string>();
 
             for (int i = 0; i < tags.Count(); i++) {
@@ -60,7 +61,7 @@ namespace nxPinterest.Web.Controllers
 
             ViewBag.PhotoTags = string.Join(',', photo_tags.ToArray());
 
-            return PartialView("/Views/Shared/_ImageViewer.cshtml", userMedia);
+            return PartialView("/Views/Shared/_ImageViewer.cshtml", result);
         }
 
         public IActionResult Privacy()

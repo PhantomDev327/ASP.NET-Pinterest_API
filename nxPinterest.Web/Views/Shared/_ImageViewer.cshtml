@@ -1,4 +1,9 @@
-﻿@model nxPinterest.Data.Models.UserMedia
+﻿@using nxPinterest.Data.Models; 
+@model nxPinterest.Services.Models.Response.UserMediaDetailViewModel
+
+@{ 
+    UserMedia primary_image_detail = Model.UserMediaList.FirstOrDefault(c => c.MediaFileName.Equals(Model.UserMediaDetail.MediaFileName));
+}
 
 <script src="~/lib/bootstrap-fileinput/js/fileinput.min.js" asp-append-version="true"></script>
 <script src="~/lib/bootstrap-tagsinput/bootstrap-tagsinput.min.js" asp-append-version="true"></script>
@@ -22,24 +27,26 @@
                                     </div>
                                     <div class="row">
                                         <div class="col">
-                                            @for (int i = 0; i < Model.UserMediaThumbnails.Count(); i++)
-                                            {
-                                                var userMediaThumbnail = Model.UserMediaThumbnails[i];
+                                            <div class="thumbnail-section-wrapper">
+                                                @for (int i = 0; i < Model.UserMediaList.Count(); i++)
+                                                {
+                                                    var userMediaThumbnail = Model.UserMediaList[i];
 
-                                                <div class="thumbnail-wrapper">
-                                                    <img src="@userMediaThumbnail.MediaUrl" class="thumbnail" />
-                                                </div>
-                                            }
+                                                    <div class="thumbnail-wrapper">
+                                                        <img src="@userMediaThumbnail.MediaUrl" class="thumbnail" />
+                                                    </div>
+                                                }
+                                            </div>   
                                         </div>
                                     </div>
                                 </div>
                                 <div class="content">
-                                    <input type="text" class="form-control input-control input-title" placeholder="田代歯科医院" asp-for="MediaTitle" />
-                                    <textarea rows="3" class="form-control input-control input-explanation" placeholder="ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。" asp-for="MediaDescription"></textarea>
+                                    <input type="text" class="form-control input-control input-title" placeholder="田代歯科医院" asp-for="UserMediaDetail.MediaTitle" />
+                                    <textarea rows="3" class="form-control input-control input-explanation" placeholder="ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。" asp-for="UserMediaDetail.MediaDescription"></textarea>
 
                                     <div class="tag-control-container">
                                         <p class="text-black tag-text">Project Tag</p>
-                                        <input class="form-control text-black" data-role="tagsinput" asp-for="PhotoTags" />
+                                        <input class="form-control text-black" data-role="tagsinput" asp-for="UserMediaDetail.PhotoTags" />
                                     </div>
 
                                     <div class="tag-control-container">
@@ -62,7 +69,7 @@
 <script>
         (function () {
             function configureFileUploadControl() {
-                var imageUrl = '@Model.MediaUrl';
+                var imageUrl = '@primary_image_detail.MediaUrl';
 
                 $('input[name="Images"]').fileinput({
                     allowedFileTypes: ['image'],

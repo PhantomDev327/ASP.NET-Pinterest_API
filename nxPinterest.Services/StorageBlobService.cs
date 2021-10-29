@@ -62,7 +62,7 @@ namespace nxPinterest.Services
             }
         }
 
-        public async Task<CloudBlockBlob> UploadImageBlobAsync(string BlobName, string ContainerName, IFormFile file)
+        public async Task<CloudBlockBlob> UploadImageBlobAsync(string BlobName, string ContainerName, string filePath)
         {
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             CloudBlobContainer container = blobClient.GetContainerReference(ContainerName.ToLower());
@@ -71,10 +71,10 @@ namespace nxPinterest.Services
             try
             {
                 await container.CreateIfNotExistsAsync(BlobContainerPublicAccessType.Container, null, null);
-
                 using (var ms = new MemoryStream())
                 {
-                    await file.CopyToAsync(ms);
+                    FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+                    await fs.CopyToAsync(ms);
                     ms.Seek(0, SeekOrigin.Begin);
                     await blockBlob.UploadFromStreamAsync(ms);
                 }

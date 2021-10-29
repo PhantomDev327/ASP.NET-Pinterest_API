@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <Folder Include="Models\Generic\" />
-    <Folder Include="Models\Response\" />
   </ItemGroup>
 
   <ItemGroup>

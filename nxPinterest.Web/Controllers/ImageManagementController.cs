@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using nxPinterest.Data;
 using nxPinterest.Data.Models;
@@ -11,6 +12,7 @@ using nxPinterest.Utils;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,11 +25,16 @@ namespace nxPinterest.Web.Controllers
         private readonly ILogger<HomeController> _logger;
         private StorageBlobService blobService;
         private readonly ApplicationDbContext _context;
+        private readonly Models.DestinationPathModel _destinationPathModel;
         private Base64stringUtility encode = new Base64stringUtility("UTF-8");
-        public ImageManagementController(ILogger<HomeController> logger, ApplicationDbContext context)
+        public ImageManagementController(ILogger<HomeController> logger,
+                                         IOptions<Models.DestinationPathModel> destinationPathModel,
+                                         ApplicationDbContext context)
         {
             this._logger = logger;
             this._context = context;
+            this._destinationPathModel = destinationPathModel.Value;
+
             blobService = new StorageBlobService();
         }
 
@@ -42,148 +49,68 @@ namespace nxPinterest.Web.Controllers
                     string media_title = request.Title;
                     string media_desc = request.Description;
                     int userMediaId = 0;
-                    IList<IFormFile> images = request.Images;
+                    IList<IFormFile> uploaded_images = request.Images;
                     string projectTags = request.ProjectTags;
 
                     IList<Web.Models.FileInfo> _files = new List<Web.Models.FileInfo>();
-                    for (int i = 0; i < images.Count; i++) {
+                    for (int i = 0; i < uploaded_images.Count; i++)
+                    {
 
                         Web.Models.FileInfo _info = new Web.Models.FileInfo();
 
-                        IFormFile _imageFile = images[i];
+                        IFormFile _imageFile = uploaded_images[i];
 
                         MemoryStream ms = new MemoryStream();
                         _imageFile.CopyTo(ms);
 
                         Bitmap map = new Bitmap(ms);
 
-                        _info.File = _imageFile;
-                        _info.Width = map.Width;
-                        _info.Height = map.Height;
+                        Image primary_image = resizeImage((Image)map, new Size(1920, 1080));
+                        Image secondary_image = resizeImage((Image)map, new Size(600, 600));
+
+                        byte[] primary_image_bytes = ConvertImageToBytes(primary_image);
+                        byte[] secondary_image_bytes = ConvertImageToBytes(secondary_image);
+
+                        string containerName = Services.dev_Settings.blob_containerName_image;
+                        string primary_image_path = Path.Combine(this._destinationPathModel.PrimaryImagePath, GetFileName(containerName, Path.GetFileName(_imageFile.FileName)));
+                        string secondary_image_path = Path.Combine(this._destinationPathModel.SecondaryImagePath, GetFileName(containerName, Path.GetFileName(_imageFile.FileName)));
+
+                        await System.IO.File.WriteAllBytesAsync(primary_image_path, primary_image_bytes);
+                        await System.IO.File.WriteAllBytesAsync(secondary_image_path, secondary_image_bytes);
+
+                        _info.PrimaryImagePath = primary_image_path;
+                        _info.SecondaryImagePath = secondary_image_path;
+                        _info.CurrentFile = _imageFile;
 
                         _files.Add(_info);
                     }
-                    _files = _files
-                                .OrderByDescending(c => c.Width)
-                                .ThenBy(c => c.Height)
-                                .ToList();
+
 
                     for (int i = 0; i < _files.Count; i++)
                     {
-                        IFormFile _imageFile = _files[i].File;
+                        Web.Models.FileInfo fileInfo = _files[i];
 
+                        string primary_image_filename = fileInfo.PrimaryImagePath;
+                        string secondary_image_filename = fileInfo.SecondaryImagePath;
 
-                        // Upload image file to Azure Blob
                         string containerName = Services.dev_Settings.blob_containerName_image;
-                        string fileName = _imageFile.FileName;
-
-                        // If same name file exist, change file name.
-                        blobService.CreateContainerIfNotExistsAsync(containerName);
-                        var existFiles = blobService.GetBlobFileList(containerName);
-                        if (existFiles.Result != null)
-                        {
-                            foreach (var existfile in existFiles.Result)
-                            {
-                                if (fileName.Equals(existfile.ToString()))
-                                {
-                                    fileName = DateTime.Now.ToString("yyyyMMddHHmmss_") + fileName;
-                                    break;
-                                }
-                            }
-                        }
-
-                        // Upload file (no Validation)
-                        Stream imageStream = _imageFile.OpenReadStream();
-                        var result = blobService.UploadImageBlobAsync(fileName, containerName, (IFormFile)_imageFile);
-                        string tagsString, tagsJson;
                         string[] ids = new string[3];
 
-                        if (result != null)
-                        {
-                            if (i == 0)
-                            {
 
-                                ComputerVisionService cv = new ComputerVisionService();
-                                UserMedia userMedia = new UserMedia();
+                        UserMedia primary_image_user_media = await InsertIntoUserMedia(primary_image_filename, containerName, primary_image_filename, media_title, media_desc, projectTags, true);
+                        ids[0] = InsertOnCosmosDB(primary_image_user_media);
+                        ids[1] = InsertOnUserMediaStorageTable(primary_image_user_media);
+                        ids[2] = InsertOnUserMediaBlob(primary_image_user_media);
+                        InsertOnMediaId(primary_image_user_media, ids);
 
-                                // 2 patterns in the prototype
-                                tagsString = cv.GetImageTag_str(result.Result.Uri.ToString());          // Get as parsable string -> 1) SQL and 3) Table
-                                tagsJson = cv.GetImageTag_json(result.Result.Uri.ToString());           // Get as json            -> 2) Cosmos and 4) Blob 
+                        ids = new string[3];
 
-                                // Create Model data
-                                userMedia.UserId = this.UserId;                                         // User ID
-                                userMedia.MediaTitle = media_title;
-                                userMedia.MediaDescription = media_desc;
-                                userMedia.MediaUrl = result.Result.Uri.ToString();                      // URL of the blob
-                                userMedia.MediaFileName = result.Result.Name;                           // File name
-                                userMedia.MediaFileType = result.Result.Name.Split('.').Last();         // File type
-                                userMedia.Tags = tagsString;                                            // Tags (Parsable string)
-                                userMedia.PhotoTags = projectTags;
+                        UserMedia secondary_image_user_media = await InsertIntoUserMedia(primary_image_filename, containerName, secondary_image_filename, media_title, media_desc, projectTags, false);
+                        ids[0] = InsertOnCosmosDB(secondary_image_user_media);
+                        ids[1] = InsertOnUserMediaStorageTable(secondary_image_user_media);
+                        ids[2] = InsertOnUserMediaBlob(secondary_image_user_media);
+                        InsertOnMediaId(secondary_image_user_media, ids);
 
-                                // Add image info to json (same as model)
-                                tagsJson = ImageAnalysisUtility.AddImageInfoToTag_json(tagsJson, userMedia);
-
-                                // ---------- 1) [SQL database] (as SQL schema Record) ---------- 
-                                _context.UserMedia.Add(userMedia);
-
-                                await _context.SaveChangesAsync();
-
-                                userMediaId = userMedia.MediaId;
-
-
-                                // ----------  2) [Azure Cosmos DB] (as json Item) ---------- 
-                                CosmosDbService cosmosDbService = new CosmosDbService();
-                                bool insertImageResult = await cosmosDbService.InsertOneItemAsync(dev_Settings.cosmos_databaseName, dev_Settings.cosmos_containerName, tagsJson);
-                                if (!insertImageResult) throw new Exception("Cosmos DB への登録に失敗しましたk");
-
-                                ids[0] = cosmosDbService.inserted_id;  // [TEST] for Corresponding IDs
-
-                                // ---------- 3) [Azure Storage Table] (as NoSQL Entity) ----------
-
-                                UserMediaStorageTableEntity userMediaStorageTableEntity = new UserMediaStorageTableEntity();
-                                userMediaStorageTableEntity.UserId = userMedia.UserId;
-                                userMediaStorageTableEntity.MediaUrl = userMedia.MediaUrl;
-                                userMediaStorageTableEntity.MediaFileName = userMedia.MediaFileName;
-                                userMediaStorageTableEntity.MediaFileType = userMedia.MediaFileType;
-                                userMediaStorageTableEntity.Tags = userMedia.Tags;
-                                userMediaStorageTableEntity.DateTimeUploaded = userMedia.DateTimeUploaded;
-
-                                StorageTableService tableService = new StorageTableService();
-                                insertImageResult = await tableService.InsertOrMerageEntityAsync(userMediaStorageTableEntity);
-                                if (!insertImageResult) throw new Exception("Storage Table への登録に失敗しました");
-
-                                ids[1] = tableService.inserted_id;      // [TEST] for Corresponding IDs
-
-
-                                // ---------- 4) [Azure Storage Blob] (as json file) ----------
-
-                                string datetimeStr = DateTime.Now.ToString("yyyyMMddHHmmss_");
-
-                                UserMediaBlobJSON userMediaBlobJSON = JsonConvert.DeserializeObject<UserMediaBlobJSON>(tagsJson);
-                                userMediaBlobJSON.Key = (encode.Encode(userMedia.UserId + datetimeStr + userMedia.MediaFileName)).Replace("+", "=");
-                                tagsJson = JsonConvert.SerializeObject(userMediaBlobJSON, Formatting.None);
-                                fileName = "UserMedia/" + userMedia.UserId + "/" + datetimeStr + userMedia.MediaFileName + ".json";
-
-                                insertImageResult = await blobService.StoreJsonBlobAsync(fileName, dev_Settings.blob_containerName_json, tagsJson);
-                                if (!insertImageResult) throw new Exception("Storage Blob への登録に失敗しました");
-
-                                ids[2] = fileName;      // [TEST] for Corresponding IDs
-
-                                // ---------- Save corresponding IDs (use for edit and delete) ----------
-
-                                MediaId mediaId = new MediaId();
-                                mediaId.Sql_id = userMedia.MediaId;
-                                mediaId.Cosmos_db = ids[0];
-                                mediaId.Storage_table = ids[1];
-                                mediaId.Storage_blob = ids[2];
-
-                                _context.MediaId.Add(mediaId);
-                                await _context.SaveChangesAsync();
-                            }
-                            else {
-                                await UploadThumbnails(_imageFile, userMediaId);
-                            } 
-                        }
                     }
                 }
                 catch (Exception ex)
@@ -194,97 +121,186 @@ namespace nxPinterest.Web.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        public async Task<IActionResult> UpdateMediaFile(ImageRegistrationRequests request) {
-            try
+        private MemoryStream LoadFileAsMemoryStream(string filePath)
+        {
+            MemoryStream ms = new MemoryStream();
+            using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
             {
+                byte[] bytes = new byte[fs.Length];
+                fs.Read(bytes, 0, (int)fs.Length);
+                ms.Write(bytes, 0, (int)fs.Length);
+            }
 
-            }
-            catch (Exception ex) {
-                throw ex;
-            }
-            return RedirectToAction("Index", "Home");
+            return ms;
         }
 
-        private async Task UploadThumbnails(IFormFile _imageFile, int media_id) {
+        private string GetFileName(string containerName, string fileName)
+        {
+            blobService.CreateContainerIfNotExistsAsync(containerName);
+            var existFiles = blobService.GetBlobFileList(containerName);
+            if (existFiles.Result != null)
+            {
+                foreach (var existfile in existFiles.Result)
+                {
+                    if (fileName.Equals(existfile.ToString()))
+                    {
+                        fileName = DateTime.Now.ToString("yyyyMMddHHmmss_") + fileName;
+                        break;
+                    }
+                }
+            }
+
+            return fileName;
+        }
+
+        private byte[] ConvertImageToBytes(Image img)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                img.Save(ms, System.Drawing.Imaging.ImageFormat.Gif);
+                return ms.ToArray();
+            }
+        }
+
+        private async Task<UserMedia> InsertIntoUserMedia(string fileName, string containerName, string filePath, string media_title, string media_desc, string projectTags, bool isPrimary)
+        {
+
+            var result = blobService.UploadImageBlobAsync(Path.GetFileName(fileName), containerName, filePath);
+            string tagsString, tagsJson;
+
+            if (result != null)
+            {
+                ComputerVisionService cv = new ComputerVisionService();
+                UserMedia userMedia = new UserMedia();
+
+
+                // 2 patterns in the prototype
+                tagsString = cv.GetImageTag_str(result.Result.Uri.ToString());          // Get as parsable string -> 1) SQL and 3) Table
+                tagsJson = cv.GetImageTag_json(result.Result.Uri.ToString());           // Get as json            -> 2) Cosmos and 4) Blob 
+
+                // Create Model data
+                userMedia.UserId = this.UserId;                                         // User ID
+                userMedia.MediaTitle = media_title;
+                userMedia.MediaDescription = media_desc;
+                userMedia.MediaUrl = result.Result.Uri.ToString();                      // URL of the blob
+                userMedia.MediaFileName = result.Result.Name;                           // File name
+                userMedia.MediaFileType = result.Result.Name.Split('.').Last();         // File type
+                userMedia.Tags = tagsString;                                            // Tags (Parsable string)
+                userMedia.IsPrimary = isPrimary;
+                userMedia.PhotoTags = projectTags;
+
+                // Add image info to json (same as model)
+                tagsJson = ImageAnalysisUtility.AddImageInfoToTag_json(tagsJson, userMedia);
+                userMedia.tagsJson = tagsJson;
+
+                // ---------- 1) [SQL database] (as SQL schema Record) ---------- 
+                _context.UserMedia.Add(userMedia);
+
+                await _context.SaveChangesAsync();
+
+                return userMedia;
+            }
+            return null;
+        }
+
+        private string InsertOnCosmosDB(UserMedia userMedia) {
+
+            CosmosDbService cosmosDbService = new CosmosDbService();
+            if (!cosmosDbService.InsertOneItemAsync(dev_Settings.cosmos_databaseName, dev_Settings.cosmos_containerName, userMedia.tagsJson).Result)
+            throw new Exception("Cosmos DB への登録に失敗しました");
+
+            string id = cosmosDbService.inserted_id;
+
+            return id;
+        }
+        private string InsertOnUserMediaStorageTable(UserMedia userMedia)
+        {
+            UserMediaStorageTableEntity userMediaStorageTableEntity = new UserMediaStorageTableEntity();
+            userMediaStorageTableEntity.UserId = userMedia.UserId;
+            userMediaStorageTableEntity.MediaUrl = userMedia.MediaUrl;
+            userMediaStorageTableEntity.MediaFileName = userMedia.MediaFileName;
+            userMediaStorageTableEntity.MediaFileType = userMedia.MediaFileType;
+            userMediaStorageTableEntity.Tags = userMedia.Tags;
+            userMediaStorageTableEntity.DateTimeUploaded = userMedia.DateTimeUploaded;
+
+            StorageTableService tableService = new StorageTableService();
+            if (!tableService.InsertOrMerageEntityAsync(userMediaStorageTableEntity).Result)
+                throw new Exception("Storage Table への登録に失敗しました");
+
+            string id = tableService.inserted_id;
+            return id;
+        }
+
+        private string InsertOnUserMediaBlob(UserMedia userMedia)
+        {
+            string datetimeStr = DateTime.Now.ToString("yyyyMMddHHmmss_");
+
+            UserMediaBlobJSON userMediaBlobJSON = JsonConvert.DeserializeObject<UserMediaBlobJSON>(userMedia.tagsJson);
+            userMediaBlobJSON.Key = (encode.Encode(userMedia.UserId + datetimeStr + userMedia.MediaFileName)).Replace("+", "=");
+            string tagsJson = JsonConvert.SerializeObject(userMediaBlobJSON, Formatting.None);
+            string fileName = "UserMedia/" + userMedia.UserId + "/" + datetimeStr + userMedia.MediaFileName + ".json";
+
+            if (!blobService.StoreJsonBlobAsync(fileName, dev_Settings.blob_containerName_json, tagsJson).Result) 
+            throw new Exception("Storage Blob への登録に失敗しました");
+
+            string id = fileName;
+            return id;
+        }
+
+        private void InsertOnMediaId(UserMedia userMedia, string[] ids) {
+            MediaId mediaId = new MediaId();
+            mediaId.Sql_id = userMedia.MediaId;
+            mediaId.Cosmos_db = ids[0];
+            mediaId.Storage_table = ids[1];
+            mediaId.Storage_blob = ids[2];
+
+            _context.MediaId.Add(mediaId);
+            _context.SaveChanges();
+        }
+
+        private static System.Drawing.Image resizeImage(System.Drawing.Image imgToResize, Size size)
+        {
+            //Get the image current width  
+            int sourceWidth = imgToResize.Width;
+            //Get the image current height  
+            int sourceHeight = imgToResize.Height;
+            float nPercent = 0;
+            float nPercentW = 0;
+            float nPercentH = 0;
+            //Calulate  width with new desired size  
+            nPercentW = ((float)size.Width / (float)sourceWidth);
+            //Calculate height with new desired size  
+            nPercentH = ((float)size.Height / (float)sourceHeight);
+            if (nPercentH < nPercentW)
+                nPercent = nPercentH;
+            else
+                nPercent = nPercentW;
+            //New Width  
+            int destWidth = (int)(sourceWidth * nPercent);
+            //New Height  
+            int destHeight = (int)(sourceHeight * nPercent);
+            Bitmap b = new Bitmap(destWidth, destHeight);
+            Graphics g = Graphics.FromImage((System.Drawing.Image)b);
+            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            // Draw image with new width and height  
+            g.DrawImage(imgToResize, 0, 0, destWidth, destHeight);
+            g.Dispose();
+            return (System.Drawing.Image)b;
+        }
+
+        public async Task<IActionResult> UpdateMediaFile(ImageRegistrationRequests request)
+        {
             try
             {
-                string containerName = Services.dev_Settings.blob_containerName_image;
-                string fileName = _imageFile.FileName;
 
-                ComputerVisionService cv = new ComputerVisionService();
-                UserMediaThumbnails thumbnails = new UserMediaThumbnails();
-
-                var result = blobService.UploadImageBlobAsync(fileName, containerName, (IFormFile)_imageFile);
-
-                if (result != null)
-                {
-                    string tagsString, tagsJson;
-                    string[] ids = new string[3];
-                    // 2 patterns in the prototype
-                    tagsString = cv.GetImageTag_str(result.Result.Uri.ToString());          // Get as parsable string -> 1) SQL and 3) Table
-                    tagsJson = cv.GetImageTag_json(result.Result.Uri.ToString());           // Get as json            -> 2) Cosmos and 4) Blob 
-
-
-                    thumbnails.MediaId = media_id;
-                    thumbnails.MediaFileName = result.Result.Name; ;
-                    thumbnails.MediaFileType = result.Result.Name.Split('.').Last();
-                    thumbnails.Tags = tagsString;
-                    thumbnails.MediaUrl = result.Result.Uri.ToString(); ;
-
-                    // Add image info to json (same as model)
-
-                    // Add image info to json (same as model)
-                    tagsJson = ImageAnalysisUtility.AddImageInfoToTag_json(tagsJson, thumbnails, UserId);
-
-                    _context.UserMediaThumbnails.Add(thumbnails);
-
-                    await _context.SaveChangesAsync();
-
-
-                    // ----------  2) [Azure Cosmos DB] (as json Item) ---------- 
-                    CosmosDbService cosmosDbService = new CosmosDbService();
-                    bool insertImageResult = await cosmosDbService.InsertOneItemAsync(dev_Settings.cosmos_databaseName, dev_Settings.cosmos_containerName, tagsJson);
-                    if (!insertImageResult) throw new Exception("Cosmos DB への登録に失敗しましたk");
-
-                    ids[0] = cosmosDbService.inserted_id;
-
-
-                    UserMediaStorageTableEntity userMediaStorageTableEntity = new UserMediaStorageTableEntity();
-                    userMediaStorageTableEntity.UserId = this.UserId;
-                    userMediaStorageTableEntity.MediaUrl = thumbnails.MediaUrl;
-                    userMediaStorageTableEntity.MediaFileName = thumbnails.MediaFileName;
-                    userMediaStorageTableEntity.MediaFileType = thumbnails.MediaFileType;
-                    userMediaStorageTableEntity.Tags = tagsString;
-                    userMediaStorageTableEntity.DateTimeUploaded = thumbnails.DateTimeUploaded;
-
-
-                    StorageTableService tableService = new StorageTableService();
-                    insertImageResult = await tableService.InsertOrMerageEntityAsync(userMediaStorageTableEntity);
-                    if (!insertImageResult) throw new Exception("Storage Table への登録に失敗しました");
-
-                    ids[1] = tableService.inserted_id;      // [TEST] for Corresponding IDs
-
-                    // ---------- 4) [Azure Storage Blob] (as json file) ----------
-
-                    string datetimeStr = DateTime.Now.ToString("yyyyMMddHHmmss_");
-
-                    UserMediaBlobJSON userMediaBlobJSON = JsonConvert.DeserializeObject<UserMediaBlobJSON>(tagsJson);
-                    userMediaBlobJSON.Key = (encode.Encode(this.UserId + datetimeStr + thumbnails.MediaFileName)).Replace("+", "=");
-                    tagsJson = JsonConvert.SerializeObject(userMediaBlobJSON, Formatting.None);
-                    fileName = "UserMedia/" + this.UserId + "/" + datetimeStr + thumbnails.MediaFileName + ".json";
-
-                    insertImageResult = await blobService.StoreJsonBlobAsync(fileName, dev_Settings.blob_containerName_json, tagsJson);
-                    if (!insertImageResult) throw new Exception("Storage Blob への登録に失敗しました");
-
-                    ids[2] = fileName;      // [TEST] for Corresponding IDs
-                }
             }
             catch (Exception ex)
             {
                 throw ex;
             }
-          
+            return RedirectToAction("Index", "Home");
         }
+
 
     }
 }

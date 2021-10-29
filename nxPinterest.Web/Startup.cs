@@ -24,7 +24,7 @@ namespace nxPinterest.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.ConfigureDatabaseOptions(Configuration);
-
+            services.ConfigureOptions(Configuration);
             services.AddServices();
 
             services.AddIdentity<ApplicationUser, IdentityRole>(options => options.User.RequireUniqueEmail = true)

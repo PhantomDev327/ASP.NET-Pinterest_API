@@ -41,9 +41,7 @@
         width: 76px;
         height: 50px;
         border: none;
-        position: relative;
-        margin-top: 2%;
-        margin-right: 6%;
+        padding-right: 26%;
         display: inline-block;
     }
 
@@ -51,6 +49,12 @@
             width: 100px;
             border-radius: 3%;
         }
+
+    .modal-image-viewer .thumbnail-section-wrapper {
+        overflow-x: auto;
+        white-space: nowrap;
+        height: 115px;
+    }
 
     .modal-image-viewer .tag-control-container {
         padding-bottom: 5%;
