@@ -69,8 +69,10 @@ namespace nxPinterest.Services
                                                     select usm)
                                                   .FirstOrDefault();
 
-                        if (userMediaQueryResult != null)
+                        if (userMediaQueryResult != null && !userMediaQueryResult.IsPrimary) {
                             searchResult.Add(userMediaQueryResult);
+                        }
+                            
 
                     }
                 }
@@ -109,6 +111,18 @@ namespace nxPinterest.Services
             result.UserMediaList = mediaList;
 
             return result;
+        }
+
+        public async Task DeleteFromUserMedia(UserMedia userMedia) {
+            if (userMedia != null) {
+                var userMediaList = await this._context.UserMedia.AsNoTracking()
+                                         .Where(c => c.MediaFileName.Equals(userMedia.MediaFileName))
+                                         .ToListAsync();
+                                     
+
+                this._context.UserMedia.RemoveRange(userMediaList);
+                await this._context.SaveChangesAsync();
+            }
         }
 
     }

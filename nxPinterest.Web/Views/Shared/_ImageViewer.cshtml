@@ -31,8 +31,10 @@
                                                 @for (int i = 0; i < Model.UserMediaList.Count(); i++)
                                                 {
                                                     var userMediaThumbnail = Model.UserMediaList[i];
+                                                    string activeClass = userMediaThumbnail.MediaFileName.Equals(primary_image_detail.MediaFileName)?"active": "";
+                                                    
 
-                                                    <div class="thumbnail-wrapper">
+                                                    <div class="thumbnail-wrapper @activeClass" onclick="onViewUserMediaDetails('@userMediaThumbnail.MediaId')">
                                                         <img src="@userMediaThumbnail.MediaUrl" class="thumbnail" />
                                                     </div>
                                                 }
@@ -54,6 +56,7 @@
                                         <input class="form-control text-black" data-role="tagsinput" value="@ViewBag.PhotoTags" />
                                     </div>
 
+                                    <input hidden asp-for="@primary_image_detail.MediaId" />
 
                                     <input type="button" value="写真を投稿" class="btn btn-default btn-save" />
                                 </div>
@@ -70,9 +73,10 @@
         (function () {
             function configureFileUploadControl() {
                 var imageUrl = '@primary_image_detail.MediaUrl';
-
+                
                 $('input[name="Images"]').fileinput({
                     allowedFileTypes: ['image'],
+                    deleteUrl: '@Url.Action("DeleteUserMedia", "Home", new { media_id = Model.UserMediaDetail.MediaId })',
                     initialPreviewAsData: true,
                     overwriteInitial: true,
                     browseOnZoneClick: true,
@@ -83,6 +87,8 @@
                     showBrowse: false,
                     showCaption: false,
                     showRemove: false
+                }).on('filedeleted', function () {
+                    window.location.reload();
                 });
             }
 

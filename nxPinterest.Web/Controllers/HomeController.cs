@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using nxPinterest.Services.Models.Response;
 using nxPinterest.Web.Models;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -48,12 +49,14 @@ namespace nxPinterest.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> GetUserMediaDetails(int media_id) {
+        public async Task<IActionResult> GetUserMediaDetails(int media_id)
+        {
             UserMediaDetailViewModel result = await this.userMediaManagementService.GetUserMediaDetailsByIDAsync(media_id);
             string[] tags = result.UserMediaDetail.Tags.Split('|');
             IList<string> photo_tags = new List<string>();
 
-            for (int i = 0; i < tags.Count(); i++) {
+            for (int i = 0; i < tags.Count(); i++)
+            {
                 string[] current_tags = tags[i].Split(':');
 
                 photo_tags.Add(current_tags[0]);
@@ -62,6 +65,21 @@ namespace nxPinterest.Web.Controllers
             ViewBag.PhotoTags = string.Join(',', photo_tags.ToArray());
 
             return PartialView("/Views/Shared/_ImageViewer.cshtml", result);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteUserMedia(int media_id)
+        {
+            try
+            {
+                UserMediaDetailViewModel result = await this.userMediaManagementService.GetUserMediaDetailsByIDAsync(media_id);
+                await this.userMediaManagementService.DeleteFromUserMedia(result.UserMediaDetail);
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, errMsg = ex.Message });
+            }
         }
 
         public IActionResult Privacy()

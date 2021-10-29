@@ -55,7 +55,7 @@
                     <div class="input-group">
                         <input type="text" class="form-control" placeholder="検索" asp-for="SearchKey" autocomplete="off"/>
                         <div class="input-group-append">
-                            <button class="btn btn-secondary btn-search">
+                            <button type="button" class="btn btn-secondary btn-search" autofocus>
                                 <i class="fas fa-search"></i>
                             </button>
                         </div>
@@ -114,7 +114,7 @@
         $('.btn-search').on('click', function () {
             var pageIndex = $.urlParam('pageIndex');
             var searchKey = $('input[name="SearchKey"]').val();
-
+            showLoader();
             if (pageIndex == false)
                 pageIndex = 1;
 
