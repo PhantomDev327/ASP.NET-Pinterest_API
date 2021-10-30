@@ -8,6 +8,7 @@ namespace nxPinterest.Services.Models.Request
 {
     public class ImageRegistrationRequests
     {
+        public int MediaId { get; set; }
         [Required]
         public string Title { get; set; }
         public string Description { get; set; }

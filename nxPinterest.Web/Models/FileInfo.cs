@@ -9,7 +9,6 @@ namespace nxPinterest.Web.Models
 {
     public class FileInfo
     {
-        public IFormFile CurrentFile { get; set; }
         public string PrimaryImagePath { get; set; }
         public string SecondaryImagePath { get; set; }
     }

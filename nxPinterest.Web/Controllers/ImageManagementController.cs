@@ -16,6 +16,7 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace nxPinterest.Web.Controllers
 {
@@ -42,6 +43,11 @@ namespace nxPinterest.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> UploadMediaFile(ImageRegistrationRequests request)
         {
+            bool isUpdate = request.MediaId != 0;
+
+            if (isUpdate)
+                ModelState.Remove("Images");
+
             if (ModelState.IsValid)
             {
                 try
@@ -72,15 +78,16 @@ namespace nxPinterest.Web.Controllers
                         byte[] secondary_image_bytes = ConvertImageToBytes(secondary_image);
 
                         string containerName = Services.dev_Settings.blob_containerName_image;
-                        string primary_image_path = Path.Combine(this._destinationPathModel.PrimaryImagePath, GetFileName(containerName, Path.GetFileName(_imageFile.FileName)));
-                        string secondary_image_path = Path.Combine(this._destinationPathModel.SecondaryImagePath, GetFileName(containerName, Path.GetFileName(_imageFile.FileName)));
+                        string primary_file_name = Path.GetFileNameWithoutExtension(_imageFile.FileName) + "_primary" + Path.GetExtension(_imageFile.FileName);
+                        string secondary_file_name = Path.GetFileNameWithoutExtension(_imageFile.FileName) + "_thumbnail" + Path.GetExtension(_imageFile.FileName);
+                        string primary_image_path = Path.Combine(this._destinationPathModel.PrimaryImagePath, GetFileName(containerName, primary_file_name));
+                        string secondary_image_path = Path.Combine(this._destinationPathModel.SecondaryImagePath, GetFileName(containerName, secondary_file_name));
 
                         await System.IO.File.WriteAllBytesAsync(primary_image_path, primary_image_bytes);
                         await System.IO.File.WriteAllBytesAsync(secondary_image_path, secondary_image_bytes);
 
                         _info.PrimaryImagePath = primary_image_path;
                         _info.SecondaryImagePath = secondary_image_path;
-                        _info.CurrentFile = _imageFile;
 
                         _files.Add(_info);
                     }
@@ -97,20 +104,22 @@ namespace nxPinterest.Web.Controllers
                         string[] ids = new string[3];
 
 
-                        UserMedia primary_image_user_media = await InsertIntoUserMedia(primary_image_filename, containerName, primary_image_filename, media_title, media_desc, projectTags, true);
+                        UserMedia primary_image_user_media = await InsertIntoUserMedia(primary_image_filename, containerName, primary_image_filename, media_title, media_desc, projectTags);
+                        UserMedia secondary_image_user_media = await UpdateUserMediaThumbnailUrl(primary_image_user_media.MediaId, secondary_image_filename, containerName, secondary_image_filename);
+
                         ids[0] = InsertOnCosmosDB(primary_image_user_media);
                         ids[1] = InsertOnUserMediaStorageTable(primary_image_user_media);
                         ids[2] = InsertOnUserMediaBlob(primary_image_user_media);
                         InsertOnMediaId(primary_image_user_media, ids);
 
-                        ids = new string[3];
+                    }
 
-                        UserMedia secondary_image_user_media = await InsertIntoUserMedia(primary_image_filename, containerName, secondary_image_filename, media_title, media_desc, projectTags, false);
-                        ids[0] = InsertOnCosmosDB(secondary_image_user_media);
-                        ids[1] = InsertOnUserMediaStorageTable(secondary_image_user_media);
-                        ids[2] = InsertOnUserMediaBlob(secondary_image_user_media);
-                        InsertOnMediaId(secondary_image_user_media, ids);
-
+                    if (isUpdate) {
+                        UserMedia _userMedia = await this._context.UserMedia.FirstOrDefaultAsync(c => c.MediaId.Equals(request.MediaId));
+                        _userMedia.MediaTitle = request.Title;
+                        _userMedia.MediaDescription = request.Description;
+                        _userMedia.PhotoTags = request.ProjectTags;
+                        await this._context.SaveChangesAsync();
                     }
                 }
                 catch (Exception ex)
@@ -162,7 +171,7 @@ namespace nxPinterest.Web.Controllers
             }
         }
 
-        private async Task<UserMedia> InsertIntoUserMedia(string fileName, string containerName, string filePath, string media_title, string media_desc, string projectTags, bool isPrimary)
+        private async Task<UserMedia> InsertIntoUserMedia(string fileName, string containerName, string filePath, string media_title, string media_desc, string projectTags)
         {
 
             var result = blobService.UploadImageBlobAsync(Path.GetFileName(fileName), containerName, filePath);
@@ -186,7 +195,6 @@ namespace nxPinterest.Web.Controllers
                 userMedia.MediaFileName = result.Result.Name;                           // File name
                 userMedia.MediaFileType = result.Result.Name.Split('.').Last();         // File type
                 userMedia.Tags = tagsString;                                            // Tags (Parsable string)
-                userMedia.IsPrimary = isPrimary;
                 userMedia.PhotoTags = projectTags;
 
                 // Add image info to json (same as model)
@@ -201,6 +209,22 @@ namespace nxPinterest.Web.Controllers
                 return userMedia;
             }
             return null;
+        }
+
+        private async Task<UserMedia> UpdateUserMediaThumbnailUrl(int media_id, string fileName, string containerName, string filePath) {
+            UserMedia userMedia = await this._context.UserMedia.FirstOrDefaultAsync(c => c.MediaId.Equals(media_id));
+            if (userMedia != null) {
+                var result = blobService.UploadImageBlobAsync(Path.GetFileName(fileName), containerName, filePath);
+
+                if (result != null)
+                {
+                    userMedia.MediaThumbnailUrl = result.Result.Uri.ToString();
+
+                    await this._context.SaveChangesAsync();
+                }
+            }
+
+            return userMedia;
         }
 
         private string InsertOnCosmosDB(UserMedia userMedia) {

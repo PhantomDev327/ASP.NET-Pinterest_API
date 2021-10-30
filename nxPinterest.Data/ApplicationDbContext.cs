@@ -48,6 +48,11 @@ namespace nxPinterest.Data
                     .IsUnicode(true)
                     .HasColumnName("media_url");
 
+                entity.Property(e => e.MediaThumbnailUrl)
+                    .HasMaxLength(1000)
+                    .IsUnicode(true)
+                    .HasColumnName("media_thumbnail_url");
+
                 entity.Property(e => e.MediaFileName)
                     .HasMaxLength(1000)
                     .IsUnicode(true)

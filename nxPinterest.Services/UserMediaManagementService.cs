@@ -27,8 +27,7 @@ namespace nxPinterest.Services
         public async Task<IList<Data.Models.UserMedia>> ListUserMediaAsyc(string userId = "")
         {
             var query = (this._context.UserMedia.AsNoTracking()
-                                     .Where(c => c.UserId.Equals(userId) &&
-                                                 c.IsPrimary.Equals(false)));
+                                     .Where(c => c.UserId.Equals(userId)));
 
 
             IList<Data.Models.UserMedia> userMediaList = await query.OrderByDescending(c => c.MediaId)
@@ -69,7 +68,7 @@ namespace nxPinterest.Services
                                                     select usm)
                                                   .FirstOrDefault();
 
-                        if (userMediaQueryResult != null && !userMediaQueryResult.IsPrimary) {
+                        if (userMediaQueryResult != null) {
                             searchResult.Add(userMediaQueryResult);
                         }
                             
@@ -100,9 +99,8 @@ namespace nxPinterest.Services
             {
                 var query = await (this._context.UserMedia.AsNoTracking()
                              .Where(c => c.MediaTitle.Equals(userMedia.MediaTitle) &&
-                                         c.MediaDescription.Equals(userMedia.MediaDescription) &&
-                                         c.IsPrimary.Equals(true)))
-                             .ToListAsync();
+                                         c.MediaDescription.Equals(userMedia.MediaDescription))
+                             .ToListAsync());
 
                 mediaList = query;
             }

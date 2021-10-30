@@ -2,7 +2,7 @@
 @model nxPinterest.Services.Models.Response.UserMediaDetailViewModel
 
 @{ 
-    UserMedia primary_image_detail = Model.UserMediaList.FirstOrDefault(c => c.MediaFileName.Equals(Model.UserMediaDetail.MediaFileName));
+    UserMedia primary_image_detail = Model.UserMediaDetail;
 }
 
 <script src="~/lib/bootstrap-fileinput/js/fileinput.min.js" asp-append-version="true"></script>
@@ -43,20 +43,20 @@
                                     </div>
                                 </div>
                                 <div class="content">
-                                    <input type="text" class="form-control input-control input-title" placeholder="田代歯科医院" asp-for="UserMediaDetail.MediaTitle" />
-                                    <textarea rows="3" class="form-control input-control input-explanation" placeholder="ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。" asp-for="UserMediaDetail.MediaDescription"></textarea>
+                                    <input type="text" class="form-control input-control input-title" placeholder="田代歯科医院" asp-for="UserMediaDetail.MediaTitle" name="Title" />
+                                    <textarea rows="3" class="form-control input-control input-explanation" placeholder="ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。" asp-for="UserMediaDetail.MediaDescription" name="Description"></textarea>
 
                                     <div class="tag-control-container">
                                         <p class="text-black tag-text">Project Tag</p>
-                                        <input class="form-control text-black" data-role="tagsinput" asp-for="UserMediaDetail.PhotoTags" />
+                                        <input class="form-control text-black" data-role="tagsinput" asp-for="UserMediaDetail.PhotoTags" name="ProjectTags" />
                                     </div>
 
                                     <div class="tag-control-container">
                                         <p class="text-black tag-text">Photo Tag</p>
-                                        <input class="form-control text-black" data-role="tagsinput" value="@ViewBag.PhotoTags" />
+                                        <input class="form-control text-black" data-role="tagsinput" value="@ViewBag.PhotoTags" name="PhotoTags" disabled/>
                                     </div>
 
-                                    <input hidden asp-for="@primary_image_detail.MediaId" />
+                                    <input hidden asp-for="@primary_image_detail.MediaId" name="MediaId" />
 
                                     <input type="button" value="写真を投稿" class="btn btn-default btn-save" />
                                 </div>
@@ -93,7 +93,7 @@
             }
 
             $('input.btn-save').on('click', function () {
-                var formData = new FormData(document.querySelector('form'))
+                var formData = new FormData(document.querySelector('#update-user-media-form'))
 
                 $.ajax({
                     url: '@Url.Action("UploadMediaFile", "ImageManagement")',

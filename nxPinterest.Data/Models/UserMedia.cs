@@ -15,7 +15,7 @@ namespace nxPinterest.Data.Models
         public string MediaUrl { get; set; }
         public string Tags { get; set; }
         public string PhotoTags { get; set; }
-        public bool IsPrimary { get; set; }
+        public string MediaThumbnailUrl { get; set; }
 
         [NotMapped]
         public string tagsJson { get; set; }

@@ -84,7 +84,8 @@
             }
 
             $('input.btn-save').on('click', function () {
-                var formData = new FormData(document.querySelector('form'))
+                var formData = new FormData(document.querySelector('#image-registration-form'))
+               
                 showLoader();
                 $.ajax({
                     url: '@Url.Action("UploadMediaFile", "ImageManagement")',
