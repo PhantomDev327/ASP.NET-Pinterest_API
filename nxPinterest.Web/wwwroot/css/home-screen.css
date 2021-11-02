@@ -185,6 +185,7 @@
 
 
 /*bootstrap-tagsinput*/
+
 .bootstrap-tagsinput {
     width: 100%;
 }
@@ -207,16 +208,18 @@
 }
 
     .bootstrap-tagsinput .tag {
-        margin-right: 1px;
         color: white;
+        display: inline-block;
     }
 
 .label-info {
     background-color: #343a40;
-    padding: 1% 2%;
+    padding: 0 2%;
     background-color: #343a40;
     border-radius: 5px;
+    margin-bottom:1%;
 }
+
 
 .bootstrap-tagsinput .tag [data-role="remove"] {
     margin-left: 18px;
@@ -226,7 +229,7 @@
         content: "\f410";
         font-family: 'Font Awesome 5 Free';
     }
-
+   
 /* file input */
 
 .file-drop-zone {

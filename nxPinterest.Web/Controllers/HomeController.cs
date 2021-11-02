@@ -52,14 +52,19 @@ namespace nxPinterest.Web.Controllers
         public async Task<IActionResult> GetUserMediaDetails(int media_id)
         {
             UserMediaDetailViewModel result = await this.userMediaManagementService.GetUserMediaDetailsByIDAsync(media_id);
+            string[] project_tags = (string.IsNullOrEmpty(result.UserMediaDetail.ProjectTags)) ? new string[] { } : result.UserMediaDetail.ProjectTags.Split(',');
+            project_tags = project_tags.Select(c => c.Trim()).ToArray();
+
             string[] tags = result.UserMediaDetail.Tags.Split('|');
             IList<string> photo_tags = new List<string>();
 
             for (int i = 0; i < tags.Count(); i++)
             {
                 string[] current_tags = tags[i].Split(':');
+                string current_tag_name = current_tags[0].Trim();
 
-                photo_tags.Add(current_tags[0]);
+                if(Array.IndexOf(project_tags, current_tag_name) < 0) // if not recognized as project tag, means its a photo tag which is one of the generated values
+                  photo_tags.Add(current_tag_name);
             }
 
             ViewBag.PhotoTags = string.Join(',', photo_tags.ToArray());

@@ -48,7 +48,7 @@
 
                                     <div class="tag-control-container">
                                         <p class="text-black tag-text">Project Tag</p>
-                                        <input class="form-control text-black" data-role="tagsinput" asp-for="UserMediaDetail.PhotoTags" name="ProjectTags" />
+                                        <input class="form-control text-black" data-role="tagsinput" asp-for="UserMediaDetail.ProjectTags" name="ProjectTags" />
                                     </div>
 
                                     <div class="tag-control-container">
@@ -92,6 +92,7 @@
                 });
             }
 
+
             $('input.btn-save').on('click', function () {
                 var formData = new FormData(document.querySelector('#update-user-media-form'))
 
@@ -107,6 +108,6 @@
                 });
             });
 
-           configureFileUploadControl();
+            configureFileUploadControl();
         }());
 </script>

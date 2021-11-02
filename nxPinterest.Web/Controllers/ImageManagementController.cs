@@ -17,6 +17,8 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
+using nxPinterest.Web.Models;
 
 namespace nxPinterest.Web.Controllers
 {
@@ -114,11 +116,12 @@ namespace nxPinterest.Web.Controllers
 
                     }
 
-                    if (isUpdate) {
+                    if (isUpdate)
+                    {
                         UserMedia _userMedia = await this._context.UserMedia.FirstOrDefaultAsync(c => c.MediaId.Equals(request.MediaId));
                         _userMedia.MediaTitle = request.Title;
                         _userMedia.MediaDescription = request.Description;
-                        _userMedia.PhotoTags = request.ProjectTags;
+                        _userMedia.ProjectTags = request.ProjectTags;
                         await this._context.SaveChangesAsync();
                     }
                 }
@@ -176,6 +179,8 @@ namespace nxPinterest.Web.Controllers
 
             var result = blobService.UploadImageBlobAsync(Path.GetFileName(fileName), containerName, filePath);
             string tagsString, tagsJson;
+            string[] _projectTags = new string[] { };
+
 
             if (result != null)
             {
@@ -187,6 +192,28 @@ namespace nxPinterest.Web.Controllers
                 tagsString = cv.GetImageTag_str(result.Result.Uri.ToString());          // Get as parsable string -> 1) SQL and 3) Table
                 tagsJson = cv.GetImageTag_json(result.Result.Uri.ToString());           // Get as json            -> 2) Cosmos and 4) Blob 
 
+                StringBuilder _tagString = new StringBuilder(tagsString);
+                TagList _tagList = System.Text.Json.JsonSerializer.Deserialize<TagList>(tagsJson, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+
+                if (!string.IsNullOrEmpty(projectTags))
+                {
+                    _projectTags = projectTags.Split(',');
+                    decimal tag_score = 1;
+
+                    for (int i = 0; i < _projectTags.Length; i++)
+                    {
+                        string _projectTag = _projectTags[i].Trim();
+
+                        _tagString.Append(string.Format("{0}:{1}:0|", _projectTag, tag_score));
+                        _tagList.Tags.Add(new Tag { 
+                            Name = _projectTag,
+                            Confidence = tag_score,
+                            Type = 0
+                        });
+                    }
+                }
+
                 // Create Model data
                 userMedia.UserId = this.UserId;                                         // User ID
                 userMedia.MediaTitle = media_title;
@@ -194,8 +221,13 @@ namespace nxPinterest.Web.Controllers
                 userMedia.MediaUrl = result.Result.Uri.ToString();                      // URL of the blob
                 userMedia.MediaFileName = result.Result.Name;                           // File name
                 userMedia.MediaFileType = result.Result.Name.Split('.').Last();         // File type
-                userMedia.Tags = tagsString;                                            // Tags (Parsable string)
-                userMedia.PhotoTags = projectTags;
+                userMedia.Tags = _tagString.ToString();                                            // Tags (Parsable string)
+                userMedia.ProjectTags = projectTags;
+
+                tagsJson = System.Text.Json.JsonSerializer.Serialize(_tagList, new System.Text.Json.JsonSerializerOptions()
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                });
 
                 // Add image info to json (same as model)
                 tagsJson = ImageAnalysisUtility.AddImageInfoToTag_json(tagsJson, userMedia);
@@ -211,9 +243,11 @@ namespace nxPinterest.Web.Controllers
             return null;
         }
 
-        private async Task<UserMedia> UpdateUserMediaThumbnailUrl(int media_id, string fileName, string containerName, string filePath) {
+        private async Task<UserMedia> UpdateUserMediaThumbnailUrl(int media_id, string fileName, string containerName, string filePath)
+        {
             UserMedia userMedia = await this._context.UserMedia.FirstOrDefaultAsync(c => c.MediaId.Equals(media_id));
-            if (userMedia != null) {
+            if (userMedia != null)
+            {
                 var result = blobService.UploadImageBlobAsync(Path.GetFileName(fileName), containerName, filePath);
 
                 if (result != null)
@@ -227,11 +261,12 @@ namespace nxPinterest.Web.Controllers
             return userMedia;
         }
 
-        private string InsertOnCosmosDB(UserMedia userMedia) {
+        private string InsertOnCosmosDB(UserMedia userMedia)
+        {
 
             CosmosDbService cosmosDbService = new CosmosDbService();
             if (!cosmosDbService.InsertOneItemAsync(dev_Settings.cosmos_databaseName, dev_Settings.cosmos_containerName, userMedia.tagsJson).Result)
-            throw new Exception("Cosmos DB への登録に失敗しました");
+                throw new Exception("Cosmos DB への登録に失敗しました");
 
             string id = cosmosDbService.inserted_id;
 
@@ -264,14 +299,15 @@ namespace nxPinterest.Web.Controllers
             string tagsJson = JsonConvert.SerializeObject(userMediaBlobJSON, Formatting.None);
             string fileName = "UserMedia/" + userMedia.UserId + "/" + datetimeStr + userMedia.MediaFileName + ".json";
 
-            if (!blobService.StoreJsonBlobAsync(fileName, dev_Settings.blob_containerName_json, tagsJson).Result) 
-            throw new Exception("Storage Blob への登録に失敗しました");
+            if (!blobService.StoreJsonBlobAsync(fileName, dev_Settings.blob_containerName_json, tagsJson).Result)
+                throw new Exception("Storage Blob への登録に失敗しました");
 
             string id = fileName;
             return id;
         }
 
-        private void InsertOnMediaId(UserMedia userMedia, string[] ids) {
+        private void InsertOnMediaId(UserMedia userMedia, string[] ids)
+        {
             MediaId mediaId = new MediaId();
             mediaId.Sql_id = userMedia.MediaId;
             mediaId.Cosmos_db = ids[0];
