@@ -12,6 +12,7 @@ using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
 using nxPinterest.Data.Models;
 using nxPinterest.Services.Models.Response;
+using nxPinterest.Services.Extensions;
 
 namespace nxPinterest.Services
 {
@@ -97,10 +98,23 @@ namespace nxPinterest.Services
 
             if (userMedia != null)
             {
-                var query = await (this._context.UserMedia.AsNoTracking()
-                             .Where(c => c.MediaTitle.Equals(userMedia.MediaTitle) &&
-                                         c.MediaDescription.Equals(userMedia.MediaDescription))
-                             .ToListAsync());
+                var query = await this._context.UserMedia.AsNoTracking().ToListAsync();
+
+                query = query.Select(c => new UserMedia()
+                {
+                    MediaId = c.MediaId,
+                    UserId = c.UserId,
+                    MediaTitle = c.MediaTitle.TrimExtraSpaces(),
+                    MediaDescription = c.MediaDescription.TrimExtraSpaces(),
+                    MediaFileName = c.MediaFileName,
+                    MediaFileType = c.MediaFileType,
+                    MediaUrl = c.MediaUrl,
+                    Tags = c.Tags,
+                    MediaThumbnailUrl = c.MediaThumbnailUrl
+                })
+                .Where(c => c.MediaTitle.Equals(userMedia.MediaTitle.TrimExtraSpaces()) &&
+                            c.MediaDescription.Equals(userMedia.MediaDescription.TrimExtraSpaces()))
+                .ToList();
 
                 mediaList = query;
             }

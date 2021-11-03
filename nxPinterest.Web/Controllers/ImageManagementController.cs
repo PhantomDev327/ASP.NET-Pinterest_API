@@ -109,9 +109,9 @@ namespace nxPinterest.Web.Controllers
                         UserMedia primary_image_user_media = await InsertIntoUserMedia(primary_image_filename, containerName, primary_image_filename, media_title, media_desc, projectTags);
                         UserMedia secondary_image_user_media = await UpdateUserMediaThumbnailUrl(primary_image_user_media.MediaId, secondary_image_filename, containerName, secondary_image_filename);
 
-                        ids[0] = InsertOnCosmosDB(primary_image_user_media);
+                        //ids[0] = InsertOnCosmosDB(primary_image_user_media);
                         ids[1] = InsertOnUserMediaStorageTable(primary_image_user_media);
-                        ids[2] = InsertOnUserMediaBlob(primary_image_user_media);
+                        //ids[2] = InsertOnUserMediaBlob(primary_image_user_media);
                         InsertOnMediaId(primary_image_user_media, ids);
 
                     }
@@ -121,7 +121,6 @@ namespace nxPinterest.Web.Controllers
                         UserMedia _userMedia = await this._context.UserMedia.FirstOrDefaultAsync(c => c.MediaId.Equals(request.MediaId));
                         _userMedia.MediaTitle = request.Title;
                         _userMedia.MediaDescription = request.Description;
-                        _userMedia.ProjectTags = request.ProjectTags;
                         await this._context.SaveChangesAsync();
                     }
                 }
@@ -222,7 +221,6 @@ namespace nxPinterest.Web.Controllers
                 userMedia.MediaFileName = result.Result.Name;                           // File name
                 userMedia.MediaFileType = result.Result.Name.Split('.').Last();         // File type
                 userMedia.Tags = _tagString.ToString();                                            // Tags (Parsable string)
-                userMedia.ProjectTags = projectTags;
 
                 tagsJson = System.Text.Json.JsonSerializer.Serialize(_tagList, new System.Text.Json.JsonSerializerOptions()
                 {

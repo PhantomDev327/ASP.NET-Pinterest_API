@@ -51,25 +51,36 @@ namespace nxPinterest.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> GetUserMediaDetails(int media_id)
         {
-            UserMediaDetailViewModel result = await this.userMediaManagementService.GetUserMediaDetailsByIDAsync(media_id);
-            string[] project_tags = (string.IsNullOrEmpty(result.UserMediaDetail.ProjectTags)) ? new string[] { } : result.UserMediaDetail.ProjectTags.Split(',');
-            project_tags = project_tags.Select(c => c.Trim()).ToArray();
-
-            string[] tags = result.UserMediaDetail.Tags.Split('|');
-            IList<string> photo_tags = new List<string>();
-
-            for (int i = 0; i < tags.Count(); i++)
+            try
             {
-                string[] current_tags = tags[i].Split(':');
-                string current_tag_name = current_tags[0].Trim();
+                UserMediaDetailViewModel result = await this.userMediaManagementService.GetUserMediaDetailsByIDAsync(media_id);
 
-                if(Array.IndexOf(project_tags, current_tag_name) < 0) // if not recognized as project tag, means its a photo tag which is one of the generated values
-                  photo_tags.Add(current_tag_name);
+                string[] tags = result.UserMediaDetail.Tags.Split('|');
+                IList<string> photo_tags = new List<string>();
+                IList<string> project_tags = new List<string>();
+
+                for (int i = 0; i < tags.Count(); i++)
+                {
+                    string[] current_tags = tags[i].Split(':');
+                    string current_tag_name = current_tags[0].Trim();
+                    if (!string.IsNullOrEmpty(current_tag_name)) {
+                        decimal current_score = decimal.Parse(current_tags[1]);
+                        if (current_score < 1)
+                            photo_tags.Add(current_tag_name);
+                        else
+                            project_tags.Add(current_tag_name);
+                    }
+                }
+
+                ViewBag.PorjectTags = string.Join(',', project_tags.ToArray());
+                ViewBag.PhotoTags = string.Join(',', photo_tags.ToArray());
+
+                return PartialView("/Views/Shared/_ImageViewer.cshtml", result);
             }
-
-            ViewBag.PhotoTags = string.Join(',', photo_tags.ToArray());
-
-            return PartialView("/Views/Shared/_ImageViewer.cshtml", result);
+            catch (Exception ex) {
+                throw ex;
+            }
+           
         }
 
         [HttpPost]
