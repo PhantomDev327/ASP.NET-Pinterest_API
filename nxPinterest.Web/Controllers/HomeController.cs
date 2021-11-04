@@ -36,6 +36,7 @@ namespace nxPinterest.Web.Controllers
 
             int totalPages = (int)System.Math.Ceiling((decimal)(vm.UserMediaList.Count / (decimal)pageSize));
             int skip = (pageIndex - 1) * pageSize;
+            int totalRecordCount = vm.UserMediaList.Count;
 
             ViewBag.ItemCount = vm.UserMediaList.Count;
 
@@ -44,6 +45,7 @@ namespace nxPinterest.Web.Controllers
             vm.PageIndex = pageIndex;
             vm.TotalPages = totalPages;
             vm.SearchKey = searchKey;
+            vm.TotalRecords = totalRecordCount;
 
             return View(vm);
         }

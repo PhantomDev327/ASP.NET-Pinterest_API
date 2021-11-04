@@ -37,7 +37,7 @@ namespace nxPinterest.Web
             services.ConfigureApplicationCookie(options =>
             {
                 options.Cookie.HttpOnly = true;
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+                options.ExpireTimeSpan = TimeSpan.FromHours(1);
                 options.LoginPath = "/account/certification";
                 options.LogoutPath = "/account/logout";
                 options.SlidingExpiration = true;

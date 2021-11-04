@@ -76,6 +76,7 @@
 
 .modal-registration .content {
     margin-right: 3%;
+    width:100%;
 }
 
 
@@ -92,7 +93,7 @@
     }
 
 .modal-registration .input-control {
-    width: 420px;
+    width: 100%;
     margin-bottom: 5%;
     border: none;
     border-bottom: 1px solid #808080;

@@ -10,7 +10,7 @@
     var prevDisabled = !hasPreviousPage ? "disabled" : "";
     var nextDisabled = !hasNextPage ? "disabled" : "";
     string searchKey = Model.SearchKey;
-    bool hasPagination = userMediaList.Count() > nxPinterest.Services.dev_Settings.pageSize_regist;
+    bool hasPagination = Model.TotalRecords > nxPinterest.Services.dev_Settings.pageSize_regist;
 }
 
 
