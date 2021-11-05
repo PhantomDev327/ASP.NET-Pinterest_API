@@ -73,7 +73,7 @@
         (function () {
             function configureFileUploadControl() {
                 var imageUrl = '@primary_image_detail.MediaUrl';
-                
+
                 $('input[name="Images"]').fileinput({
                     allowedFileTypes: ['image'],
                     deleteUrl: '@Url.Action("DeleteUserMedia", "Home", new { media_id = Model.UserMediaDetail.MediaId })',
@@ -88,7 +88,7 @@
                     showCaption: false,
                     showRemove: false
                 }).on('filedeleted', function () {
-                    window.location.reload();
+                    window.location = '@Url.Action("Index","Home")';
                 });
             }
 
@@ -103,7 +103,7 @@
                     processData: false,
                     contentType: false,
                     success: function (sResponse) {
-                        window.location.reload();
+                        window.location = '@Url.Action("Index","Home")';
                     }
                 });
             });

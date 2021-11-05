@@ -65,18 +65,15 @@ namespace nxPinterest.Services
                         var userMediaQueryResult = (from usm in this._context.UserMedia
                                                     join mid in this._context.MediaId
                                                     on usm.MediaId equals mid.Sql_id
-                                                    where mid.Storage_table == key
+                                                    where mid.Storage_table.ToLower().Trim().Equals(key.ToLower().Trim())
                                                     select usm)
                                                   .FirstOrDefault();
 
                         if (userMediaQueryResult != null) {
                             searchResult.Add(userMediaQueryResult);
-                        }
-                            
-
+                        }    
                     }
                 }
-
 
                 return searchResult;
             }
