@@ -1,54 +1,59 @@
 ﻿@model nxPinterest.Services.Models.Request.ImageRegistrationRequests
 
-<script src="~/lib/bootstrap-fileinput/js/fileinput.min.js"  asp-append-version="true"></script>
-<script src="~/lib/bootstrap-tagsinput/bootstrap-tagsinput.min.js"  asp-append-version="true"></script>
+<script src="~/lib/bootstrap-fileinput/js/fileinput.min.js" asp-append-version="true"></script>
+<script src="~/lib/bootstrap-tagsinput/bootstrap-tagsinput.min.js" asp-append-version="true"></script>
 <script src="~/lib/bootstrap-fileinput/js/locales/LANG.js" asp-append-version="true"></script>
 
 
 <div class="modal fade" id="image-registration-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-registration" role="document">
-        <form method="post" id="image-registration-form" enctype="multipart/form-data" asp-action="UploadMediaFile" asp-controller="ImageManagement">
-            <div class="modal-content">
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col">
-                            <div class="container">
-                                <div class="content text-align-center ">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col">
+                        <div class="container p-1">
+                            <div class="content">
+                                <div class="row">
                                     <div class="row">
-                                        <div class="col">
-                                            <div class="image-uploader-wrapper">
-                                                <input type="file" multiple class="form-control file" asp-for="Images" accept="image/*" />
-                                                <div class="form-text text-danger">
-                                                    @Html.ValidationMessageFor(c => c.Images)
+                                        <div class="col-md-12">
+                                            <!-- Dropzone Start -->
+                                            <form asp-action="UploadMediaFile" asp-controller="ImageManagement" method="post" enctype="multipart/form-data" class="form-horizontal dropzone" name="dropzoneForm" id="dropzoneForm">
+                                                <div class="form-group form-actions">
+                                                    <div class="fallback"></div>
+                                                    <input type="file" name="Images" id="upfiles" multiple style="display: none;" />
                                                 </div>
-                                            </div>
+                                            </form>
+                                            <!-- Dropzone End -->
                                         </div>
                                     </div>
                                 </div>
-                                <div class="content">
-                                    <input type="text" class="form-control input-control input-title" placeholder="タイトル" asp-for="Title" />
-                                    <div class="form-text text-danger">
-                                        @Html.ValidationMessageFor(c => c.Title)
-                                    </div>
-                                    <textarea rows="3" class="form-control input-control input-explanation" placeholder="説明" asp-for="Description"></textarea>
-
-                                    <div class="tag-control-container">
-                                        <p class="text-black tag-text">Project Tag</p>
-                                        <input class="form-control text-black" data-role="tagsinput" asp-for="ProjectTags"/>
-                                    </div>
-
-                                    <input hidden asp-for="PhotoTags" />
-                                    <input hidden asp-for="UserCreated" />
-                                    <input hidden asp-for="DateTimeUploaded" />
-
-                                    <input type="button" value="写真を投稿" class="btn btn-default btn-save" />
+                            </div>
+                            <div class="content">
+                                <input type="text" class="form-control input-control input-title px-0" placeholder="タイトル" asp-for="Title" />
+                                <div class="form-text text-danger">
+                                    @Html.ValidationMessageFor(c => c.Title)
                                 </div>
+                                <input type="text" class="form-control input-control input-title px-0" placeholder="説明" asp-for="Description" />
+                                <div class="form-text text-danger">
+                                    @Html.ValidationMessageFor(c => c.Description)
+                                </div>
+
+                                <div class="tag-control-container">
+                                    <p class="tag-text" style="color: #adb5bd; ">Project Tag</p>
+                                    <input class="form-control text-black" data-role="tagsinput" asp-for="ProjectTags" />
+                                </div>
+
+                                <input hidden asp-for="PhotoTags" />
+                                <input hidden asp-for="UserCreated" />
+                                <input hidden asp-for="DateTimeUploaded" />
+
+                                <input type="button" value="写真を投稿" class="btn btn-default btn-save" />
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </form>
+        </div>
     </div>
 </div>
 
@@ -69,7 +74,7 @@
 
             $('input.btn-save').on('click', function () {
                 var formData = new FormData(document.querySelector('#image-registration-form'))
-               
+
                 showLoader();
                 $.ajax({
                     url: '@Url.Action("UploadMediaFile", "ImageManagement")',
@@ -84,5 +89,73 @@
             });
 
            configureFileUploadControl();
-        }());
+    }());
+
+    /* DropZone */
+    function myParamName() {
+        return "upfiles";
+    }
+    Dropzone.options.dropzoneForm = {
+        paramName: myParamName,
+        autoProcessQueue: false,
+        uploadMultiple: true,
+        init: function () {
+            var myDropzone = this;
+            $("#upload_submit").click(function (e) {
+                this.disabled = true;
+                allFiles = myDropzone.getAcceptedFiles();
+
+                if (allFiles.length > 0) {
+                    const p = document.getElementById("blinking");
+                    p.style.display = "block";
+
+                    inputFiles = document.getElementById("upfiles");
+                    const dt = new DataTransfer();
+
+                    for (i = 0; i < allFiles.length; i++) {
+                        dt.items.add(allFiles[i]);
+                    }
+                    inputFiles.files = dt.files;
+                }
+                e.preventDefault();
+                e.stopPropagation();
+                myDropzone.processQueue();
+                document.dropzoneForm.submit();
+            });
+
+            // on add file
+            this.on("addedfile", function (file) {
+            });
+
+            // on remove file
+            this.on("removefile", function (file) {
+            });
+        },
+        accept: function (file, done) {
+            done();
+        }
+    };
 </script>
+
+<style>
+
+    /* DropZone */
+    .dropzone {
+        color: #ccc;
+        border-style: dashed;
+        border-width: 2px;
+        /* border-radius: 6px; */
+        text-align: center;
+        cursor: pointer;
+    }
+
+    /* Uploading Message */
+    #blinking {
+        margin: 8px 0 0 0;
+        color: dodgerblue;
+        font-weight: bold;
+        -webkit-animation: blink 0.7s ease-in-out infinite alternate;
+        -moz-animation: blink 0.7s ease-in-out infinite alternate;
+        animation: blink 0.7s ease-in-out infinite alternate;
+    }
+</style>
