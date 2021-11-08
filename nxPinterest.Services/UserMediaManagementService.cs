@@ -13,6 +13,7 @@ using Azure.Search.Documents.Models;
 using nxPinterest.Data.Models;
 using nxPinterest.Services.Models.Response;
 using nxPinterest.Services.Extensions;
+using System.Text.RegularExpressions;
 
 namespace nxPinterest.Services
 {
@@ -30,55 +31,39 @@ namespace nxPinterest.Services
             var query = (this._context.UserMedia.AsNoTracking()
                                      .Where(c => c.UserId.Equals(userId)));
 
-
-            IList<Data.Models.UserMedia> userMediaList = await query.OrderByDescending(c => c.MediaId)
-                                                                    .ToListAsync();
-
+            IList<Data.Models.UserMedia> userMediaList = await query.OrderByDescending(c => c.MediaId).ToListAsync();
 
             return userMediaList;
         }
 
+        /// <summary>
+        ///     Search Image by conditions
+        /// </summary>
+        /// <param name="searchKey"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         public async Task<IList<Data.Models.UserMedia>> SearchUserMediaAsync(string searchKey, string userId)
         {
             try
             {
-                Uri endpoint = new Uri(dev_Settings.cognitivesearch_endpoint);
-                AzureKeyCredential credential = new AzureKeyCredential(dev_Settings.cognitivesearch_adminApiKey);
-                SearchClient client = new SearchClient(endpoint, dev_Settings.cognitivesearch_index_Table, credential);
-
-                SearchOptions options = new SearchOptions()
+                if (searchKey.Contains(" "))
                 {
-                    Filter = "UserId eq '" + userId + "'",      // If wanna share images with all users, remove this filter.
-                    SearchFields = { "Tags" }
-                };
-
-                SearchResults<SearchIndexUserMediaTable> response = client.Search<SearchIndexUserMediaTable>(searchKey, options);
-                IList<Data.Models.UserMedia> searchResult = new List<Data.Models.UserMedia>();
-
-                if (response != null)
-                {
-
-                    foreach (SearchResult<SearchIndexUserMediaTable> result in response.GetResults())
+                    string[] listSearchKey = Regex.Split(searchKey.Trim(), "[ 　]+", RegexOptions.IgnoreCase);
+                    if (listSearchKey.Length > 0)
                     {
-                        string key = string.Format("{0}|{1}", result.Document.PartitionKey, result.Document.RowKey);
-
-                        var userMediaQueryResult = (from usm in this._context.UserMedia
-                                                    join mid in this._context.MediaId
-                                                    on usm.MediaId equals mid.Sql_id
-                                                    where mid.Storage_table == key
-                                                    select usm)
-                                                  .FirstOrDefault();
-
-                        if (userMediaQueryResult != null) {
-                            searchResult.Add(userMediaQueryResult);
-                        }
-                            
-
+                        var queries = this._context.UserMedia.AsNoTracking()
+                            .Where(c => c.UserId.Equals(userId))
+                            .Where(c => listSearchKey.Contains(c.Tags) ||
+                            listSearchKey.Contains(c.MediaTitle));
+                        IList<Data.Models.UserMedia> userMediaLists = await queries.OrderByDescending(c => c.MediaId).ToListAsync();
+                        return userMediaLists;
                     }
                 }
-
-
-                return searchResult;
+                var query = (this._context.UserMedia.AsNoTracking()
+                                     .Where(c => c.UserId.Equals(userId))
+                                     .Where(c => c.Tags.Contains(searchKey) || c.MediaTitle.Contains(searchKey)));
+                IList<Data.Models.UserMedia> userMediaList = await query.OrderByDescending(c => c.MediaId).ToListAsync();
+                return userMediaList;
             }
             catch (Exception ex)
             {
@@ -125,12 +110,14 @@ namespace nxPinterest.Services
             return result;
         }
 
-        public async Task DeleteFromUserMedia(UserMedia userMedia) {
-            if (userMedia != null) {
+        public async Task DeleteFromUserMedia(UserMedia userMedia)
+        {
+            if (userMedia != null)
+            {
                 var userMediaList = await this._context.UserMedia.AsNoTracking()
                                          .Where(c => c.MediaFileName.Equals(userMedia.MediaFileName))
                                          .ToListAsync();
-                                     
+
 
                 this._context.UserMedia.RemoveRange(userMediaList);
                 await this._context.SaveChangesAsync();
