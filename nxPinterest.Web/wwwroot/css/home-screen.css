@@ -253,6 +253,20 @@ img.company-banner {
 }
 
 
+.dropzone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 341px;
+    border: 2px solid rgba(0, 0, 0, 0.3);
+    background: white;
+    color: #ccc;
+    border-style: dashed;
+    border-width: 2px;
+    text-align: center;
+    cursor: pointer;
+    padding: 20px 20px;
+}
 
 /*bootstrap-tagsinput*/
 
