@@ -17,7 +17,14 @@
 
 
 <div class="content gallery">
-    @for (int i = 0; i < userMediaList.Count(); i++)
+    @*@for (int i = 0; i < userMediaList.Count(); i++)
+    {
+
+        nxPinterest.Data.Models.UserMedia userMedia = userMediaList[i];
+
+        await Html.RenderPartialAsync("/Views/Shared/_HomeImageContainer.cshtml", userMedia);
+    }*@
+    @for (int i = 0; i < 1; i++)
     {
 
         nxPinterest.Data.Models.UserMedia userMedia = userMediaList[i];
@@ -25,36 +32,35 @@
         await Html.RenderPartialAsync("/Views/Shared/_HomeImageContainer.cshtml", userMedia);
     }
 </div>
-
-@{
-    await Html.RenderPartialAsync("/Views/Shared/_ImageRegistration.cshtml", Model.ImageRegistrationRequests);
-}
-
-@{
-    if (hasPagination)
-    {
-        <div class="section-pagination">
-            <div style="text-align:center">
-                <span style="color:dimgrey">@Model.PageIndex / @Model.TotalPages ページ (@ViewBag.ItemCount 件)</span>
-            </div>
-
-            <a href="@Url.Action("Index", "Home", new { pageIndex = 1, searchKey})" class="btn btn-secondary @prevDisabled">
-                最初
-            </a>
-
-
-            <a href="@Url.Action("Index", "Home", new { pageIndex = (Model.PageIndex - 1), searchKey })" class="btn btn-secondary @prevDisabled">
-                前へ
-            </a>
-
-
-            <a href="@Url.Action("Index", "Home", new { pageIndex = (Model.PageIndex + 1), searchKey })" class="btn btn-secondary @nextDisabled">
-                次へ
-            </a>
-
-            <a href="@Url.Action("Index", "Home", new { pageIndex = Model.TotalPages, searchKey })" class="btn btn-secondary @nextDisabled">
-                最後
-            </a>
-        </div>
+    @{
+        await Html.RenderPartialAsync("/Views/Shared/_ImageRegistration.cshtml", Model.ImageRegistrationRequests);
     }
-}
+
+    @{
+        if (hasPagination)
+        {
+            <div class="section-pagination">
+                <div style="text-align:center">
+                    <span style="color:dimgrey">@Model.PageIndex / @Model.TotalPages ページ (@ViewBag.ItemCount 件)</span>
+                </div>
+
+                <a href="@Url.Action("Index", "Home", new { pageIndex = 1, searchKey})" class="btn btn-secondary @prevDisabled">
+                    最初
+                </a>
+
+
+                <a href="@Url.Action("Index", "Home", new { pageIndex = (Model.PageIndex - 1), searchKey })" class="btn btn-secondary @prevDisabled">
+                    前へ
+                </a>
+
+
+                <a href="@Url.Action("Index", "Home", new { pageIndex = (Model.PageIndex + 1), searchKey })" class="btn btn-secondary @nextDisabled">
+                    次へ
+                </a>
+
+                <a href="@Url.Action("Index", "Home", new { pageIndex = Model.TotalPages, searchKey })" class="btn btn-secondary @nextDisabled">
+                    最後
+                </a>
+            </div>
+        }
+    }
