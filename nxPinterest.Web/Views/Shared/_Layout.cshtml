@@ -51,12 +51,12 @@
     
     <!-- Topbar Start -->
     <div class="navbar-header">
-        <i class="fas fa-search icon-notify"></i>
+        <i class="fas fa-bell icon-notify"></i>
     </div>
 
-    <div class="navbar-custom topnav-navbar topnav-navbar-dark">
-        <div class="container-fluid">
-            <div class="page-header">
+    <div class="navbar-custom topnav-navbar topnav-navbar-dark d-flex align-items-center">
+        <div class="mx-3 m-0 w-100">
+            <div class="page-header px-0">
                 <div class="company-banner-wrapper">
                     <a href="@Url.Action("Index", "Home")">
                         <img class="company-banner" src="~/images/banner.png" />
@@ -69,7 +69,7 @@
                                 <i class="fas fa-search icon-search"></i>
                             </button>
                         </div>
-                        <input type="text" class="form-control m-0 px-4" placeholder="検索" asp-for="SearchKey" autocomplete="off"/>
+                        <input type="text" class="form-control m-0 px-4 rounded" placeholder="検索" asp-for="SearchKey" autocomplete="off"/>
                     </div>
                 </div>
             </div>
@@ -82,7 +82,7 @@
     </div>
 
     <!-- Start Content-->
-    <div class="container my-5">
+    <div class="m-3">
          @RenderBody()
     </div>
 
