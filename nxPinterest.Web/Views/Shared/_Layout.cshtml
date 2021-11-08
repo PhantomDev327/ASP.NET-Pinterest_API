@@ -30,12 +30,16 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
 
 
-    <link href="~/lib/bootstrap-tagsinput/bootstrap-tagsinput.css" rel="stylesheet"  asp-append-version="true"/>
+    <link href="~/lib/bootstrap-tagsinput/bootstrap-tagsinput.css" rel="stylesheet" asp-append-version="true" />
 
     <link href="~/css/home-screen.css" rel="stylesheet" asp-append-version="true" />
 
     <link href="~/css/image-viewer.css" rel="stylesheet" asp-append-version="true" />
 
+    <script src="~/lib/dropzone/js/dropzone.js" type="text/javascript"></script>
+    <script src="~/lib/dropzone/js/dropzone-amd-module.js" type="text/javascript"></script>
+    <link href="~/lib/dropzone/css/basic.css" rel="stylesheet" type="text/css" />
+    <link href="~/lib/dropzone/css/dropzone.css" rel="stylesheet" type="text/css" />
 
     <!-- bundle -->
     <script src="~/lib/Hyper_v4.4/Bootstrap_5x/hyper/dist/modern/assets/js/vendor.min.js"></script>
@@ -44,7 +48,12 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
 </head>
 <body class="loading" data-layout="detached" data-layout-config='{"leftSidebarCondensed":false,"darkMode":false, "showRightSidebarOnStart": true}'>
+    
     <!-- Topbar Start -->
+    <div class="navbar-header">
+        <i class="fas fa-search icon-notify"></i>
+    </div>
+
     <div class="navbar-custom topnav-navbar topnav-navbar-dark">
         <div class="container-fluid">
             <div class="page-header">
@@ -55,18 +64,15 @@
                 </div>
                 <div class="search-wrapper">
                     <div class="input-group">
-                        <input type="text" class="form-control" placeholder="検索" asp-for="SearchKey" autocomplete="off"/>
-                        <div class="input-group-append">
-                            <button type="button" class="btn btn-secondary btn-search" autofocus>
-                                <i class="fas fa-search"></i>
+                        <div class="input-group-append position-relative">
+                            <button type="button" class="btn btn-search position-absolute" autofocus>
+                                <i class="fas fa-search icon-search"></i>
                             </button>
                         </div>
+                        <input type="text" class="form-control m-0 px-4" placeholder="検索" asp-for="SearchKey" autocomplete="off"/>
                     </div>
                 </div>
             </div>
-            <a href="/account/logout" class="text-logout">
-                <span>Logout</span>
-            </a>
         </div>
     </div>
     <!-- end Topbar -->
@@ -76,12 +82,8 @@
     </div>
 
     <!-- Start Content-->
-    <div class="container-fluid">
-        <div class="wrapper">
-            <div class="content-page">
-                @RenderBody()
-            </div>
-        </div>
+    <div class="container my-5">
+         @RenderBody()
     </div>
 
     <div class="add-image-container">

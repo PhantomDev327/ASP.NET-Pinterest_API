@@ -1,25 +1,102 @@
 ﻿@model nxPinterest.Data.Models.UserMedia;
 
 <div class="thumbnail-container">
-    <a href="" data-toggle="modal" onclick="onViewUserMediaDetails('@Model.MediaId')">
-        <div class="text-wrapper">
-            <div class="img-title">
-                <p>@Model.MediaTitle</p>
-            </div>
-            <div class="img-description">
-                @{ 
-                    string description = Model.MediaDescription;
-                    if (description.Length > 150)
-                        description = description.Substring(0, 150) + "...";
-                }
-                <p>@description</p>
-            </div>
-
-        </div>
-        <div class="img-container">
-            <img src="@Model.MediaThumbnailUrl" />
-        </div>
-    </a>
+    <figure>
+        <img src="https://assets.codepen.io/12005/windmill.jpg"
+             alt="A windmill" />
+        <figcaption>
+            <p class="title">A windmill</p>
+            <p class="description">The Clifton Suspension Bridge</p>
+        </figcaption>
+    </figure>
+    <figure>
+        <img src="https://assets.codepen.io/12005/suspension-bridge.jpg"
+             alt="The Clifton Suspension Bridge" />
+        <figcaption>
+            <p class="title">A windmill</p>
+            <p class="description">The Clifton Suspension Bridge</p>
+        </figcaption>
+    </figure>
+    <figure>
+        <img src="https://assets.codepen.io/12005/sunset.jpg"
+             alt="Sunset and boats" />
+        <figcaption>
+            <p class="title">A windmill</p>
+            <p class="description">The Clifton Suspension Bridge</p>
+        </figcaption>
+    </figure>
+    <figure>
+        <img src="https://assets.codepen.io/12005/snowy.jpg"
+             alt="a river in the snow" />
+        <figcaption>
+            <p class="title">A windmill</p>
+            <p class="description">The Clifton Suspension Bridge</p>
+        </figcaption>
+    </figure>
+    <figure>
+        <img src="https://assets.codepen.io/12005/bristol-balloons1.jpg"
+             alt="a single checked balloon" />
+        <figcaption>
+            <p class="title">A windmill</p>
+            <p class="description">The Clifton Suspension Bridge</p>
+        </figcaption>
+    </figure>
+    <figure>
+        <img src="https://assets.codepen.io/12005/dog-balloon.jpg"
+             alt="a hot air balloon shaped like a dog" />
+        <figcaption>
+            <p class="title">A windmill</p>
+            <p class="description">The Clifton Suspension Bridge</p>
+        </figcaption>
+    </figure>
+    <figure>
+        <img src="https://assets.codepen.io/12005/abq-balloons.jpg"
+             alt="View from a hot air balloon of other balloons" />
+        <figcaption>
+            <p class="title">A windmill</p>
+            <p class="description">The Clifton Suspension Bridge</p>
+        </figcaption>
+    </figure>
+    <figure>
+        <img src="https://assets.codepen.io/12005/disney-balloon.jpg"
+             alt="a balloon fairground ride" />
+        <figcaption>
+            <p class="title">A windmill</p>
+            <p class="description">The Clifton Suspension Bridge</p>
+        </figcaption>
+    </figure>
+    <figure>
+        <img src="https://assets.codepen.io/12005/bristol-harbor.jpg"
+             alt="sunrise over a harbor" />
+        <figcaption>
+            <p class="title">A windmill</p>
+            <p class="description">The Clifton Suspension Bridge</p>
+        </figcaption>
+    </figure>
+    <figure>
+        <img src="https://assets.codepen.io/12005/bristol-balloons2.jpg"
+             alt="three hot air balloons in a blue sky" />
+        <figcaption>
+            <p class="title">A windmill</p>
+            <p class="description">The Clifton Suspension Bridge</p>
+        </figcaption>
+    </figure>
+    <figure>
+        <img src="https://assets.codepen.io/12005/toronto.jpg"
+             alt="the Toronto light up sign at night" />
+        <figcaption>
+            <p class="title">A windmill</p>
+            <p class="description">The Clifton Suspension Bridge</p>
+        </figcaption>
+    </figure>
+    <figure>
+        <img src="https://picsum.photos/id/237/310/402"
+             alt="The Clifton Suspension Bridge" />
+        <figcaption>
+            <p class="title">A windmill</p>
+            <p class="description">The Clifton Suspension Bridge</p>
+        </figcaption>
+    </figure>
 </div>
 
 <script>
