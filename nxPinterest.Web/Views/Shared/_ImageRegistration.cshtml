@@ -78,7 +78,7 @@
                     processData: false,
                     contentType: false,
                     success: function (sResponse) {
-                        window.location.reload();
+                        window.location = '@Url.Action("Index","Home")';
                     }
                 });
             });
