@@ -6,18 +6,18 @@
 
 
 <div class="modal fade" id="image-registration-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-registration" role="document">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-registration" role="document">
         <div class="modal-content">
             <div class="modal-body">
-                <div class="row">
+                <div class="row h-100">
                     <div class="col">
-                        <div class="container p-1">
+                        <div class="container h-100 p-1">
                             <div class="content">
-                                <div class="row">
-                                    <div class="row">
+                                <div class="row h-100">
+                                    <div class="row h-100">
                                         <div class="col-md-12">
                                             <!-- Dropzone Start -->
-                                            <form asp-action="UploadMediaFile" asp-controller="ImageManagement" method="post" enctype="multipart/form-data" class="form-horizontal dropzone" name="dropzoneForm" id="dropzoneForm">
+                                            <form asp-action="UploadMediaFile" asp-controller="ImageManagement" method="post" enctype="multipart/form-data" class="form-horizontal dropzone h-100" name="dropzoneForm" id="dropzoneForm">
                                                 <div class="form-group form-actions">
                                                     <div class="fallback"></div>
                                                     <input type="file" name="Images" id="upfiles" multiple style="display: none;" />
@@ -30,11 +30,11 @@
                             </div>
                             <div class="content">
                                 <input type="text" class="form-control input-control input-title px-0" placeholder="タイトル" asp-for="Title" />
-                                <div class="form-text text-danger">
+                                <div class="form-text text-danger mt-4">
                                     @Html.ValidationMessageFor(c => c.Title)
                                 </div>
                                 <input type="text" class="form-control input-control input-title px-0" placeholder="説明" asp-for="Description" />
-                                <div class="form-text text-danger">
+                                <div class="form-text text-danger mt-4">
                                     @Html.ValidationMessageFor(c => c.Description)
                                 </div>
 
@@ -46,8 +46,9 @@
                                 <input hidden asp-for="PhotoTags" />
                                 <input hidden asp-for="UserCreated" />
                                 <input hidden asp-for="DateTimeUploaded" />
-
-                                <input type="button" value="写真を投稿" class="btn btn-default btn-save" />
+                                <div class="text-center">
+                                    <input type="button" value="写真を投稿" class="btn btn-default btn-save" />
+                                </div>
                             </div>
                         </div>
                     </div>

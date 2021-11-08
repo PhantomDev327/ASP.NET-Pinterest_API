@@ -199,15 +199,12 @@ img.company-banner {
     }
 
 .tag-text {
-    font-weight:bold
+    font-weight: bold;
+    margin-bottom: 1.5rem;
 }
 
 .text-align-center {
     text-align:center;
-}
-
-.text-white {
-    
 }
 
 .text-black {
@@ -229,30 +226,18 @@ img.company-banner {
     display: inline-block;
 }
 
-    .modal-registration .thumbnail-wrapper img.thumbnail {
-        width: 100px;
-        border-radius: 3%;
-    }
+.modal-registration .thumbnail-wrapper img.thumbnail {
+    width: 100px;
+    border-radius: 3%;
+}
 
 .modal-registration .tag-control-container {
     padding-bottom:5%;
 }
 
-.modal-registration .btn-save {
-    margin-left: 22%;
+.modal-content {
+    height: 83vh;
 }
-
-.modal {
-    position: absolute;
-    margin-top: 12%;
-    bottom: 0;
-    left: 0;
-    z-index: 10040;
-    overflow: auto;
-    overflow-y: auto;
-}
-
-
 .dropzone {
     display: flex;
     align-items: center;
@@ -268,8 +253,6 @@ img.company-banner {
     padding: 20px 20px;
 }
 
-/*bootstrap-tagsinput*/
-
 .bootstrap-tagsinput {
     width: 100%;
 }
@@ -281,7 +264,8 @@ img.company-banner {
     color: rgb(85, 85, 85);
     vertical-align: middle;
     max-width: 100%;
-    line-height: 75px;
+    line-height: 50px;
+    height: 150px;
     cursor: text;
     border-width: 1px;
     border-style: solid;
@@ -291,10 +275,10 @@ img.company-banner {
     border-radius: 4px;
 }
 
-    .bootstrap-tagsinput .tag {
-        color: white;
-        display: inline-block;
-    }
+.bootstrap-tagsinput .tag {
+    color: white;
+    display: inline-block;
+}
 
 .label-info {
     background-color: #343a40;
@@ -312,12 +296,10 @@ img.company-banner {
     margin-left: 18px;
 }
 
-    .bootstrap-tagsinput .tag [data-role="remove"]:after {
-        content: "\f410";
-        font-family: 'Font Awesome 5 Free';
-    }
-   
-/* file input */
+.bootstrap-tagsinput .tag [data-role="remove"]:after {
+    content: "\f410";
+    font-family: 'Font Awesome 5 Free';
+}
 
 .file-drop-zone {
     margin:0;
