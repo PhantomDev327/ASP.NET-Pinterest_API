@@ -8,11 +8,13 @@
     height: 30px;
     background: #5a5e64;
 }
+
 .navbar-header .icon-notify {
     position: absolute;
     right: 20px;
     top: 30%;
 }
+
 .page-header {
     background-color: #343a40;
     padding: 2%;
@@ -25,19 +27,24 @@
 }
 
 img.company-banner {
-    width:50%;
+    width: 37.38px;
+    margin-right: 1rem;
 }
 
 .search-wrapper .icon-search {
     color: #bdbdbd;
 }
-.input-group > .form-control:focus {
+
+.input-group>.form-control:focus {
     z-index: revert;
 }
+
+
 /*thumbnail design*/
+
 .thumbnail-container {
     column-count: 4;
-    column-gap: 10px;
+    column-gap: 15px;
 }
 
 .thumbnail-container figure {
@@ -52,7 +59,7 @@ img.company-banner {
     overflow: hidden;
 }
 
-.thumbnail-container figure > img {
+.thumbnail-container figure>img {
     grid-row: 1 / -1;
     grid-column: 1;
     transition: 1s;
@@ -63,8 +70,7 @@ img.company-banner {
     display: block;
 }
 
-
-.thumbnail-container figure > img:hover {
+.thumbnail-container figure>img:hover {
     transform: scale(1.2);
 }
 
@@ -120,7 +126,7 @@ img.company-banner {
 .thumbnail-container .text-wrapper {
     position: absolute;
     padding: 1%;
-    width:18%;
+    width: 18%;
 }
 
 .add-image-container {
@@ -131,12 +137,12 @@ img.company-banner {
 }
 
 .add-image-container a,
-.add-image-container a:hover{
+.add-image-container a:hover {
     color: #ffffff
 }
 
 .modal-registration {
-    width:950px;
+    width: 950px;
 }
 
 .modal-registration .container {
@@ -144,9 +150,8 @@ img.company-banner {
 }
 
 .modal-registration .content {
-    width:100%;
+    width: 100%;
 }
-
 
 .modal-registration .image-uploader-wrapper {
     width: 420px;
@@ -155,10 +160,10 @@ img.company-banner {
     padding: 1%;
 }
 
-    .modal-registration .image-uploader-wrapper img.main {
-        width: 100%;
-        border-radius: 3%;
-    }
+.modal-registration .image-uploader-wrapper img.main {
+    width: 100%;
+    border-radius: 3%;
+}
 
 .modal-registration .input-control {
     width: 100%;
@@ -169,23 +174,21 @@ img.company-banner {
     font-size: 1.3rem;
 }
 
-    .modal-registration .input-control.input-title {
-        margin-top:4%;
-    }
+.modal-registration .input-control.input-title {
+    margin-top: 4%;
+}
 
-    .btn-default {
-        background-color: #343a40;
-        border: none;
-        border-radius: 20px;
-        position: relative;
-        color: #eef2f7
-    }
+.btn-default {
+    background-color: #343a40;
+    border: none;
+    border-radius: 20px;
+    position: relative;
+    color: #eef2f7
+}
 
-        .btn-default:hover {
-            color: #ffffff;
-        }
-
-
+.btn-default:hover {
+    color: #ffffff;
+}
 
 .text-logout {
     float: right;
@@ -194,24 +197,22 @@ img.company-banner {
     color: #fff;
 }
 
-    .text-logout:hover {
-        color: #fff;
-    }
+.text-logout:hover {
+    color: #fff;
+}
 
 .tag-text {
-    font-weight:bold
+    font-weight: bold
 }
 
 .text-align-center {
-    text-align:center;
+    text-align: center;
 }
 
-.text-white {
-    
-}
+.text-white {}
 
 .text-black {
-    color:#000000;
+    color: #000000;
 }
 
 .btn-save {
@@ -229,13 +230,13 @@ img.company-banner {
     display: inline-block;
 }
 
-    .modal-registration .thumbnail-wrapper img.thumbnail {
-        width: 100px;
-        border-radius: 3%;
-    }
+.modal-registration .thumbnail-wrapper img.thumbnail {
+    width: 100px;
+    border-radius: 3%;
+}
 
 .modal-registration .tag-control-container {
-    padding-bottom:5%;
+    padding-bottom: 5%;
 }
 
 .modal-registration .btn-save {
@@ -252,7 +253,6 @@ img.company-banner {
     overflow-y: auto;
 }
 
-
 .dropzone {
     display: flex;
     align-items: center;
@@ -267,6 +267,7 @@ img.company-banner {
     cursor: pointer;
     padding: 20px 20px;
 }
+
 
 /*bootstrap-tagsinput*/
 
@@ -291,17 +292,17 @@ img.company-banner {
     border-radius: 4px;
 }
 
-    .bootstrap-tagsinput .tag {
-        color: white;
-        display: inline-block;
-    }
+.bootstrap-tagsinput .tag {
+    color: white;
+    display: inline-block;
+}
 
 .label-info {
     background-color: #343a40;
     padding: 0 2%;
     background-color: #343a40;
     border-radius: 5px;
-    margin-bottom:1%;
+    margin-bottom: 1%;
 }
 
 .bootstrap-tagsinput input {
@@ -312,18 +313,19 @@ img.company-banner {
     margin-left: 18px;
 }
 
-    .bootstrap-tagsinput .tag [data-role="remove"]:after {
-        content: "\f410";
-        font-family: 'Font Awesome 5 Free';
-    }
-   
+.bootstrap-tagsinput .tag [data-role="remove"]:after {
+    content: "\f410";
+    font-family: 'Font Awesome 5 Free';
+}
+
+
 /* file input */
 
 .file-drop-zone {
-    margin:0;
+    margin: 0;
     padding: 0;
-    height:260px;
-    overflow-y:auto;
+    height: 260px;
+    overflow-y: auto;
 }
 
 .file-preview .fileinput-remove {
