@@ -258,7 +258,7 @@ img.company-banner {
 
 .bootstrap-tagsinput {
     overflow-y: scroll;
-    height: 150px;
+    height: 21vh;
     border-radius: 4px;
 }
 
@@ -320,8 +320,8 @@ img.company-banner {
         max-width: 650px;
     }
 }
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 767px) {
     .bootstrap-tagsinput {
-        min-height: 50px;
+        height: 10vh;
     }
 }
