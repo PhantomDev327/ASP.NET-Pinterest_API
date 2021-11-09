@@ -215,6 +215,10 @@ img.company-banner {
     height: 50px;
 }
 
+.modal-registration {
+    height: 100%;
+    margin: auto;
+}
 .modal-registration .thumbnail-wrapper {
     width: 76px;
     height: 50px;
@@ -234,9 +238,6 @@ img.company-banner {
     padding-bottom: 5%;
 }
 
-.modal-content {
-    height: 83vh;
-}
 .dropzone {
     display: flex;
     align-items: center;
@@ -321,6 +322,10 @@ img.company-banner {
     }
 }
 @media screen and (max-width: 767px) {
+    .modal-registration {
+        margin-left: 5px;
+        margin-right: 5px;
+    }
     .bootstrap-tagsinput {
         height: 10vh;
     }
