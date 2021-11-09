@@ -1,0 +1,9 @@
+﻿@model nxPinterest.Data.Models.UserMedia;
+
+<figure>
+    <img src="@Model.MediaUrl" alt="@Model.MediaFileName" />
+    <figcaption>
+        <p class="title">@Html.DisplayFor(title => Model.MediaTitle)</p>
+        <p class="description">@Html.DisplayFor(description => Model.MediaDescription)</p>
+    </figcaption>
+</figure>

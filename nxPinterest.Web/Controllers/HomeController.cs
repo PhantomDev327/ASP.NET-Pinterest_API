@@ -25,14 +25,17 @@ namespace nxPinterest.Web.Controllers
             this.userMediaManagementService = userMediaManagementService;
         }
 
+        /// <summary>
+        /// Get view index home
+        /// </summary>
+        /// <param name="pageIndex"></param>
+        /// <param name="searchKey"></param>
+        /// <returns></returns>
         public async Task<IActionResult> Index(int pageIndex = 1, string searchKey = "")
         {
             HomeViewModel vm = new HomeViewModel();
 
-            if (string.IsNullOrEmpty(searchKey))
-                vm.UserMediaList = await this.userMediaManagementService.ListUserMediaAsyc(this.UserId);
-            else
-                vm.UserMediaList = await this.userMediaManagementService.SearchUserMediaAsync(searchKey, this.UserId);
+            vm.UserMediaList = await this.userMediaManagementService.SearchUserMediaAsync(searchKey, this.UserId);
 
             int totalPages = (int)System.Math.Ceiling((decimal)(vm.UserMediaList.Count / (decimal)pageSize));
             int skip = (pageIndex - 1) * pageSize;
@@ -65,7 +68,8 @@ namespace nxPinterest.Web.Controllers
                 {
                     string[] current_tags = tags[i].Split(':');
                     string current_tag_name = current_tags[0].Trim();
-                    if (!string.IsNullOrEmpty(current_tag_name)) {
+                    if (!string.IsNullOrEmpty(current_tag_name))
+                    {
                         decimal current_score = decimal.Parse(current_tags[1]);
                         if (current_score < 1)
                             photo_tags.Add(current_tag_name);
@@ -79,10 +83,11 @@ namespace nxPinterest.Web.Controllers
 
                 return PartialView("/Views/Shared/_ImageViewer.cshtml", result);
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 throw ex;
             }
-           
+
         }
 
         [HttpPost]

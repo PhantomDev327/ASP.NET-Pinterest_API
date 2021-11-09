@@ -46,22 +46,24 @@ namespace nxPinterest.Services
         {
             try
             {
-                if (searchKey.Contains(" "))
+                var query = this._context.UserMedia.AsNoTracking()
+                                     .Where(c => c.UserId.Equals(userId));
+
+                if (!String.IsNullOrEmpty(searchKey))
                 {
-                    string[] listSearchKey = Regex.Split(searchKey.Trim(), "[ 　]+", RegexOptions.IgnoreCase);
-                    if (listSearchKey.Length > 0)
+                    if (searchKey.Contains(" "))
                     {
-                        var queries = this._context.UserMedia.AsNoTracking()
-                            .Where(c => c.UserId.Equals(userId))
-                            .Where(c => listSearchKey.Contains(c.Tags) ||
-                            listSearchKey.Contains(c.MediaTitle));
-                        IList<Data.Models.UserMedia> userMediaLists = await queries.OrderByDescending(c => c.MediaId).ToListAsync();
-                        return userMediaLists;
+                        string[] listSearchKey = Regex.Split(searchKey.Trim(), "[ 　]+", RegexOptions.IgnoreCase);
+
+                        query = query.Where(c => listSearchKey.Contains(c.Tags)
+                                || listSearchKey.Contains(c.MediaTitle));
+                    }
+                    else
+                    {
+                        query = query.Where(c => c.Tags.Contains(searchKey) || c.MediaTitle.Contains(searchKey));
                     }
                 }
-                var query = (this._context.UserMedia.AsNoTracking()
-                                     .Where(c => c.UserId.Equals(userId))
-                                     .Where(c => c.Tags.Contains(searchKey) || c.MediaTitle.Contains(searchKey)));
+
                 IList<Data.Models.UserMedia> userMediaList = await query.OrderByDescending(c => c.MediaId).ToListAsync();
                 return userMediaList;
             }
