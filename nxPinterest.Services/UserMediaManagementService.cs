@@ -51,10 +51,10 @@ namespace nxPinterest.Services
 
                 if (!String.IsNullOrEmpty(searchKey))
                 {
-                    if (searchKey.Contains(" "))
-                    {
-                        string[] listSearchKey = Regex.Split(searchKey.Trim(), "[ 　]+", RegexOptions.IgnoreCase);
+                    string[] listSearchKey = Regex.Split(searchKey.Trim(), "[ 　]+", RegexOptions.IgnoreCase);
 
+                    if (listSearchKey.Count() > 1)
+                    {
                         query = query.Where(c => listSearchKey.Contains(c.Tags)
                                 || listSearchKey.Contains(c.MediaTitle));
                     }
