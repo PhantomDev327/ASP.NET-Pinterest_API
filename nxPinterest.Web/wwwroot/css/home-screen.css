@@ -60,6 +60,7 @@ img.company-banner {
 }
 
 .thumbnail-container figure>img {
+    width: 100%;
     grid-row: 1 / -1;
     grid-column: 1;
     transition: 1s;
@@ -141,10 +142,6 @@ img.company-banner {
     color: #ffffff
 }
 
-.modal-registration {
-    width: 950px;
-}
-
 .modal-registration .container {
     display: flex;
 }
@@ -203,7 +200,6 @@ img.company-banner {
 
 .tag-text {
     font-weight: bold;
-    margin-bottom: 1.5rem;
 }
 
 .text-align-center {
@@ -219,6 +215,10 @@ img.company-banner {
     height: 50px;
 }
 
+.modal-registration {
+    height: 100%;
+    margin: auto;
+}
 .modal-registration .thumbnail-wrapper {
     width: 76px;
     height: 50px;
@@ -238,9 +238,6 @@ img.company-banner {
     padding-bottom: 5%;
 }
 
-.modal-content {
-    height: 83vh;
-}
 .dropzone {
     display: flex;
     align-items: center;
@@ -261,34 +258,25 @@ img.company-banner {
 }
 
 .bootstrap-tagsinput {
-    background-color: rgb(255, 255, 255);
-    box-shadow: rgba(0, 0, 0, 0.075) 0px 1px 1px inset;
-    display: inline-block;
-    color: rgb(85, 85, 85);
-    vertical-align: middle;
-    max-width: 100%;
-    line-height: 50px;
-    height: 150px;
-    cursor: text;
-    border-width: 1px;
-    border-style: solid;
-    border-color: #dee2e6;
-    border-image: initial;
-    padding: 4px 6px;
+    overflow-y: scroll;
+    height: 21vh;
     border-radius: 4px;
 }
 
+.bootstrap-tagsinput::-webkit-scrollbar {
+    width: 4px;
+    background-color: #F5F5F5;
+} 
 .bootstrap-tagsinput .tag {
     color: white;
     display: inline-block;
 }
 
 .label-info {
+    padding: 2%;
     background-color: #343a40;
-    padding: 0 2%;
-    background-color: #343a40;
-    border-radius: 5px;
-    margin-bottom: 1%;
+    border-radius: 3px;
+    margin: 5px 10px 5px 10px;
 }
 
 .bootstrap-tagsinput input {
@@ -326,4 +314,19 @@ img.company-banner {
     margin-top: 1%;
     position: absolute;
     left: 40%;
+}
+
+@media screen and (min-width: 730px) and (max-width: 991px) {
+    .modal-dialog {
+        max-width: 650px;
+    }
+}
+@media screen and (max-width: 767px) {
+    .modal-registration {
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+    .bootstrap-tagsinput {
+        height: 10vh;
+    }
 }
