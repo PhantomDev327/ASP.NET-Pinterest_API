@@ -71,7 +71,7 @@
 
 <script>
         (function () {
-            function configureFileUploadControl() {
+            @* function configureFileUploadControl() {
                 var imageUrl = '@primary_image_detail.MediaUrl';
 
                 $('input[name="Images"]').fileinput({
@@ -90,7 +90,7 @@
                 }).on('filedeleted', function () {
                     window.location = '@Url.Action("Index","Home")';
                 });
-            }
+            } *@
 
 
             $('input.btn-save').on('click', function () {
@@ -108,6 +108,6 @@
                 });
             });
 
-            configureFileUploadControl();
+            @* configureFileUploadControl(); *@
         }());
 </script>

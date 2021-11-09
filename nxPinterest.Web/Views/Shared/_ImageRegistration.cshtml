@@ -1,9 +1,6 @@
 ﻿@model nxPinterest.Services.Models.Request.ImageRegistrationRequests
 
-<script src="~/lib/bootstrap-fileinput/js/fileinput.min.js" asp-append-version="true"></script>
 <script src="~/lib/bootstrap-tagsinput/bootstrap-tagsinput.min.js" asp-append-version="true"></script>
-<script src="~/lib/bootstrap-fileinput/js/locales/LANG.js" asp-append-version="true"></script>
-
 
 <div class="modal fade" id="image-registration-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-registration" role="document">
@@ -20,7 +17,7 @@
                                             <form asp-action="UploadMediaFile" asp-controller="ImageManagement" method="post" enctype="multipart/form-data" class="form-horizontal dropzone h-100" name="dropzoneForm" id="dropzoneForm">
                                                 <div class="form-group form-actions">
                                                     <div class="fallback"></div>
-                                                    <input type="file" name="Images" id="upfiles" multiple style="display: none;" />
+                                                    <input type="file" name="Images" id="upfiles" style="display: none;" />
                                                 </div>
                                             </form>
                                             <!-- Dropzone End -->
@@ -59,39 +56,6 @@
 </div>
 
 <script>
-        (function () {
-            function configureFileUploadControl() {
-                $('input[name="Images"]').fileinput({
-                    allowedFileTypes: ['image'],
-                    initialPreviewAsData: true,
-                    overwriteInitial: true,
-                    browseOnZoneClick: true,
-                    showUpload: false,
-                    showBrowse: false,
-                    showCaption: false,
-                    showRemove: false
-                });
-            }
-
-            $('input.btn-save').on('click', function () {
-                var formData = new FormData(document.querySelector('#image-registration-form'))
-
-                showLoader();
-                $.ajax({
-                    url: '@Url.Action("UploadMediaFile", "ImageManagement")',
-                    method: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function (sResponse) {
-                        window.location = '@Url.Action("Index","Home")';
-                    }
-                });
-            });
-
-           configureFileUploadControl();
-    }());
-
     /* DropZone */
     function myParamName() {
         return "upfiles";

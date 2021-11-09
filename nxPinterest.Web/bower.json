@@ -16,7 +16,6 @@
     "tests"
   ],
   "dependencies": {
-    "font-awesome-5": "^5.15.4",
-    "bootstrap-fileinput": "^5.2.6"
+    "font-awesome-5": "^5.15.4"
   }
 }
