@@ -5,48 +5,43 @@
 <div class="modal fade" id="image-registration-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-registration" role="document">
         <div class="modal-content">
-            <div class="modal-body">
+            <div class="modal-body bg-white">
                 <div class="row h-100">
-                    <div class="col">
-                        <div class="container h-100 p-1">
-                            <div class="content">
-                                <div class="row h-100">
-                                    <div class="row h-100">
-                                        <div class="col-md-12">
-                                            <!-- Dropzone Start -->
-                                            <form asp-action="UploadMediaFile" asp-controller="ImageManagement" method="post" enctype="multipart/form-data" class="form-horizontal dropzone h-100" name="dropzoneForm" id="dropzoneForm">
-                                                <div class="form-group form-actions">
-                                                    <div class="fallback"></div>
-                                                    <input type="file" name="Images" id="upfiles" style="display: none;" />
-                                                </div>
-                                            </form>
-                                            <!-- Dropzone End -->
-                                        </div>
-                                    </div>
-                                </div>
+                    <div class="col-12 col-md-6">
+                        <!-- Dropzone Start -->
+                        <form asp-action="UploadMediaFile" asp-controller="ImageManagement" method="post" enctype="multipart/form-data" class="form-horizontal dropzone h-100" name="dropzoneForm" id="dropzoneForm">
+                            <div class="form-group form-actions">
+                                <div class="fallback"></div>
+                                <input type="file" name="Images" id="upfiles" style="display: none;" />
                             </div>
-                            <div class="content">
-                                <input type="text" class="form-control input-control input-title px-0" placeholder="タイトル" asp-for="Title" />
-                                <div class="form-text text-danger mt-4">
-                                    @Html.ValidationMessageFor(c => c.Title)
-                                </div>
-                                <input type="text" class="form-control input-control input-title px-0" placeholder="説明" asp-for="Description" />
-                                <div class="form-text text-danger mt-4">
-                                    @Html.ValidationMessageFor(c => c.Description)
-                                </div>
+                        </form>
+                        <!-- Dropzone End -->
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <input type="text" class="form-control input-control input-title px-0" placeholder="タイトル" asp-for="Title" />
+                        <div class="form-text text-danger mt-4">
+                            @Html.ValidationMessageFor(c => c.Title)
+                        </div>
+                        <input type="text" class="form-control input-control input-title px-0" placeholder="説明" asp-for="Description" />
+                        <div class="form-text text-danger mt-4">
+                            @Html.ValidationMessageFor(c => c.Description)
+                        </div>
 
-                                <div class="tag-control-container">
-                                    <p class="tag-text" style="color: #adb5bd; ">Project Tag</p>
-                                    <input class="form-control text-black" data-role="tagsinput" asp-for="ProjectTags" />
-                                </div>
+                        <div class="tag-control-container" id="style">
+                            <p class="tag-text" style="color: #adb5bd; ">Project Tag</p>
+                            <input data-role="tagsinput" asp-for="ProjectTags" />
+                        </div>
 
-                                <input hidden asp-for="PhotoTags" />
-                                <input hidden asp-for="UserCreated" />
-                                <input hidden asp-for="DateTimeUploaded" />
-                                <div class="text-center">
-                                    <input type="button" value="写真を投稿" class="btn btn-default btn-save" />
-                                </div>
-                            </div>
+                        <div class="tag-control-container" id="style">
+                            <p class="tag-text" style="color: #adb5bd; ">Photo Tag</p>
+                            <input data-role="tagsinput" disabled />
+                        </div>
+
+                        <input hidden asp-for="PhotoTags" />
+                        <input hidden asp-for="UserCreated" />
+                        <input hidden asp-for="DateTimeUploaded" />
+                        <div class="text-center">
+                            <input type="button" value="写真を投稿" class="btn btn-default btn-save" />
                         </div>
                     </div>
                 </div>
