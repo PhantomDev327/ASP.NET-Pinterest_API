@@ -1,0 +1,37 @@
+﻿@model IList<nxPinterest.Data.Models.UserMedia>
+
+<div class="content gallery">
+    <div class="thumbnail-container">
+        @foreach (nxPinterest.Data.Models.UserMedia userMedia in Model)
+        {
+            await Html.RenderPartialAsync("/Views/Home/_HomeImageDetail.cshtml", userMedia);
+        }
+    </div>
+
+</div>
+
+<script>
+    function onViewUserMediaDetails(media_id) {
+        OnGetUserMediaDetails(media_id).then(function (html) {
+            $('.modal-backdrop').hide();
+            $("#image-viewer-modal").remove();
+            $("body").append(html);
+            $("#image-viewer-modal").modal('show');
+        });
+    }
+
+    async function OnGetUserMediaDetails(media_id) {
+        var promise = await new Promise(function (resolve, reject) {
+            $.ajax({
+                url: "@Url.Action("GetUserMediaDetails", "Home")",
+                method: "Post",
+                data: { media_id },
+                success: function (sResult) {
+                    resolve(sResult);
+                }
+            });
+        });
+
+        return promise;
+    }
+</script>
