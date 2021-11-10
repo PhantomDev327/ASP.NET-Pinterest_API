@@ -421,7 +421,7 @@ var Dropzone = function (_Emitter) {
         /**
          * The text used before any files are dropped.
          */
-        dictDefaultMessage: "<i class='fa fa-image'></i> ファイルをドラッグ＆ドロップするか、クリックしてファイルを選択してください",
+            dictDefaultMessage: "<div ><i class='fas fa-cloud-upload-alt fa-5x'></i></div>  <p style='margin:20px 20px 0 0'> ファイルをドラッグ＆ドロップするか、クリックしてファイルを選択してください </p>",
 
         /**
          * The text that replaces the default message text it the browser is not supported.
