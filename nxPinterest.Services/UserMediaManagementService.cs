@@ -210,11 +210,8 @@ namespace nxPinterest.Services
                     userMedia.MediaFileType = result.Result.Name.Split('.').Last();        
                     userMedia.Tags = tagsString;                                            
                     userMedia.MediaThumbnailUrl = result.Result.StorageUri.SecondaryUri.ToString();
-                    //To do add project tag
                     if (projectTab != null)
-                    {
-                        //
-                    }
+                        userMedia.ProjectTags = projectTab;
                 }
                 catch (Exception)
                 {

@@ -14,6 +14,7 @@ namespace nxPinterest.Data.Models
         public string MediaFileType { get; set; }
         public string MediaUrl { get; set; }
         public string Tags { get; set; } // generated photo tags
+        public string ProjectTags { get; set; } // generated ProjectTags
         public string MediaThumbnailUrl { get; set; }
 
         [NotMapped]
