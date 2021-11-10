@@ -1,7 +1,5 @@
 ﻿@model nxPinterest.Services.Models.Request.ImageRegistrationRequests
 
-<script src="~/lib/bootstrap-tagsinput/bootstrap-tagsinput.min.js" asp-append-version="true"></script>
-
 <div class="modal fade" id="image-registration-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-registration " role="document">
         <div class="modal-content">
@@ -11,17 +9,20 @@
                         <div class="boder-form-dropzone ">
                             <div class="scrollspy-example scrollbar-dropzone" data-bs-spy="scroll">
                                 <!-- Dropzone Start -->
-                                <form asp-action="UploadMediaFile" asp-controller="ImageManagement" method="post" enctype="multipart/form-data" class="form-horizontal dropzone h-100 " name="dropzoneForm" id="dropzoneForm">
+                                <form asp-action="UploadMediaFile" asp-controller="UserMedia" method="post" enctype="multipart/form-data"  class="form-horizontal dropzone h-100 " name="dropzoneForm" id="dropzoneForm">
                                     <div class="form-group form-actions">
                                         <div class="fallback "></div>
-                                        <input type="file" name="Images" id="upfiles" style="display: none;" />
+                                        <input type="file" name="Images" id="upfiles" style="display: none;" multiple/>
+                                        <input type="hidden" name="Title" id="title_image" />
+                                        <input type="hidden" name="Description" id="description_image" />
+                                        <input type="hidden" name="ProjectTags" id="project_tags_image" />
                                     </div>
                                 </form>
-                                <!-- Dropzone End -->
+                                <!-- Dropzone End -->                                              
                             </div>
-
                         </div>
                     </div>
+
                     <div class="col-12 col-md-6">
                         <input type="text" class="form-control input-control input-title px-0" placeholder="タイトル" asp-for="Title" />
                         <div class="form-text text-danger mt-4">
@@ -45,7 +46,7 @@
                         <input hidden asp-for="UserCreated" />
                         <input hidden asp-for="DateTimeUploaded" />
                         <div class="text-center">
-                            <input type="button" value="写真を投稿" class="btn btn-default btn-save" />
+                            <input type="button" value="写真を投稿" class="btn btn-default btn-save" id="upload_submit" form="dropzoneForm" />
                         </div>
                     </div>
                 </div>
@@ -54,11 +55,13 @@
     </div>
 </div>
 
+<script src="~/lib/bootstrap-tagsinput/bootstrap-tagsinput.min.js" asp-append-version="true"></script>
 <script>
     /* DropZone */
     function myParamName() {
         return "upfiles";
     }
+    var imageFile = null;
     Dropzone.options.dropzoneForm = {
         paramName: myParamName,
         autoProcessQueue: false,
@@ -67,15 +70,11 @@
             var myDropzone = this;
             $("#upload_submit").click(function (e) {
                 this.disabled = true;
+
                 allFiles = myDropzone.getAcceptedFiles();
-
                 if (allFiles.length > 0) {
-                    const p = document.getElementById("blinking");
-                    p.style.display = "block";
-
                     inputFiles = document.getElementById("upfiles");
                     const dt = new DataTransfer();
-
                     for (i = 0; i < allFiles.length; i++) {
                         dt.items.add(allFiles[i]);
                     }
@@ -84,15 +83,11 @@
                 e.preventDefault();
                 e.stopPropagation();
                 myDropzone.processQueue();
-                document.dropzoneForm.submit();
-            });
 
-            // on add file
-            this.on("addedfile", function (file) {
-            });
-
-            // on remove file
-            this.on("removefile", function (file) {
+                $("#title_image").val($("#Title").val());
+                $("#description_image").val($("#Description").val());
+                $("#project_tags_image").val($("#ProjectTags").val());
+                $('#dropzoneForm').submit();
             });
         },
         accept: function (file, done) {

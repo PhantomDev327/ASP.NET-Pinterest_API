@@ -1,4 +1,5 @@
 ﻿using nxPinterest.Data.Models;
+using nxPinterest.Services.Models.Request;
 using nxPinterest.Services.Models.Response;
 using nxPinterest.Utils;
 using System;
@@ -14,5 +15,6 @@ namespace nxPinterest.Services.Interfaces
         Task<IList<Data.Models.UserMedia>> SearchUserMediaAsync(string searchKey, string userId);
         Task<UserMediaDetailViewModel> GetUserMediaDetailsByIDAsync(int media_id);
         Task DeleteFromUserMedia(UserMedia userMedia);
+        public void UploadMediaFile(ImageRegistrationRequests request, string UserId);
     }
 }
