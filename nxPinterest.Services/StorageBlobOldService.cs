@@ -1,17 +1,17 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.WindowsAzure.Storage;
+﻿using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace nxPinterest.Services
 {
-    public class StorageBlobV2Service
+    public class StorageBlobOldService
     {
         public CloudStorageAccount storageAccount;
-        public StorageBlobV2Service()
+        public StorageBlobOldService()
         {
             string UserConnectionString = string.Format(dev_Settings.storage_connectionString, dev_Settings.storage_accountName, dev_Settings.storage_accountKey);
             storageAccount = CloudStorageAccount.Parse(UserConnectionString);
@@ -62,7 +62,7 @@ namespace nxPinterest.Services
             }
         }
 
-        public async Task<CloudBlockBlob> UploadImageBlobAsync(string BlobName, string ContainerName, IFormFile file)
+        public async Task<CloudBlockBlob> UploadImageBlobAsync(string BlobName, string ContainerName, string filePath)
         {
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             CloudBlobContainer container = blobClient.GetContainerReference(ContainerName.ToLower());
@@ -71,10 +71,10 @@ namespace nxPinterest.Services
             try
             {
                 await container.CreateIfNotExistsAsync(BlobContainerPublicAccessType.Container, null, null);
-
                 using (var ms = new MemoryStream())
                 {
-                    await file.CopyToAsync(ms);
+                    FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+                    await fs.CopyToAsync(ms);
                     ms.Seek(0, SeekOrigin.Begin);
                     await blockBlob.UploadFromStreamAsync(ms);
                 }
@@ -86,7 +86,6 @@ namespace nxPinterest.Services
                 return null;
             }
         }
-
         public async Task<bool> StoreJsonBlobAsync(string fileName, string ContainerName, string json)
         {
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
