@@ -18,18 +18,21 @@ using nxPinterest.Services.Models.Request;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using Newtonsoft.Json;
+using Microsoft.WindowsAzure.Storage.Blob;
 
 namespace nxPinterest.Services
 {
     public class UserMediaManagementService : IUserMediaManagementService
     {
+        #region Field
         public ApplicationDbContext _context;
-        private StorageBlobV2Service _blobService;
+        private StorageBlobService _blobService;
+        #endregion
 
         public UserMediaManagementService(ApplicationDbContext context)
         {
             _context = context;
-            _blobService = new StorageBlobV2Service();
+            _blobService = new StorageBlobService();
         }
 
         public async Task<IList<Data.Models.UserMedia>> ListUserMediaAsyc(string userId = "")
@@ -132,7 +135,6 @@ namespace nxPinterest.Services
             }
         }
 
-
         /// <summary>
         /// Create UserMedia
         /// </summary>
@@ -167,27 +169,25 @@ namespace nxPinterest.Services
 
                 // Upload file (no Validation)
                 Stream imageStream = file.OpenReadStream();
-                var result = _blobService.UploadImageBlobAsync(fileName, ContainerName, (IFormFile)file);
                 string tagsString;
                 string loggedInUserId = UserId;
                 UserMedia userMedia = new UserMedia();
+                var result = _blobService.UploadImageBlobAsync(fileName, ContainerName, (IFormFile)file);
 
                 if (result == null)
                     throw new Exception("Update image fail!");
-                //////////////////// Get tags by ProjectTags ////////////////////
+
+                // Get tags by ProjectTags
                 string projectTab = null;
                 if (request.ProjectTags != null)
-                {
                     projectTab = request.ProjectTags.Trim().Replace(',', '|');
-                }
 
-                //////////////////// Get tags by Computer Vision API ////////////////////
+                // Get tags by Computer Vision API
                 try
                 {
                     ComputerVisionService cv = new ComputerVisionService();
                     // 1 patterns in the prototype
-                    tagsString = cv.GetImageTag_str(result.Result.Uri.ToString());          // Get as parsable string -> 1) SQL and 3) Table
-
+                    tagsString = cv.GetImageTag_str(result.Result.Uri.ToString());          
                     if (String.IsNullOrEmpty(tagsString))
                     {
                         // Computer Vision Error
@@ -200,15 +200,15 @@ namespace nxPinterest.Services
                     throw new Exception("Computer Vision による解析ができませんでした。ファイルは登録されません");
                 }
 
-                //////////////////// Create tags data ////////////////////
+                // Create tags data
                 try
                 {
                     // Create Model data
-                    userMedia.UserId = loggedInUserId;                                      // User ID
-                    userMedia.MediaUrl = result.Result.Uri.ToString();                      // URL of the blob
-                    userMedia.MediaFileName = result.Result.Name;                           // File name
-                    userMedia.MediaFileType = result.Result.Name.Split('.').Last();         // File type
-                    userMedia.Tags = tagsString;                                            // Tags (Parsable string)
+                    userMedia.UserId = loggedInUserId;                                      
+                    userMedia.MediaUrl = result.Result.Uri.ToString();                      
+                    userMedia.MediaFileName = result.Result.Name;                          
+                    userMedia.MediaFileType = result.Result.Name.Split('.').Last();        
+                    userMedia.Tags = tagsString;                                            
                     userMedia.MediaThumbnailUrl = result.Result.StorageUri.SecondaryUri.ToString();
                     //To do add project tag
                     if (projectTab != null)
@@ -216,15 +216,12 @@ namespace nxPinterest.Services
                         //
                     }
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    Console.WriteLine($"Unable to parse '{loggedInUserId},{userMedia.MediaFileName}':{e.Message}");
                     throw new Exception("タグ情報を整形できませんでした。ファイルは登録されません");
                 }
 
-                //////////////////// Save image info and tags data ////////////////////
-
-                // ---------- 1) [SQL database] (as SQL schema Record) ---------- 
+                // Save image info and tags data 
                 try
                 {
                     // Add info image
@@ -235,9 +232,8 @@ namespace nxPinterest.Services
                     _context.UserMedia.Add(userMedia);
                     _context.SaveChanges();
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    Console.WriteLine($"Unable to save to SQL database. UserID:'{loggedInUserId}', MediaFileName:'{userMedia.MediaFileName}', ErrorMessage:'{e.Message}'");
                     throw new Exception("SQL database への登録に失敗しました");
                 }
             }

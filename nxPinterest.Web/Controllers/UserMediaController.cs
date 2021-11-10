@@ -24,21 +24,17 @@ using nxPinterest.Services.Interfaces;
 namespace nxPinterest.Web.Controllers
 {
     [Authorize]
-    public class UserMediaManageController : BaseController
+    public class UserMediaController : BaseController
     {
-        private readonly ILogger<HomeController> _logger;
+        #region Field
         private IUserMediaManagementService _mediaManagementService;
         private readonly ApplicationDbContext _context;
-        private readonly Models.DestinationPathModel _destinationPathModel;
-        private Base64stringUtility encode = new Base64stringUtility("UTF-8");
-        public UserMediaManageController(ILogger<HomeController> logger,
-                                         IOptions<Models.DestinationPathModel> destinationPathModel,
-                                         ApplicationDbContext context,
+        #endregion
+
+        public UserMediaController(ApplicationDbContext context,
                                          IUserMediaManagementService mediaManagementService)
         {
-            this._logger = logger;
             this._context = context;
-            this._destinationPathModel = destinationPathModel.Value;
             _mediaManagementService = mediaManagementService;
         }
 
@@ -54,7 +50,7 @@ namespace nxPinterest.Web.Controllers
             if (!ModelState.IsValid)
             {
                 // To Do
-                ViewBag.Message = "Validate fails!";
+                TempData["Message"] = "Validate fails!";
                 return View("~/Views/Error/204.cshtml");
             }
 
@@ -65,10 +61,9 @@ namespace nxPinterest.Web.Controllers
             }
             catch (Exception ex)
             {
-                ViewBag.Message = ex.Message;
+                TempData["Message"] = ex.Message;
                 return View("~/Views/Error/204.cshtml");
             }
-
             return RedirectToAction("Index","Home");
         }
     }

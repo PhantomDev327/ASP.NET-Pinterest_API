@@ -26,7 +26,7 @@ namespace nxPinterest.Web.Controllers
     public class ImageManagementController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
-        private StorageBlobService blobService;
+        private StorageBlobOldService blobService;
         private readonly ApplicationDbContext _context;
         private readonly Models.DestinationPathModel _destinationPathModel;
         private Base64stringUtility encode = new Base64stringUtility("UTF-8");
@@ -38,7 +38,7 @@ namespace nxPinterest.Web.Controllers
             this._context = context;
             this._destinationPathModel = destinationPathModel.Value;
 
-            blobService = new StorageBlobService();
+            blobService = new StorageBlobOldService();
         }
 
 

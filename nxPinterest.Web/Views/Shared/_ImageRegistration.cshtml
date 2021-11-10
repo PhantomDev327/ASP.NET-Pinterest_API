@@ -7,7 +7,7 @@
                 <div class="row h-100">
                     <div class="col-12 col-md-6">
                         <!-- Dropzone Start -->
-                        <form asp-action="UploadMediaFile" asp-controller="UserMediaManage" method="post" enctype="multipart/form-data" class="form-horizontal dropzone h-100" name="dropzoneForm" id="dropzoneForm">
+                        <form asp-action="UploadMediaFile" asp-controller="UserMedia" method="post" enctype="multipart/form-data" class="form-horizontal dropzone h-100" name="dropzoneForm" id="dropzoneForm">
 
                             <div class="form-group form-actions">
                                 <div class="fallback"></div>
@@ -76,8 +76,6 @@
                         dt.items.add(allFiles[i]);
                     }
                     inputFiles.files = dt.files;
-                    var a = $("#upfiles").val();
-                    console.log({ a })
                 }
                 e.preventDefault();
                 e.stopPropagation();
