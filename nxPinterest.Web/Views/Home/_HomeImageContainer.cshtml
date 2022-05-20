@@ -1,6 +1,6 @@
 ﻿@model IList<nxPinterest.Data.Models.UserMedia>
 
-<div class="content gallery">
+<div class="content gallery" id="contentGallery">
     <div class="thumbnail-container">
         @foreach (nxPinterest.Data.Models.UserMedia userMedia in Model)
         {
@@ -12,11 +12,15 @@
 
 <script>
     function onViewUserMediaDetails(media_id) {
+        $("#imagePreview").html("");
+
         OnGetUserMediaDetails(media_id).then(function (html) {
-            $('.modal-backdrop').hide();
-            $("#image-viewer-modal").remove();
-            $("body").append(html);
-            $("#image-viewer-modal").modal('show');
+            $("#contentGallery").hide();
+            $("#sectionPagination").hide();
+            $(".add-image-container").hide();
+            
+            $("#imagePreview").append(html);
+            $("#imagePreview").show();
         });
     }
 
@@ -34,4 +38,13 @@
 
         return promise;
     }
+
+    function ShowHomeImageContainer() {
+        $("#imagePreview").hide();
+        $("#imagePreview").html("");
+        $(".add-image-container").show();
+        $("#sectionPagination").show();
+        $("#contentGallery").show();
+    }
+
 </script>

@@ -22,6 +22,7 @@ namespace nxPinterest.Web.Extensions
 
         public static IServiceCollection AddServices(this IServiceCollection service) {
             service.AddTransient<Services.Interfaces.IUserMediaManagementService, Services.UserMediaManagementService>();
+            service.AddTransient<Services.Interfaces.IUserContainerManagementService, Services.UserContainerManagementService>();
             return service;
         }
     }

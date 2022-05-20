@@ -15,6 +15,7 @@ namespace nxPinterest.Data
         public virtual DbSet<EditTags> EditTags { get; set; }
         public virtual DbSet<EditTag> EditTag { get; set; }
         public virtual DbSet<SearchResultUserMedia> SearchResultUserMedia { get; set; }
+        public virtual DbSet<UserContainer> UserContainer { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -71,6 +72,16 @@ namespace nxPinterest.Data
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("UserMedia_fk_User");
+            });
+
+            modelBuilder.Entity<UserContainer>(entity =>
+            {
+                entity.HasKey(e => e.container_id)
+                    .HasName("PK__UserContainer");
+
+                entity.Property(e => e.container_id)
+                .ValueGeneratedOnAdd()
+                .HasColumnName("container_id");
             });
 
             base.OnModelCreating(modelBuilder);

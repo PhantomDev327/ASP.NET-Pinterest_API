@@ -1,9 +1,11 @@
 ﻿using Microsoft.Azure.Cosmos;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using nxPinterest.Data.Models;
 using nxPinterest.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -31,17 +33,35 @@ namespace nxPinterest.Services
             }
         }
 
+        public async Task<UserMediaCosmosJSON> SelectByUserIDAsync(string databaseName, string containerName, string userid)
+        {
+            CosmosClient cosmosClient = new CosmosClient(dev_Settings.cosmos_endpointUri, dev_Settings.cosmos_accountKey);
+            Database database = cosmosClient.GetDatabase(databaseName);
+            Container container = database.GetContainer(containerName);
+
+            try
+            {
+                await container.GetItemLinqQueryable<UserMediaCosmosJSON>(true).Select(u => u.UserId == userid).ToListAsync();
+                return null;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return null;
+            }
+        }
+
         public async Task<bool> InsertOneItemAsync(string databaseName, string containerName, string json)
         {
             CosmosClient cosmosClient = new CosmosClient(dev_Settings.cosmos_endpointUri, dev_Settings.cosmos_accountKey);
             Database database = cosmosClient.GetDatabase(databaseName);
             Container container = database.GetContainer(containerName);
 
-            database = await cosmosClient.CreateDatabaseIfNotExistsAsync(databaseName);
-            container = await database.CreateContainerIfNotExistsAsync(containerName, "/id");
-
             try
             {
+                database = await cosmosClient.CreateDatabaseIfNotExistsAsync(databaseName);
+                container = await database.CreateContainerIfNotExistsAsync(containerName, "/id");
+
                 UserMediaCosmosJSON userMedia = JsonConvert.DeserializeObject<UserMediaCosmosJSON>(json);
                 Base64stringUtility encode = new Base64stringUtility("UTF-8");
                 inserted_id = userMedia.Id = (encode.Encode(userMedia.UserId + DateTime.Now.ToString("_yyyyMMddHHmmss_") + userMedia.MediaFileName)).Replace("+", "==");
@@ -54,6 +74,7 @@ namespace nxPinterest.Services
                 return false;
             }
         }
+
         public async Task<bool> UpdateOneItemAsync(string databaseName, string containerName, string id, UserMediaCosmosJSON json)
         {
             CosmosClient cosmosClient = new CosmosClient(dev_Settings.cosmos_endpointUri, dev_Settings.cosmos_accountKey);

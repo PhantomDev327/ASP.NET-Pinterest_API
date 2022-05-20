@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31515.178
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32328.378
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nxPinterest.Web", "nxPinterest.Web\nxPinterest.Web.csproj", "{6816A321-E459-437D-ADCB-2ABD712DA37C}"
 EndProject
@@ -10,11 +10,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nxPinterest.Services", "nxPinterest.Services\nxPinterest.Services.csproj", "{03D83FC6-A3F2-4010-A8D7-72227B0E82C5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nxPinterest.Services", "nxPinterest.Services\nxPinterest.Services.csproj", "{03D83FC6-A3F2-4010-A8D7-72227B0E82C5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nxPinterest.Data", "nxPinterest.Data\nxPinterest.Data.csproj", "{D33A7D1E-A4E0-4EB6-B154-94841F4D13AC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nxPinterest.Data", "nxPinterest.Data\nxPinterest.Data.csproj", "{D33A7D1E-A4E0-4EB6-B154-94841F4D13AC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nxPinterest.Utils", "nxPinterest.Utils\nxPinterest.Utils.csproj", "{FAF9D134-3F7A-4953-B0A0-0BB03072FF05}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nxPinterest.Utils", "nxPinterest.Utils\nxPinterest.Utils.csproj", "{FAF9D134-3F7A-4953-B0A0-0BB03072FF05}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

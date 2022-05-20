@@ -26,10 +26,11 @@
     await Html.RenderPartialAsync("/Views/Shared/_ImageRegistration.cshtml", Model.ImageRegistrationRequests);
 }
 
+
 @{
     if (hasPagination)
     {
-        <div class="section-pagination">
+        <div class="section-pagination" id="sectionPagination">
             <div style="text-align:center">
                 <span style="color:dimgrey">@Model.PageIndex / @Model.TotalPages ページ (@ViewBag.ItemCount 件)</span>
             </div>

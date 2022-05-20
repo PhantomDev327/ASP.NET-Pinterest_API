@@ -56,65 +56,9 @@ namespace nxPinterest.Web.Controllers
                 {
                     string media_title = request.Title;
                     string media_desc = request.Description;
-                    int userMediaId = 0;
+                    //int userMediaId = 0;
                     IList<IFormFile> uploaded_images = request.Images;
                     string projectTags = request.ProjectTags;
-
-                    if (!isUpdate)
-                    {
-                        IList<Web.Models.FileInfo> _files = new List<Web.Models.FileInfo>();
-                        for (int i = 0; i < uploaded_images.Count; i++)
-                        {
-
-                            Web.Models.FileInfo _info = new Web.Models.FileInfo();
-
-                            IFormFile _imageFile = uploaded_images[i];
-
-                            MemoryStream ms = new MemoryStream();
-                            _imageFile.CopyTo(ms);
-
-                            Bitmap map = new Bitmap(ms);
-
-                            Image primary_image = resizeImage((Image)map, new Size(1920, 1080));
-                            Image secondary_image = resizeImage((Image)map, new Size(600, 600));
-
-                            byte[] primary_image_bytes = ConvertImageToBytes(primary_image);
-                            byte[] secondary_image_bytes = ConvertImageToBytes(secondary_image);
-
-                            string containerName = Services.dev_Settings.blob_containerName_image;
-                            string primary_file_name = Path.GetFileNameWithoutExtension(_imageFile.FileName) + "_primary" + Path.GetExtension(_imageFile.FileName);
-                            string secondary_file_name = Path.GetFileNameWithoutExtension(_imageFile.FileName) + "_thumbnail" + Path.GetExtension(_imageFile.FileName);
-                            string primary_image_path = Path.Combine(this._destinationPathModel.PrimaryImagePath, GetFileName(containerName, primary_file_name));
-                            string secondary_image_path = Path.Combine(this._destinationPathModel.SecondaryImagePath, GetFileName(containerName, secondary_file_name));
-
-                            await System.IO.File.WriteAllBytesAsync(primary_image_path, primary_image_bytes);
-                            await System.IO.File.WriteAllBytesAsync(secondary_image_path, secondary_image_bytes);
-
-                            _info.PrimaryImagePath = primary_image_path;
-                            _info.SecondaryImagePath = secondary_image_path;
-
-                            _files.Add(_info);
-                        }
-
-
-                        for (int i = 0; i < _files.Count; i++)
-                        {
-                            Web.Models.FileInfo fileInfo = _files[i];
-
-                            string primary_image_filename = fileInfo.PrimaryImagePath;
-                            string secondary_image_filename = fileInfo.SecondaryImagePath;
-
-                            string containerName = Services.dev_Settings.blob_containerName_image;
-                            string[] ids = new string[3];
-
-
-                            UserMedia primary_image_user_media = await InsertIntoUserMedia(primary_image_filename, containerName, primary_image_filename, media_title, media_desc, projectTags);
-                            UserMedia secondary_image_user_media = await UpdateUserMediaThumbnailUrl(primary_image_user_media.MediaId, secondary_image_filename, containerName, secondary_image_filename);
-
-                            ids[1] = InsertOnUserMediaStorageTable(primary_image_user_media);
-                            InsertOnMediaId(primary_image_user_media, ids);
-                        }
-                    }
 
                     if (isUpdate)
                     {
@@ -152,11 +96,12 @@ namespace nxPinterest.Web.Controllers
             {
                 if (userMedia != null)
                 {
-                    string[] user_input_tags = projectTags.Split(',');
-                    user_input_tags = user_input_tags.Select(user_input => user_input.Trim()).ToArray();
+                    if (projectTags != null) {
+                        projectTags = projectTags.Trim().Replace(',', '|');
+                    }
 
                     string[] tag_list = userMedia.Tags.Split('|');
-                    IList<string> tag_list_container = new List<string>();
+                    IList<string> phototag_list_container = new List<string>();
                     for (int i = 0; i < tag_list.Count(); i++) {
                         string[] tag_input = tag_list[i].Split(':');
                         string tag_name = tag_input[0];
@@ -165,19 +110,13 @@ namespace nxPinterest.Web.Controllers
                             int type = int.Parse(tag_input[2]);
 
                             if (score < 1)
-                                tag_list_container.Add(string.Format("{0}:{1}:{2}|", tag_name, score, type));
+                                phototag_list_container.Add(string.Format("{0}:{1}:{2}|", tag_name, score, type));
                         }
                     }
 
-                    for (int i = 0; i < user_input_tags.Count(); i ++) {
-                        string tag_name = user_input_tags[i];
-                        decimal score = 1;
-                        int type = 1;
-                        tag_list_container.Add(string.Format("{0}:{1}:{2}|", tag_name, score, type));
-                    }
-
-                    string tagString = String.Join("", tag_list_container);
+                    string tagString = String.Join("", phototag_list_container);
                     userMedia.Tags = tagString;
+                    userMedia.ProjectTags = projectTags;
                 }
                 return true;
             }
@@ -313,6 +252,7 @@ namespace nxPinterest.Web.Controllers
 
             return id;
         }
+
         private string InsertOnUserMediaStorageTable(UserMedia userMedia)
         {
             UserMediaStorageTableEntity userMediaStorageTableEntity = new UserMediaStorageTableEntity();

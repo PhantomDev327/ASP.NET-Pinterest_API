@@ -10,5 +10,7 @@ namespace nxPinterest.Services.Models.Response
     {
         public UserMedia UserMediaDetail { get; set; }
         public IList<UserMedia> UserMediaList { get; set; }
+        public IList<UserMedia> RelatedUserMediaList { get; set; }
+        public IList<string> project_tags_list { get; set; }
     }
 }

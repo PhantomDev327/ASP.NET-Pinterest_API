@@ -66,5 +66,114 @@ namespace nxPinterest.Web.Controllers
             }
             return RedirectToAction("Index","Home");
         }
+
+        /*
+         * 個別編集
+         */
+        public IActionResult IndividualImageRegistration()
+        {
+            string path = "./wwwroot/images/temp/" + this.UserId;
+            if (Directory.Exists(path))
+            {
+                foreach (string filename in Directory.GetFiles(path))
+                {
+                    System.IO.File.Delete(filename);
+                }
+                Directory.Delete(path);
+            }
+            Directory.CreateDirectory(path);
+            Services.Models.Request.IndividualImageRegistrationRequests vm = new Services.Models.Request.IndividualImageRegistrationRequests();
+            return View(vm);
+        }
+
+        /// <summary>
+        /// Create Media User
+        /// </summary>
+        /// <param name="request">Data from</param>
+        /// <returns></returns>
+        [HttpPost]
+        public IActionResult UploadImageFile(IndividualImageRegistrationRequests request)
+        {
+            request.imageInfoListSize = request.ImageInfoList.Count;
+            if (request.imageInfoListSize == 0)
+            {
+                TempData["custom-validation-message"] = "Please Insert Images!";
+                return this.View("~/Views/Shared/IndividualImageRegistration.cshtml", request);
+            }
+            // Validate param
+            if (!ModelState.IsValid)
+            {
+                TempData["Message"] = "Validate fails!";
+                return View("~/Views/Error/204.cshtml");
+            }
+
+            try
+            {
+                string path = "./wwwroot/images/temp/" + this.UserId;
+                for (int i = 0; i < request.ImageInfoList.Count; i++)
+                {
+                    string pathImage = path +"/"+ request.ImageInfoList[i].imgName;
+                    FileStream file = new FileStream(pathImage, FileMode.Open);
+                    var ms = new MemoryStream();
+                    file.CopyTo(ms);
+                    IFormFile f = new FormFile(ms, 0, ms.Length, request.ImageInfoList[i].imgName, request.ImageInfoList[i].imgName);
+                    request.ImageInfoList[i].Images = f;
+                    file.Close();
+                }
+                _mediaManagementService.UploadImageFile(request, UserId);
+                if (Directory.Exists(path))
+                {
+                    foreach (string filename in Directory.GetFiles(path))
+                    {
+                        System.IO.File.Delete(filename);
+                    }
+                    Directory.Delete(path);
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Message"] = ex.Message;
+                return View("~/Views/Error/204.cshtml");
+            }
+            return RedirectToAction("Index", "Home");
+        }
+
+        /// <summary>
+        /// Create Media User
+        /// </summary>
+        /// <param name="request">Data from</param>
+        /// <returns></returns>
+        [HttpPost]
+        public IActionResult UploadImageFileHidden(IndividualImageRegistrationRequests request)
+        {
+            request.imageInfoListSize = request.ImageInfoList.Count;
+
+            // UserIDでフォルダを作成
+            string path = "./wwwroot/images/temp/" + this.UserId;
+            string path2 = "/images/temp/" + this.UserId + "/";
+
+
+            for (int i = 0; i < request.imageInfoListSize; i++){
+                ImageInfo img = request.ImageInfoList[i];
+
+                if (img.Images != null)
+                {
+                    
+                    using (FileStream stream = new FileStream(Path.Combine(path, img.Images.FileName), FileMode.Create))
+                    {
+                        img.Images.CopyTo(stream);
+                    }
+                    String fullPath = path +"/"+ img.Images.FileName;
+                    String imgNewWithouExt = Path.GetFileNameWithoutExtension(fullPath);
+                    String imgNewPath = fullPath.Replace(imgNewWithouExt, imgNewWithouExt + "-" + i);
+                    System.IO.File.Move(fullPath, imgNewPath);
+                    System.IO.FileInfo imgInfo = new System.IO.FileInfo(imgNewPath);
+                    request.ImageInfoList[i].imgName = imgInfo.Name;
+                    request.ImageInfoList[i].url = path2 + imgInfo.Name;
+                }
+            }
+            
+            return this.View("~/Views/Shared/IndividualImageRegistration.cshtml", request);
+        }
     }
 }

@@ -1,113 +1,150 @@
-﻿@using nxPinterest.Data.Models; 
+﻿@using nxPinterest.Data.Models;
 @model nxPinterest.Services.Models.Response.UserMediaDetailViewModel
+@{
+    ViewData["Title"] = "画像選択";
+    Layout = "~/Views/Shared/_ImageLayout.cshtml";
 
-@{ 
-    UserMedia primary_image_detail = Model.UserMediaDetail;
+	UserMedia primary_image_detail = Model.UserMediaDetail;
 }
 
 <script src="~/lib/bootstrap-fileinput/js/fileinput.min.js" asp-append-version="true"></script>
 <script src="~/lib/bootstrap-tagsinput/bootstrap-tagsinput.min.js" asp-append-version="true"></script>
 <script src="~/lib/bootstrap-fileinput/js/locales/LANG.js" asp-append-version="true"></script>
 
-<div class="modal fade" id="image-viewer-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-image-viewer" role="document">
-        <form method="post" id="update-user-media-form" enctype="multipart/form-data" asp-action="UpdateMediaFile" asp-controller="ImageManagement">
-            <div class="modal-content">
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col">
-                            <div class="container">
-                                <div class="content text-align-center ">
-                                    <div class="row">
-                                        <div class="col">
-                                            <div class="image-uploader-wrapper">
-                                               <input type="file" multiple class="form-control file" accept="image/*" name="Images"/>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col">
-                                            <div class="thumbnail-section-wrapper">
-                                                @for (int i = 0; i < Model.UserMediaList.Count(); i++)
-                                                {
-                                                    var userMediaThumbnail = Model.UserMediaList[i];
-                                                    string activeClass = userMediaThumbnail.MediaFileName.Equals(primary_image_detail.MediaFileName)?"active": "";
-                                                    
+<div id="image-viewer-modal" tabindex="-1">
+	<div class="left-arrow-container">
+		<a href="@Url.Action("Index", "Home", new { pageIndex = 1})">
+			<i class="fas fa-arrow-circle-left fa-3x"></i>
+		</a>
+	</div>
+	<div class="modal-dialog modal-xl modal-image-viewer" role="document">
+		<form method="post" id="update-user-media-form" enctype="multipart/form-data" asp-action="DeleteUserMedia" asp-controller="Home">
+			<div class="modal-content">
+				<div class="modal-body bg-white">
+					<div class="row">
+						<div class="col">
+							<div class="container">
+								<div class="content h-100">
+									<div class="row">
+										<div class="image-uploader-wrapper">
+											<figure>
+												<img src="@primary_image_detail.MediaUrl" alt="@primary_image_detail.MediaFileName" class="main" />
+											</figure>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col">
+											<div class="thumbnail-section-wrapper">
+												@for (int i = 0; i < Model.UserMediaList.Count(); i++)
+												{
+													var userMediaThumbnail = Model.UserMediaList[i];
+													string activeClass = userMediaThumbnail.MediaFileName.Equals(primary_image_detail.MediaFileName) ? "active" : "";
 
-                                                    <div class="thumbnail-wrapper @activeClass" onclick="onViewUserMediaDetails('@userMediaThumbnail.MediaId')">
-                                                        <img src="@userMediaThumbnail.MediaUrl" class="thumbnail" />
-                                                    </div>
-                                                }
-                                            </div>   
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="content">
-                                    <input type="text" class="form-control input-control input-title" placeholder="田代歯科医院" asp-for="UserMediaDetail.MediaTitle" name="Title" />
-                                    <textarea rows="3" class="form-control input-control input-explanation" placeholder="ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。" asp-for="UserMediaDetail.MediaDescription" name="Description"></textarea>
+													<div class="thumbnail-wrapper @activeClass" >
+														<a href="@Url.Action("GetUserMediaDetails", "Home", new { media_id = @userMediaThumbnail.MediaId })">
+															<img src="@userMediaThumbnail.MediaUrl" class="thumbnail" />
+														</a>
+													</div>
+												}
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col">
+							<div class="mb-2">
+								<div class="content">
+									<input type="text" class="form-control input-control input-title " placeholder="田代歯科医院" asp-for="UserMediaDetail.MediaTitle" name="Title" />
+									<textarea rows="3" class="form-control input-control input-explanation" placeholder="ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。" asp-for="UserMediaDetail.MediaDescription" name="Description" ></textarea>
 
-                                    <div class="tag-control-container">
-                                        <p class="text-black tag-text">Project Tag</p>
-                                         <input class="form-control text-black" data-role="tagsinput" value="@ViewBag.PorjectTags" name="ProjectTags" />
-                                    </div>
+									<div class="tag-control-container">
+										<p class="text-black tag-text">Project Tag</p>
+										<input class="form-control text-black" data-role="tagsinput" value="@ViewBag.PorjectTags" name="ProjectTags" />
+									</div>
 
-                                    <div class="tag-control-container">
-                                        <p class="text-black tag-text">Photo Tag</p>
-                                        <input class="form-control text-black" data-role="tagsinput" value="@ViewBag.PhotoTags" name="PhotoTags" disabled/>
-                                    </div>
+									<input hidden asp-for="@primary_image_detail.MediaId" name="MediaId" />
 
-                                    <input hidden asp-for="@primary_image_detail.MediaId" name="MediaId" />
+									<div class="text-center">
+										<input type="button" value="保存" class="btn btn-default btn-save" style="margin-left:0" id="btn-save" />
+										<a class="btn btn-lg btn-danger btn-delete" onclick="filedelete('@primary_image_detail.MediaId');" style="border-radius: 1.3rem;">
+											削除
+										</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>			
+			</div>
+		</form>
+	</div>
+			
+	<div class="content gallery">
+		<br />
+		<h5>似ている画像</h5>
+		<br /><br />
+		<div class="thumbnail-container">
+			@foreach (nxPinterest.Data.Models.UserMedia userMedia in Model.RelatedUserMediaList)
+			{
+				await Html.RenderPartialAsync("/Views/Home/_HomeImageDetail.cshtml", userMedia);
+			}
+		</div>
+	</div>
 
-                                    <input type="button" value="写真を投稿" class="btn btn-default btn-save" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
 </div>
 
 <script>
-        (function () {
-            @* function configureFileUploadControl() {
-                var imageUrl = '@primary_image_detail.MediaUrl';
+		//(function () {
+			// function configureFileUploadControl() {
+			//	var imageUrl = '@primary_image_detail.MediaUrl';
 
-                $('input[name="Images"]').fileinput({
-                    allowedFileTypes: ['image'],
-                    deleteUrl: '@Url.Action("DeleteUserMedia", "Home", new { media_id = Model.UserMediaDetail.MediaId })',
-                    initialPreviewAsData: true,
-                    overwriteInitial: true,
-                    browseOnZoneClick: true,
-                    initialPreview: [
-                        imageUrl
-                    ],
-                    showUpload: false,
-                    showBrowse: false,
-                    showCaption: false,
-                    showRemove: false
-                }).on('filedeleted', function () {
-                    window.location = '@Url.Action("Index","Home")';
-                });
-            } *@
+			//	$(this).fileinput({
+			//		allowedFileTypes: ['image'],
+			//		deleteUrl: '@Url.Action("DeleteUserMedia", "Home", new { media_id = Model.UserMediaDetail.MediaId })',
+			//		initialPreviewAsData: true,
+			//		overwriteInitial: true,
+			//		browseOnZoneClick: true,
+			//		initialPreview: [
+			//			imageUrl
+			//		],
+			//		showUpload: false,
+			//		showBrowse: false,
+			//		showCaption: false,
+			//		showRemove: false
+			//	}).on('filedeleted', function () {
+			//		window.location = '@Url.Action("Index","Home")';
+			//	});
+			//}
 
+		function filedelete(media_id) {
+			$.ajax({
+				url: "@Url.Action("DeleteUserMedia", "Home", new { media_id = Model.UserMediaDetail.MediaId })",
+                method: "Post",
+                data: { media_id },
+				processData: false,
+				contentType: false,
+				success: function (sResponse) {
+					window.location = '@Url.Action("Index","Home")';
+				}
+			});
+		}
 
-            $('input.btn-save').on('click', function () {
-                var formData = new FormData(document.querySelector('#update-user-media-form'))
+		$('input.btn-save').on('click', function () {
+			var formData = new FormData(document.querySelector('#update-user-media-form'))
 
-                $.ajax({
-                    url: '@Url.Action("UploadMediaFile", "ImageManagement")',
-                    method: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function (sResponse) {
-                        window.location = '@Url.Action("Index","Home")';
-                    }
-                });
-            });
+			$.ajax({
+				url: '@Url.Action("UploadMediaFile", "ImageManagement")',
+				method: 'POST',
+				data: formData,
+				processData: false,
+				contentType: false,
+				success: function (sResponse) {
+					window.location = '@Url.Action("Index","Home")';
+				}
+			});
+		});
 
-            @* configureFileUploadControl(); *@
-        }());
+	@* configureFileUploadControl(); *@
+	//}());
 </script>

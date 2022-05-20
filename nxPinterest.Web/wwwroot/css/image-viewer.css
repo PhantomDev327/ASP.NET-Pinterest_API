@@ -4,7 +4,7 @@
 
     .modal-image-viewer .container {
         display: flex;
-        padding-bottom: 5%;
+        padding-bottom: 15%;
     }
 
     .modal-image-viewer .content {
@@ -14,14 +14,17 @@
 
     .modal-image-viewer .image-uploader-wrapper {
         width: 420px;
-        border: 1px solid #e7ebf0;
         border-radius: 3%;
         padding: 1%;
     }
 
         .modal-image-viewer .image-uploader-wrapper img.main {
             width: 100%;
+            height: 100%;
+            max-width: 420px;
+            max-height: 300px;
             border-radius: 3%;
+            object-fit: cover;
         }
 
     .modal-image-viewer .input-control {
@@ -30,23 +33,24 @@
         border: none;
         border-bottom: 1px solid #808080;
         border-radius: 0;
+        resize: none;
     }
 
         .modal-image-viewer .input-control.input-title {
-            margin-top: 10%;
+            margin-top: 5%;
         }
 
 
     .modal-image-viewer .thumbnail-wrapper {
-        width: 76px;
-        height: 50px;
+        width: 80px;
+        height: 60px;
         border: none;
-        padding-right: 26%;
         display: inline-block;
     }
 
         .modal-image-viewer .thumbnail-wrapper img.thumbnail {
-            width: 100px;
+            width: 100%;
+            height: 100%;
             border-radius: 3%;
         }
             .modal-image-viewer .thumbnail-wrapper img.thumbnail:hover {
@@ -60,9 +64,10 @@
         .modal-image-viewer .thumbnail-section-wrapper {
             overflow-x: auto;
             white-space: nowrap;
-            height: 115px;
+            height: 100%;
             width: 420px;
             margin-top: 5%;
+            flex-wrap: wrap;
         }
 
     .modal-image-viewer .tag-control-container {
@@ -72,3 +77,38 @@
     .modal-image-viewer .btn-save {
         margin-left: 22%;
     }
+
+
+.dots-image-container {
+    margin-left: 90%;
+}
+
+    .dots-image-container a,
+    .dots-image-container a:hover {
+        color: #000000
+    }
+
+.left-arrow-container {
+    position: fixed;
+}
+
+    .left-arrow-container a,
+    .left-arrow-container a:hover {
+        color: #ffffff
+    }
+
+.bootstrap-tagsinput {
+    overflow-y: scroll;
+    height: 25vh;
+    border-radius: 4px;
+}
+
+.image-preview {
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+h5, .h5 {
+    margin-left: 45%;
+}

@@ -1,0 +1,112 @@
+﻿@using nxPinterest.Data.Models;
+@model nxPinterest.Services.Models.Response.UserMediaDetailViewModel
+@{
+    ViewData["Title"] = "画像選択";
+    Layout = "~/Views/Shared/_ImageLayout.cshtml";
+
+	UserMedia primary_image_detail = Model.UserMediaDetail;
+}
+
+<script src="~/lib/bootstrap-fileinput/js/fileinput.min.js" asp-append-version="true"></script>
+<script src="~/lib/bootstrap-tagsinput/bootstrap-tagsinput.min.js" asp-append-version="true"></script>
+<script src="~/lib/bootstrap-fileinput/js/locales/LANG.js" asp-append-version="true"></script>
+
+<div id="image-viewer-modal" tabindex="-1">
+	<div class="left-arrow-container">
+		<a href="@Url.Action("Index", "Home", new { pageIndex = 1})">
+			<i class="fas fa-arrow-circle-left fa-3x"></i>
+		</a>
+	</div>
+	<div class="modal-dialog modal-xl modal-image-viewer" role="document">
+		<form method="post" id="update-user-media-form" enctype="multipart/form-data" asp-action="DeleteUserMedia" asp-controller="Home">
+			<div class="modal-content">
+				<div class="modal-body bg-white">
+					<div class="row">
+						<div class="col">
+							<div class="content h-100">
+								<div class="row" style = "margin-left: 0px;">
+									<div class="image-uploader-wrapper">
+										<figure>
+											<img src="@primary_image_detail.MediaUrl" alt="@primary_image_detail.MediaFileName" class="main" />
+										</figure>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col">
+										<div class="thumbnail-section-wrapper">
+											@for (int i = 0; i < Model.UserMediaList.Count(); i++)
+											{
+												var userMediaThumbnail = Model.UserMediaList[i];
+												string activeClass = userMediaThumbnail.MediaFileName.Equals(primary_image_detail.MediaFileName) ? "active" : "";
+
+												<div class="thumbnail-wrapper @activeClass" >
+													<a href="@Url.Action("GetUserMediaDetails", "Home", new { media_id = @userMediaThumbnail.MediaId })">
+														<img src="@userMediaThumbnail.MediaUrl" class="thumbnail" />
+													</a>
+												</div>
+											}
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col ">
+							<div class="">
+								<div class="content">
+									<div class="dots-image-container">
+										<a href="@Url.Action("GetUserMediaViewer", "Home", new { media_id = @primary_image_detail.MediaId })">
+											<i class="fas fa-ellipsis-h fa-2x" style="color:black"></i>
+										</a>
+									</div>
+									<h5 style="color:black;margin-left: 0%;">@primary_image_detail.MediaTitle</h5>
+									<br />
+									<p style="color:black;margin-left: 0%;">
+										@primary_image_detail.MediaDescription
+									</p>
+									<br />
+									<p class="text-black tag-text">Project Tag</p>
+									<p>
+										@foreach (var tag in @Model.project_tags_list){
+												<span style="padding: 2%;padding-left:5%;padding-right:5%;background-color: #343a40;border-radius: 3px;margin-right:7px;">@tag</span>
+										}
+									</p>
+
+									<input hidden asp-for="@primary_image_detail.MediaId" name="MediaId" />
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>			
+			</div>
+		</form>
+	</div>
+			
+	<div class="content gallery">
+		<br />
+		<h5>似ている画像</h5>
+		<br/><br />
+		<div class="thumbnail-container">
+			@foreach (nxPinterest.Data.Models.UserMedia userMedia in Model.RelatedUserMediaList)
+			{
+				await Html.RenderPartialAsync("/Views/Home/_HomeImageDetail.cshtml", userMedia);
+			}
+		</div>
+	</div>
+
+</div>
+
+<script>
+		function filedelete(media_id) {
+			$.ajax({
+				url: "@Url.Action("DeleteUserMedia", "Home", new { media_id = Model.UserMediaDetail.MediaId })",
+                method: "Post",
+                data: { media_id },
+				processData: false,
+				contentType: false,
+				success: function (sResponse) {
+					window.location = '@Url.Action("Index","Home")';
+				}
+			});
+		}
+
+</script>

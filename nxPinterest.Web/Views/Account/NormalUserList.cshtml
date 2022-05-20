@@ -1,0 +1,140 @@
+﻿@model nxPinterest.Web.Models.UserListViewModel
+@{
+    ViewData["Title"] = "ユーザ一覧";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+
+    bool hasNextPage = (Model.PageIndex < Model.TotalPages);
+    bool hasPreviousPage = (Model.PageIndex > 1);
+
+    var prevDisabled = !hasPreviousPage ? "disabled" : "";
+    var nextDisabled = !hasNextPage ? "disabled" : "";
+    bool hasPagination = Model.TotalRecords > nxPinterest.Services.dev_Settings.pageSize_regist;
+}
+
+<body style="background-color: #dbdbdb;">
+    <div class="d-flex" id="wrapper">
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom" style="height: 58px;background-color: #fff !important;">
+                <div class="container">
+                <div class=""><h4>ユーザ一覧</h4></div>
+                <div class="">
+                    <a class="navbar-brand" href="@Url.Action("Index", "Home")">
+                        <i class="bi bi-house-fill" style="right:40px;"></i><span style="font-size:16px;">&nbsp;トップページへ</span>
+                    </a>&nbsp;&nbsp;
+                    <div class="dropdown">
+                        <i class="bi bi-person-circle"></i>
+                        <i class="bi bi-chevron-down"></i>
+                        <div class="dropdown-content">
+                            <a href="@Url.Action("ChangePassword", "account")">パスワード変更</a>
+                            <a href="@Url.Action("LogOut", "account")">ログアウト</a>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </nav>
+            <!-- Top navigation-->
+            <div style="margin-top: 25px;margin-bottom:25px;" class="container">
+                <div class="title" style="padding: 30px;background-color: #fff; padding-left: 10px;">
+                    <button type="button" class="btn btn-primary btn-sm userregister">新規作成
+                    </button>
+                    <hr>
+                    <div class="form-text text-danger">
+                        @if (TempData["custom-validation-message"] != null)
+                        {
+                            <div class="col-lg-12 col-md-12 col-sm-12 mb-3 alert alert-danger alert-dismissible fade show" role="alert">
+                              <span>@TempData["custom-validation-message"]</span>
+                              <button type="button" class="close" data-dismiss="alert" aria-label="Close" style="background: none;border-style: none;float: right;">
+                                <span aria-hidden="true">&times;</span>
+                              </button>
+                            </div><br />
+                        }
+                    </div>
+                    <div class="form-text text-success">
+                        @if (TempData["custom-validation-success-message"] != null)
+                        {
+                            <div class="col-lg-12 col-md-12 col-sm-12 mb-3 alert alert-success alert-dismissible fade show" role="alert">
+                              <span>@TempData["custom-validation-success-message"]</span>
+                              <button type="button" class="close" data-dismiss="alert" aria-label="Close" style="background: none;border-style: none;float: right;">
+                                <span aria-hidden="true">&times;</span>
+                              </button>
+                            </div><br />
+                        }
+                    </div>
+                    <table class="table table-striped table-hover" id="table1" style="padding: 20px; padding-left: 10px;">
+                        <thead>
+                            <tr>
+                                <th scope="col">ログインID</th>
+                                <th scope="col">ユーザ名</th>
+                                <th scope="col">権限</th>
+                                <th scope="col">ステータス</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var applicationUser in Model.ApplicationUserList)
+                            {
+                                <tr class="userEdit">
+                                        <td id="email"> @applicationUser.Email </td>
+                                        <td id="container_id" hidden> @applicationUser.container_id </td>
+                                        <td> @applicationUser.UserDispName </td>
+                                        <td>  @{if(@applicationUser.Discriminator=="ApplicationUser") { <span>一般</span> } else {<span>管理者</span>}} </td>
+                                        <td> 
+                                            @{if(@applicationUser.user_visibility == true) { <span>有効</span> } else {<span style="color:red;">無効</span>}}
+                                        </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    @{
+                    if (hasPagination)
+                    {
+                        <div class="section-pagination" id="sectionPagination">
+                            <div style="text-align:center">
+                                <span style="color:dimgrey">@Model.PageIndex / @Model.TotalPages ページ (@ViewBag.ItemCount 件)</span>
+                            </div>
+
+                            <a href="@Url.Action("NormalUserList", "Account", new { pageIndex = 1})" class="btn btn-secondary @prevDisabled">
+                                最初
+                            </a>
+
+
+                            <a href="@Url.Action("NormalUserList", "Account", new { pageIndex = (Model.PageIndex - 1)})" class="btn btn-secondary @prevDisabled">
+                                前へ
+                            </a>
+
+
+                            <a href="@Url.Action("NormalUserList", "Account", new { pageIndex = (Model.PageIndex + 1)})" class="btn btn-secondary @nextDisabled">
+                                次へ
+                            </a>
+
+                            <a href="@Url.Action("NormalUserList", "Account", new { pageIndex = Model.TotalPages})" class="btn btn-secondary @nextDisabled">
+                                最後
+                            </a>
+                        </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script class="jsbin" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous"></script>
+<script>
+</script>
+    <!-- Core theme JS-->
+    <script src="js/scripts.js"></script>
+<script>
+        $('.userEdit').on('click', function () {
+            var emailTxt = $(this).closest('tr').find('#email').text();
+            var url = '@Url.Action("NormalUserEdit","account")' + "?email=" + emailTxt;
+            window.location = url;
+        });
+        $('.userregister').on('click', function () {
+            var containerIdTxt = document.getElementById("container_id").textContent;
+            var url = '@Url.Action("NormalUserRegister","account")' + "?container_id=" + containerIdTxt;
+            window.location = url;
+        });
+</script>
+</body>
