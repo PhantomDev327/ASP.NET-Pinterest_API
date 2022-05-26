@@ -49,6 +49,7 @@ namespace nxPinterest.Web.Controllers
             int totalRecordCount = vm.UserMediaList.Count;
 
             ViewBag.ItemCount = vm.UserMediaList.Count;
+            ViewBag.UserDispName = user[0].UserDispName;
 
             vm.UserMediaList = vm.UserMediaList.Skip(skip).Take(pageSize).ToList();
 
@@ -67,6 +68,15 @@ namespace nxPinterest.Web.Controllers
             {
                 UserMediaDetailViewModel result = await this.userMediaManagementService.GetUserMediaDetailsByIDAsync(media_id);
 
+                //for (int i = 0; i < result.UserMediaList.Count; i++)
+                //{
+                //    if (result.UserMediaList[i].MediaId == media_id)
+                //    {
+                //        result.UserMediaList.Remove(result.UserMediaList[i]);
+                //    }
+                //}
+
+
                 string[] tags = result.UserMediaDetail.Tags.Split('|');
                 IList<string> photo_tags_list = new List<string>();
                 IList<string> project_tags_list = new List<string>();
@@ -84,18 +94,34 @@ namespace nxPinterest.Web.Controllers
                             project_tags_list.Add(current_tag_name);
                     }
                 }
-                string[] projectTags = result.UserMediaDetail.ProjectTags?.Split('|');
-                if (projectTags != null)
-                {
-                    foreach (var tag in projectTags)
-                    {
-                        project_tags_list.Add(tag);
-                    }
-                }
+                string[] projectTags = result.UserMediaDetail.ProjectTags?.Split('|'); ;
+                //if (result.UserMediaDetail.MediaId != media_id)
+                //{
+                //     projectTags = result.UserMediaDetail.ProjectTags?.Split('|');
+
+                //    if (projectTags != null)
+                //    {
+                //        foreach (var tag in projectTags)
+                //        {
+
+                //            project_tags_list.Add(tag);
+                //        }
+                //    }
+
+                //}
+
 
                 // 似ている画像取得
                 IList<Data.Models.UserMedia> UserMediaList = await this.userMediaManagementService.SearchUserMediaAsync("", result.UserMediaDetail.container_id);
-                
+
+                //for (int i = 0; i < UserMediaList.Count; i++)
+                //{
+                //    if (UserMediaList[i].MediaId == media_id)
+                //    {
+                //        UserMediaList.Remove(UserMediaList[i]);
+                //    }
+                //}
+
                 IList<Data.Models.UserMedia> tempUserMediaList = new List<Data.Models.UserMedia>();
                 tempUserMediaList = UserMediaList;
 
@@ -132,6 +158,15 @@ namespace nxPinterest.Web.Controllers
                     }
                 }
                 result.RelatedUserMediaList = UserMediaList.Where(v => mediaIdList.Contains(v.MediaId)).ToList();
+
+                //追加ロジック lineno 163~169 ssa20220526
+                for (int i = 0; i < result.RelatedUserMediaList.Count; i++)
+                {
+                    if (result.RelatedUserMediaList[i].MediaId == media_id)
+                    {
+                        result.RelatedUserMediaList.Remove(result.RelatedUserMediaList[i]);
+                    }
+                }
                 result.project_tags_list = project_tags_list;
 
                 ViewBag.MediaID = media_id;

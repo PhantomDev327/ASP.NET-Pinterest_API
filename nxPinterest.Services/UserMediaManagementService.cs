@@ -99,7 +99,8 @@ namespace nxPinterest.Services
 
             if (userMedia != null)
             {
-                var query = await this._context.UserMedia.AsNoTracking().ToListAsync();
+                var query = this._context.UserMedia.AsNoTracking()
+                                     .Where(c => c.container_id.Equals(userMedia.container_id)).ToList();
 
                 query = query.Select(c => new UserMedia()
                 {
@@ -113,9 +114,7 @@ namespace nxPinterest.Services
                     Tags = c.Tags,
                     MediaThumbnailUrl = c.MediaThumbnailUrl
                 })
-                .Where(c => !string.IsNullOrEmpty(c.MediaTitle) && !string.IsNullOrEmpty(userMedia.MediaTitle) && c.MediaTitle.Equals(userMedia.MediaTitle.TrimExtraSpaces()) &&
-                            !string.IsNullOrEmpty(c.MediaDescription) && !string.IsNullOrEmpty(userMedia.MediaDescription) && c.MediaDescription.Equals(userMedia.MediaDescription.TrimExtraSpaces()))
-                .ToList();
+                .Where(c => !string.IsNullOrEmpty(c.MediaTitle) && !string.IsNullOrEmpty(userMedia.MediaTitle) && c.MediaTitle.Equals(userMedia.MediaTitle.TrimExtraSpaces())).ToList();
 
                 mediaList = query;
             }

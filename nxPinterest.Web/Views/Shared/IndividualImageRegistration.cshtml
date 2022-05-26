@@ -39,21 +39,8 @@
         </div>
         <div class="row mt-3 mb-5">
             <div class="col">
-                <input type="submit" value="登録" class="btn btn-primary reigster-btn" />
+                <input type="submit" value="登録" class="btn btn-default reigster-btn" />
             </div>
-@*            <div class="col d-flex justify-content-end">
-                <nav aria-label="Page navigation example">
-                    <ul class="pagination justify-content-end">
-                        <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1" aria-disabled="true">前へ</a></li>
-                        <li class="page-item"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item"><a class="page-link" href="#">4</a></li>
-                        <li class="page-item"><a class="page-link" href="#">5</a></li>
-                        <li class="page-item"><a class="page-link" href="#">次へ</a></li>
-                    </ul>
-                </nav>
-            </div>*@
             <input hidden type="text" name="imageInfoListSize" id="imageInfoListSize" value="@Model.imageInfoListSize"/>
             {@if (@Model.ImageInfoList.Count != 0)
             {
@@ -72,11 +59,11 @@
 	                    </div>
 	                    <div class='col-7'>
 		                    <div class='tag_list_wrapper'>
-			                    <input type='text' name='ImageInfoList[@i].Title' class='form-control input-control input-title px-0' placeholder='タイトル' id="exitTitle+@i"/>
-			                    <input type='text' class='form-control input-control input-title px-0' placeholder='説明' name='ImageInfoList[@i].Description' id="exitDescription+@i"/>
-			                    <div class='tag-control-container' id='style'>
-				                    <p class='tag-text' style='color: #adb5bd; '>Project Tag</p>
-				                    <input data-role='tagsinput' name='ImageInfoList[@i].ProjectTags' id="exitTags+@i"/>
+			                    <input type="text" name="ImageInfoList[@i].Title" class="form-control input-control input-title px-0" placeholder="タイトル" id="exitTitle+@i" value="@Model.ImageInfoList[@i].Title" />
+			                    <input type="text" name="ImageInfoList[@i].Description" class="form-control input-control input-title px-0" placeholder="説明" id="exitDescription+@i" value="@Model.ImageInfoList[@i].Description" />
+			                    <div class="tag-control-container" id="style">
+				                    <p class="tag-text" style="color: #adb5bd; ">Project Tag</p>
+				                    <input data-role="tagsinput" name="ImageInfoList[@i].ProjectTags" id="exitTags+@i" value="@Model.ImageInfoList[@i].ProjectTags" />
 			                    </div>
 		                    </div>
 	                    </div>

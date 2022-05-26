@@ -55,6 +55,7 @@
           min-width: 160px;
           box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
           z-index: 7;
+          margin-right:0;
         }
         .dropdown-content a {
           color: black;
@@ -69,19 +70,29 @@
 <body class="loading" data-layout="detached" data-layout-config='{"leftSidebarCondensed":false,"darkMode":false, "showRightSidebarOnStart": true}'>
     
     <!-- Topbar Start -->
-    <div class="navbar navbar-header">
+    <div class="navbar navbar-header d-flex justify-content-end" style="padding-right:30px;padding-bottom: 30px;">
         @{
         if (@Model.Discriminator == "ContainerAdmin")
         {
-        <div style="position:absolute; right:20px;top:20%;display: inline-block;">
+        <div style="margin-right:30px">
         <a href="@Url.Action("NormalUserList", "account")" style="color:#fff">
-            <i class="bi bi-card-checklist" data-toggle="tooltip" data-placement="bottom" title="ユーザ一覧" style=""></i>&nbsp;ユーザ一覧
+            <i class="bi bi-card-checklist" data-toggle="tooltip" data-placement="bottom" title="ユーザ一覧" style=""></i>&nbsp;&nbsp;ユーザ一覧
         </a>
         </div>
         }
         }
-        <div style="position:absolute; right:145px;top:20%;" class="dropdown">
+        <div class="dropdown">
             <i class="bi bi-person-circle"></i>
+                @{
+                    if(@ViewBag.UserDispName == null || @ViewBag.UserDispName.Trim() == "")
+                    {
+                       <span style="padding-left:5px;padding-right:60px"></span>
+                    }
+                    else
+                    {
+                        <span style="padding-left:5px;padding-right:10px">@ViewBag.UserDispName</span>
+                    }
+                }
             <i class="bi bi-chevron-down"></i>
             <div class="dropdown-content">
                 <a href="@Url.Action("ChangePassword", "account")">パスワード変更</a>
@@ -106,7 +117,7 @@
                                 <i class="fas fa-search icon-search"></i>
                             </button>
                         </div>
-                        <input type="text" class="form-control m-0 px-4 rounded" placeholder="検索" asp-for="SearchKey" autocomplete="off"/>
+                        <input type="text" id="SearchKey" class="form-control m-0 px-4 rounded" placeholder="検索" asp-for="SearchKey" autocomplete="off"/>
                     </div>
                 </div>
             </div>
@@ -161,6 +172,19 @@
 
             var url = '@Url.Action("Index","Home")' + "?pageIndex=" + pageIndex + "&searchKey=" + searchKey;
             window.location = url;
+        });
+
+        $('#SearchKey').keypress(function(event){
+            if(event.keyCode == 13){
+                var pageIndex = $.urlParam('pageIndex');
+                var searchKey = $('input[name="SearchKey"]').val();
+                showLoader();
+                if (pageIndex == false)
+                    pageIndex = 1;
+
+                var url = '@Url.Action("Index","Home")' + "?pageIndex=" + pageIndex + "&searchKey=" + searchKey;
+                window.location = url;
+            }
         });
 
         $(document).ready(function () {

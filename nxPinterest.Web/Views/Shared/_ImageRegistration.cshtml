@@ -16,6 +16,7 @@
                                         <input type="hidden" name="Title" id="title_image" />
                                         <input type="hidden" name="Description" id="description_image" />
                                         <input type="hidden" name="ProjectTags" id="project_tags_image" />
+                                        <input type="hidden" name="BtnName" id="btn_name" />
                                     </div>
                                 </form>
                                 <!-- Dropzone End -->
@@ -49,7 +50,8 @@
                             <input type="button" value="写真を投稿" class="btn btn-default btn-save" id="upload_submit" form="dropzoneForm" />
                         </div> <br>
                         <div class="text-center" style="margin-top:20px;margin-bottom:20px">
-                            <a href="/usermedia/individualimageregistration" style="color:#000;font-weight:bold; font-size:15px;">個別編集</a>
+                            @*<a href="/usermedia/individualimageregistration" style="color:#000;font-weight:bold; font-size:15px;">個別編集</a>*@
+                            <input type="button" value="個別編集" id="kobetsu_submit" form="dropzoneForm" style="border-style: none; background: #fff; font-weight: bold;"/>
                         </div>
                     </div>
                 </div>
@@ -90,6 +92,30 @@
                 $("#title_image").val($("#Title").val());
                 $("#description_image").val($("#Description").val());
                 $("#project_tags_image").val($("#ProjectTags").val());
+                $("#btn_name").val("upload");
+                $('#dropzoneForm').submit();
+            });
+
+            $("#kobetsu_submit").click(function (e) {
+                this.disabled = true;
+
+                allFiles = myDropzone.getAcceptedFiles();
+                if (allFiles.length > 0) {
+                    inputFiles = document.getElementById("upfiles");
+                    const dt = new DataTransfer();
+                    for (i = 0; i < allFiles.length; i++) {
+                        dt.items.add(allFiles[i]);
+                    }
+                    inputFiles.files = dt.files;
+                }
+                e.preventDefault();
+                e.stopPropagation();
+                myDropzone.processQueue();
+
+                $("#title_image").val($("#Title").val());
+                $("#description_image").val($("#Description").val());
+                $("#project_tags_image").val($("#ProjectTags").val());
+                $("#btn_name").val("kobetsu");
                 $('#dropzoneForm').submit();
             });
         },
@@ -97,13 +123,5 @@
             done();
         }
     };
-
-	$('#edit-submit').on('click', function () {
-            $("#contentGallery").hide();
-            $("#sectionPagination").hide();
-            $(".add-image-container").hide();
-		    $('#image-registration-modal').modal('hide');
-		    $('#inidividual-image-registration').show();
-	});
 
 </script>

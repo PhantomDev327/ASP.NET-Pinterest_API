@@ -39,13 +39,35 @@ namespace nxPinterest.Web.Controllers
         }
 
         /// <summary>
-        /// Create Media User
+        /// Create Media File
         /// </summary>
-        /// <param name="request">Data from</param>
+        /// <param name="request">Form Data</param>
         /// <returns></returns>
         [HttpPost]
         public IActionResult UploadMediaFile(ImageRegistrationRequests request)
         {
+                // 個別編集ボタンを押下
+                if (request.BtnName == "kobetsu")
+                {
+                    if (request.Images.Count == 0)
+                    {
+                        return IndividualImageRegistration();
+                    }
+                    IndividualImageRegistrationRequests individual = new IndividualImageRegistrationRequests();
+                    foreach (var file in request.Images)
+                    {
+                        ImageInfo imageInfo = new ImageInfo();
+                        imageInfo.Images = file;
+                        imageInfo.Title = request.Title;
+                        imageInfo.Description = request.Description;
+                        imageInfo.ProjectTags = request.ProjectTags;
+                        imageInfo.PhotoTags = request.PhotoTags;
+                        imageInfo.DateTimeUploaded = request.DateTimeUploaded;
+                        individual.ImageInfoList.Add(imageInfo);
+                        CreateImageDirectory();
+                    }
+                    return UploadImageFileHidden(individual);
+                }
             // Validate param
             if (!ModelState.IsValid)
             {
@@ -72,24 +94,15 @@ namespace nxPinterest.Web.Controllers
          */
         public IActionResult IndividualImageRegistration()
         {
-            string path = "./wwwroot/images/temp/" + this.UserId;
-            if (Directory.Exists(path))
-            {
-                foreach (string filename in Directory.GetFiles(path))
-                {
-                    System.IO.File.Delete(filename);
-                }
-                Directory.Delete(path);
-            }
-            Directory.CreateDirectory(path);
+            CreateImageDirectory();
             Services.Models.Request.IndividualImageRegistrationRequests vm = new Services.Models.Request.IndividualImageRegistrationRequests();
-            return View(vm);
+            return this.View("~/Views/Shared/IndividualImageRegistration.cshtml", vm);
         }
 
         /// <summary>
-        /// Create Media User
+        /// Upload Image File
         /// </summary>
-        /// <param name="request">Data from</param>
+        /// <param name="request">Form Data</param>
         /// <returns></returns>
         [HttpPost]
         public IActionResult UploadImageFile(IndividualImageRegistrationRequests request)
@@ -97,8 +110,8 @@ namespace nxPinterest.Web.Controllers
             request.imageInfoListSize = request.ImageInfoList.Count;
             if (request.imageInfoListSize == 0)
             {
-                TempData["custom-validation-message"] = "Please Insert Images!";
-                return this.View("~/Views/Shared/IndividualImageRegistration.cshtml", request);
+                TempData["Message"] = "Validate fails!";
+                return View("~/Views/Error/204.cshtml");
             }
             // Validate param
             if (!ModelState.IsValid)
@@ -139,9 +152,9 @@ namespace nxPinterest.Web.Controllers
         }
 
         /// <summary>
-        /// Create Media User
+        /// Create hidden Image
         /// </summary>
-        /// <param name="request">Data from</param>
+        /// <param name="request">Form Data</param>
         /// <returns></returns>
         [HttpPost]
         public IActionResult UploadImageFileHidden(IndividualImageRegistrationRequests request)
@@ -174,6 +187,25 @@ namespace nxPinterest.Web.Controllers
             }
             
             return this.View("~/Views/Shared/IndividualImageRegistration.cshtml", request);
+        }
+
+        /// <summary>
+        /// Create Image Directory
+        /// </summary>
+        /// <param></param>
+        /// <returns></returns>
+        private void CreateImageDirectory()
+        {
+            string path = "./wwwroot/images/temp/" + this.UserId;
+            if (Directory.Exists(path))
+            {
+                foreach (string filename in Directory.GetFiles(path))
+                {
+                    System.IO.File.Delete(filename);
+                }
+                Directory.Delete(path);
+            }
+            Directory.CreateDirectory(path);
         }
     }
 }

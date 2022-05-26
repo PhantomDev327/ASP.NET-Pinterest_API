@@ -20,5 +20,6 @@ namespace nxPinterest.Services.Models.Request
         public string PhotoTags { get; set; }
         public string UserCreated { get; set; }
         public DateTime DateTimeUploaded { get; set; } = DateTime.Now;
+        public string BtnName { get; set; }
     }
 }
