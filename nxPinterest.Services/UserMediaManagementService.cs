@@ -213,7 +213,8 @@ namespace nxPinterest.Services
                     userMedia.MediaFileName = result.Result.Name;                          
                     userMedia.MediaFileType = result.Result.Name.Split('.').Last();        
                     userMedia.Tags = tagsString;                                            
-                    userMedia.MediaThumbnailUrl = result.Result.StorageUri.SecondaryUri.ToString();
+                    userMedia.MediaThumbnailUrl = 
+                        result.Result.Uri.ToString().Replace(dev_Settings.blob_containerName_image, dev_Settings.blob_containerName_thumb);
                     if (projectTab != null)
                         userMedia.ProjectTags = projectTab;
                 }
@@ -373,7 +374,8 @@ namespace nxPinterest.Services
                     userMedia.MediaFileName = result.Result.Name;
                     userMedia.MediaFileType = result.Result.Name.Split('.').Last();
                     userMedia.Tags = tagsString;
-                    userMedia.MediaThumbnailUrl = result.Result.StorageUri.SecondaryUri.ToString();
+                    userMedia.MediaThumbnailUrl =
+                        result.Result.Uri.ToString().Replace(dev_Settings.blob_containerName_image, dev_Settings.blob_containerName_thumb);
                     if (projectTab != null)
                         userMedia.ProjectTags = projectTab;
                 }
