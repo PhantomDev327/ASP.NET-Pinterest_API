@@ -27,7 +27,7 @@
 								<div class="row" style = "margin-left: 0px;">
 									<div class="image-uploader-wrapper">
 										<figure>
-											<img src="@primary_image_detail.MediaUrl" alt="@primary_image_detail.MediaFileName" class="main" />
+											<img src="@primary_image_detail.MediaThumbnailUrl" alt="@primary_image_detail.MediaFileName" class="main" />
 										</figure>
 									</div>
 								</div>
@@ -41,7 +41,7 @@
 
 												<div class="thumbnail-wrapper @activeClass" >
 													<a href="@Url.Action("GetUserMediaDetails", "Home", new { media_id = @userMediaThumbnail.MediaId })">
-														<img src="@userMediaThumbnail.MediaUrl" class="thumbnail" />
+														<img src="@userMediaThumbnail.MediaThumbnailUrl" class="thumbnail" />
 													</a>
 												</div>
 											}
