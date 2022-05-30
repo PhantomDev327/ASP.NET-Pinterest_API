@@ -112,3 +112,9 @@
 h5, .h5 {
     margin-left: 45%;
 }
+/*ssa add 20220527*/
+@media screen and (max-width: 640px){
+    .arrow-key{
+        position: unset;
+    }
+}

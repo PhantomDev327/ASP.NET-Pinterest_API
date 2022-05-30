@@ -160,7 +160,7 @@ img.company-banner {
     border-radius: 3%;
 }
 
-.modal-registration .input-control {
+.input-control {
     width: 100%;
     margin-bottom: 4%;
     border: none;
@@ -169,7 +169,7 @@ img.company-banner {
     font-size: 1.3rem;
 }
 
-.modal-registration .input-control.input-title {
+.input-control.input-title {
     margin-top: 4%;
 }
 

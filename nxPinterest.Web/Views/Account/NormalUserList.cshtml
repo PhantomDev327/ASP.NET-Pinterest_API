@@ -10,14 +10,77 @@
     var nextDisabled = !hasNextPage ? "disabled" : "";
     bool hasPagination = Model.TotalRecords > nxPinterest.Services.dev_Settings.pageSize_regist;
 }
+<style>
+ .menu-bar{
+        color:#fff;
+        font-size: var(--bs-body-font-size);
+        font-weight: var(--bs-body-font-weight);
+        line-height: var(--bs-body-line-height);
+        -webkit-text-size-adjust: 100%;
+    }
 
-<body style="background-color: #dbdbdb;">
+    .btn-create{
+        margin-left: 0;
+        color: #eef2f7;
+        font-size: .9rem;
+        display: inline-block;
+        font-weight: 400;
+        line-height: 1.5;
+        /* color: #6c757d; */
+        text-align: center;
+        vertical-align: middle;
+        width: 100px;
+        height: 50px;
+    }
+
+    .btn-default {
+        background-color: #343a40;
+        border: none;
+        border-radius: 20px;
+        position: relative;
+        color: #eef2f7;
+        }
+
+        .dropdown {
+          position: relative;
+          display: inline-block;
+        }
+        .dropdown-content {
+          display: none;
+          position: absolute;
+          background-color: #f1f1f1;
+          min-width: 160px;
+          box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+          z-index: 7;
+          margin-right:0;
+        }
+        .dropdown-content a {
+          color: black;
+          padding: 12px 16px;
+          text-decoration: none;
+          display: block;
+          z-index:6;
+        }
+        .dropdown:hover .dropdown-content {display: block;}
+</style>
+<script src="~/lib/bootstrap-fileinput/js/fileinput.min.js" asp-append-version="true"></script>
+<script src="~/lib/bootstrap-tagsinput/bootstrap-tagsinput.min.js" asp-append-version="true"></script>
+<script src="~/lib/bootstrap-fileinput/js/locales/LANG.js" asp-append-version="true"></script>
+
+<head>
+    <link href="/lib/Hyper_v4.4/Bootstrap_5x/hyper/dist/modern/assets/css/icons.min.css" rel="stylesheet">
+    <link href="/lib/font-awesome-5/css/all.css" rel="stylesheet">
+</head>
+@*<body style="background-color: #dbdbdb;">*@
+<body style="background-color: #000;">
+    
     <div class="d-flex" id="wrapper">
         <div id="page-content-wrapper">
-            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom" style="height: 58px;background-color: #fff !important;">
-                <div class="container">
-                <div class=""><h4>ユーザ一覧</h4></div>
-                <div class="">
+            @*<nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom" style="height: 58px;background-color: #fff !important;">*@
+            <nav class="navbar navbar-expand-lg navbar-light bg-light" style="background-color: #5a5e64 !important;padding-top: 5px;padding-bottom: 5px;}">
+                <div class="container-fluid">
+                <div class=""><h4 class="menu-bar">ユーザ一覧</h4></div>
+                @*<div class="">
                     <a class="navbar-brand" href="@Url.Action("Index", "Home")">
                         <i class="bi bi-house-fill" style="right:40px;"></i><span style="font-size:16px;">&nbsp;トップページへ</span>
                     </a>&nbsp;&nbsp;
@@ -28,15 +91,44 @@
                             <a href="@Url.Action("ChangePassword", "account")">パスワード変更</a>
                             <a href="@Url.Action("LogOut", "account")">ログアウト</a>
                         </div>
-                    </div>
+                    </div>*@
+                    @*編集機能 20220527_ssa*@
+                    <div class="dropdown menu-bar">
+                        <i class="bi bi-person-circle"></i>
+                            @{
+                                if(@ViewBag.UserDispName == null || @ViewBag.UserDispName.Trim() == "")
+                                {
+                                   <span style="padding-left:5px;padding-right:60px"></span>
+                                }
+                                else
+                                {
+                                    <span style="padding-left:5px;padding-right:10px">@ViewBag.UserDispName</span>
+                                }
+                            }
+                        <i class="bi bi-chevron-down"></i>
+                            <div class="dropdown-content">
+                                <a href="@Url.Action("ChangePassword", "account")">パスワード変更</a>
+                                <a href="@Url.Action("LogOut", "account")">ログアウト</a>
+                            </div>
                 </div>
                 </div>
             </nav>
+          @*追加 arrowkey　ssa_20220530*@
+            <div class="left-arrow-container" style="margin-top: 15px;margin-left:15px;">
+		            <a href="@Url.Action("Index", "Home", new { pageIndex = 1})"  style="color: #ffffff;">
+			            <i class="fas fa-arrow-circle-left fa-3x"></i>
+		            </a>
+	            </div>
             <!-- Top navigation-->
-            <div style="margin-top: 25px;margin-bottom:25px;" class="container">
+            @*<div style="margin-top: 25px;margin-bottom:25px;" class="container"> chg_ssa_20220527/style_remove_case*@
+            <div class="container" style="margin-top:-35px">
+                
                 <div class="title" style="padding: 30px;background-color: #fff; padding-left: 10px;">
-                    <button type="button" class="btn btn-primary btn-sm userregister">新規作成
-                    </button>
+                  @*  <button type="button" class="btn btn-primary btn-sm userregister">新規作成
+                    </button>*@
+                    @*編集ボタン機能 ssa20220527*@
+                      <button type="button" class="btn btn-default btn-create userregister">新規作成
+                    </button>                    
                     <hr>
                     <div class="form-text text-danger">
                         @if (TempData["custom-validation-message"] != null)

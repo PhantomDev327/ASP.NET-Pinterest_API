@@ -12,7 +12,7 @@
 <script src="~/lib/bootstrap-fileinput/js/locales/LANG.js" asp-append-version="true"></script>
 
 <div id="image-viewer-modal" tabindex="-1">
-	<div class="left-arrow-container">
+	<div class="left-arrow-container arrow-key">
 		<a href="@Url.Action("Index", "Home", new { pageIndex = 1})">
 			<i class="fas fa-arrow-circle-left fa-3x"></i>
 		</a>
@@ -27,21 +27,21 @@
 								<div class="row" style = "margin-left: 0px;">
 									<div class="image-uploader-wrapper">
 										<figure>
-											<img src="@primary_image_detail.MediaThumbnailUrl" alt="@primary_image_detail.MediaFileName" class="main" />
+											<img src="@primary_image_detail.MediaThumbnailUrl" alt="@primary_image_detail.MediaFileName" class="main" style="max-height:initial!important"/>
 										</figure>
 									</div>
 								</div>
 								<div class="row">
 									<div class="col">
-										<div class="thumbnail-section-wrapper">
+										<div class="thumbnail-section-wrapper" style="margin-top:0!important">
 											@for (int i = 0; i < Model.UserMediaList.Count(); i++)
 											{
 												var userMediaThumbnail = Model.UserMediaList[i];
 												string activeClass = userMediaThumbnail.MediaFileName.Equals(primary_image_detail.MediaFileName) ? "active" : "";
 
-												<div class="thumbnail-wrapper @activeClass" >
+												<div class="thumbnail-wrapper @activeClass" style="margin-left:4.5px!important">
 													<a href="@Url.Action("GetUserMediaDetails", "Home", new { media_id = @userMediaThumbnail.MediaId })">
-														<img src="@userMediaThumbnail.MediaThumbnailUrl" class="thumbnail" />
+														<img src="@userMediaThumbnail.MediaThumbnailUrl" class="thumbnail"/>
 													</a>
 												</div>
 											}
