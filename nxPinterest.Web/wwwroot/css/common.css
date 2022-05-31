@@ -1,0 +1,78 @@
+﻿/*SystemAdmin*/
+
+/*1.account/UserContainerRegister*/
+/*2.account/UserContainerList*/
+/*3.account/UserContainerIdRegister*/
+/*4.account/UserContainerIdList*/
+/*5.account/UserContainerEdit*/
+
+.btn-create {
+    margin-left: 0;
+    color: #eef2f7;
+    font-size: .9rem;
+    display: inline-block;
+    font-weight: 400;
+    line-height: 1.5;
+    /* color: #6c757d; */
+    text-align: center;
+    vertical-align: middle;
+    width: 100px;
+    height: 50px;
+}
+
+.btn-default {
+    background-color: #343a40;
+    border: none;
+    border-radius: 20px;
+    position: relative;
+    color: #eef2f7;
+}
+
+.body-bgcolor {
+    background-color: #dbdbdb;
+}
+/*account/UserContainerRegister*/
+/*account/UserContainerIdRegister*/
+.nav-bar-style {
+    height: 58px;
+    background-color: #fff !important;
+}
+
+/*account/UserContainerEdit*/
+/*account/UserContainerIdEdit*/
+.btn-back {
+    background-color: #eef2f7;
+    border: none;
+    border-radius: 20px;
+    position: relative;
+    margin-left: 0;
+    font-size: .9rem;
+    display: inline-block;
+    font-weight: 400;
+    line-height: 1.5;
+    text-align: center;
+    vertical-align: middle;
+    width: 100px;
+    height: 50px;
+    color: #343a40;
+}
+
+/*ContainerAdmin*/
+
+/*1.account/NormalUserRegister*/
+/*2.account/NormalUserList*/
+/*3.account/NormalUserEdit*/
+
+.menu-bar {
+    color: #fff;
+    font-size: var(--bs-body-font-size);
+    font-weight: var(--bs-body-font-weight);
+    line-height: var(--bs-body-line-height);
+    -webkit-text-size-adjust: 100%;
+}
+
+.nav-bar-style-container {
+    background-color: #5a5e64 !important;
+    padding-top:5px;
+    padding-bottom:5px;
+}

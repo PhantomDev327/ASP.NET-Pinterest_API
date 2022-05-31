@@ -17,6 +17,8 @@ using System.Net;
 using System.IO;
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
+using System.Configuration;
+using Microsoft.Extensions.Configuration;
 
 namespace nxPinterest.Web.Controllers
 {
@@ -271,18 +273,28 @@ namespace nxPinterest.Web.Controllers
                     var Email = user.ToString();
                     var value = EncryptRijndael(Email, encryptionKey);
                     var activationCode = value.Replace('/', '-').Replace('+', '_').PadRight(4 * ((value.Length + 3) / 4), '=');
+                    //added by ssa 20220531
+                    var configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json", true, true).Build();
+                    IConfigurationSection section = configuration.GetSection("MailSetting");
+                    string mailAddress = section["From"];
+                    string MailServer = section["MailServer"];
+                    string Port = section["Port"];
+                    string mailPassword = section["Password"];
 
                     using (MailMessage mail = new MailMessage())
                     {
-                        mail.From = new MailAddress(nxPinterest.Services.dev_Settings.mailAddress);
+                        //mail.From = new MailAddress(nxPinterest.Services.dev_Settings.mailAddress);
+                        mail.From = new MailAddress(mailAddress);
                         mail.To.Add(Email);
                         mail.Subject = "パスワードリセットのお知らせ";
                         mail.Body = "パスワードリセットの申請を受け付けました。<br />パスワードの再設定をご希望の場合は、以下URLをクリックし新しいパスワードをご登録ください。<br /><a href = '" + string.Format("{0}://{1}/Account/ResetPassword/{2}", Request.Scheme, Request.Host, activationCode) + "'>Click here to reset your password.</a>";
                         mail.IsBodyHtml = true;
 
-                        using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+                        //using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+                        using (SmtpClient smtp = new SmtpClient(MailServer, Convert.ToInt32(Port)))
                         {
-                            smtp.Credentials = new NetworkCredential(nxPinterest.Services.dev_Settings.mailAddress, nxPinterest.Services.dev_Settings.mailPassword);
+                            //smtp.Credentials = new NetworkCredential(nxPinterest.Services.dev_Settings.mailAddress, nxPinterest.Services.dev_Settings.mailPassword);
+                            smtp.Credentials = new NetworkCredential(mailAddress, mailPassword);
                             smtp.EnableSsl = true;
                             smtp.Send(mail);
                         }
@@ -377,17 +389,27 @@ namespace nxPinterest.Web.Controllers
                             var Email = user.ToString();
                             var value = EncryptRijndael(Email, encryptionKey);
                             var activationCode = value.Replace('/', '-').Replace('+', '_').PadRight(4 * ((value.Length + 3) / 4), '=');
+                            //added by ssa 20220531
+                            var configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json", true, true).Build();
+                            IConfigurationSection section = configuration.GetSection("MailSetting");
+                            string mailAddress = section["From"];
+                            string MailServer = section["MailServer"];
+                            string Port = section["Port"];
+                            string mailPassword = section["Password"];
+
                             using (MailMessage mail = new MailMessage())
                             {
-                                mail.From = new MailAddress(nxPinterest.Services.dev_Settings.mailAddress);
+                                //mail.From = new MailAddress(nxPinterest.Services.dev_Settings.mailAddress);
+                                mail.From = new MailAddress(mailAddress);
                                 mail.To.Add(Email);
                                 mail.Subject = "登録完了のお知らせ";
                                 mail.Body = "登録が完了いたしましたので、ご連絡いたします。<br />以下URLをクリックしパスワードをご登録ください。< br /><a href = '" + string.Format("{0}://{1}/Account/SetPassword/{2}", Request.Scheme, Request.Host, activationCode) + "'>Click here to activate your account.</a>";
                                 mail.IsBodyHtml = true;
 
-                                using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+                                //using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+                                using (SmtpClient smtp = new SmtpClient(MailServer, Convert.ToInt32(Port)))
                                 {
-                                    smtp.Credentials = new NetworkCredential(nxPinterest.Services.dev_Settings.mailAddress, nxPinterest.Services.dev_Settings.mailPassword);
+                                    smtp.Credentials = new NetworkCredential(mailAddress, mailPassword);
                                     smtp.EnableSsl = true;
                                     smtp.Send(mail);
                                 }
@@ -597,7 +619,7 @@ namespace nxPinterest.Web.Controllers
         public async Task<IActionResult> UserContainerIdRegister(Services.Models.Request.UserRegistrationRequest vm)
         {
             try
-            {
+            {  
                 // システム管理者のみ利用可能な機能
                 var loginUser = await this._userManager.FindByIdAsync(this.UserId);
                 if (loginUser.Discriminator != "SysAdmin")
@@ -628,17 +650,29 @@ namespace nxPinterest.Web.Controllers
                         var Email = user.ToString();
                         var value = EncryptRijndael(Email, encryptionKey);
                         var activationCode = value.Replace('/', '-').Replace('+', '_').PadRight(4 * ((value.Length + 3) / 4), '=');
+
+                        //added by ssa 20220531
+                        var configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json", true, true).Build();
+                        IConfigurationSection section = configuration.GetSection("MailSetting");
+                        string mailAddress = section["From"];
+                        string MailServer = section["MailServer"];
+                        string Port = section["Port"];
+                        string mailPassword = section["Password"];
+
                         using (MailMessage mail = new MailMessage())
                         {
-                            mail.From = new MailAddress(nxPinterest.Services.dev_Settings.mailAddress);
+                            //mail.From = new MailAddress(nxPinterest.Services.dev_Settings.mailAddress);
+                            mail.From = new MailAddress(mailAddress);
                             mail.To.Add(Email);
                             mail.Subject = "ユーザー登録のお知らせ";
                             mail.Body = "ユーザー登録の申請を受け付けました。<br />パスワードの設定をご希望の場合は、以下URLをクリックし新しいパスワードをご登録ください。<br /><a href = '" + string.Format("{0}://{1}/Account/SetPassword/{2}", Request.Scheme, Request.Host, activationCode) + "'>Click here to set your password.</a>";
                             mail.IsBodyHtml = true;
 
-                            using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+                            //using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+                            using (SmtpClient smtp = new SmtpClient(MailServer, Convert.ToInt32(Port)))
                             {
-                                smtp.Credentials = new NetworkCredential(nxPinterest.Services.dev_Settings.mailAddress, nxPinterest.Services.dev_Settings.mailPassword);
+                                //smtp.Credentials = new NetworkCredential(nxPinterest.Services.dev_Settings.mailAddress, nxPinterest.Services.dev_Settings.mailPassword);
+                                smtp.Credentials = new NetworkCredential(mailAddress, mailPassword);
                                 smtp.EnableSsl = true;
                                 smtp.Send(mail);
                             }
@@ -1031,17 +1065,28 @@ namespace nxPinterest.Web.Controllers
                         var Email = user.ToString();
                         var value = EncryptRijndael(Email, encryptionKey);
                         var activationCode = value.Replace('/', '-').Replace('+', '_').PadRight(4 * ((value.Length + 3) / 4), '=');
+                        //added by ssa 20220531
+                        var configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json", true, true).Build();
+                        IConfigurationSection section = configuration.GetSection("MailSetting");
+                        string mailAddress = section["From"];
+                        string MailServer = section["MailServer"];
+                        string Port = section["Port"];
+                        string mailPassword = section["Password"];
+
                         using (MailMessage mail = new MailMessage())
                         {
-                            mail.From = new MailAddress(nxPinterest.Services.dev_Settings.mailAddress);
+                            //mail.From = new MailAddress(nxPinterest.Services.dev_Settings.mailAddress);
+                            mail.From = new MailAddress(mailAddress);
                             mail.To.Add(Email);
                             mail.Subject = "ユーザー登録のお知らせ";
                             mail.Body = "ユーザー登録の申請を受け付けました。<br />パスワードの設定をご希望の場合は、以下URLをクリックし新しいパスワードをご登録ください。<br /><a href = '" + string.Format("{0}://{1}/Account/SetPassword/{2}", Request.Scheme, Request.Host, activationCode) + "'>Click here to set your password.</a>";
                             mail.IsBodyHtml = true;
 
-                            using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+                            //using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+                            using (SmtpClient smtp = new SmtpClient(MailServer, Convert.ToInt32(Port)))
                             {
-                                smtp.Credentials = new NetworkCredential(nxPinterest.Services.dev_Settings.mailAddress, nxPinterest.Services.dev_Settings.mailPassword);
+                                //smtp.Credentials = new NetworkCredential(nxPinterest.Services.dev_Settings.mailAddress, nxPinterest.Services.dev_Settings.mailPassword);
+                                smtp.Credentials = new NetworkCredential(mailAddress, mailPassword);
                                 smtp.EnableSsl = true;
                                 smtp.Send(mail);
                             }
