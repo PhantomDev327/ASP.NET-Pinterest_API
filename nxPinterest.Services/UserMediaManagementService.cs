@@ -1,4 +1,4 @@
-﻿using nxPinterest.Data;
+using nxPinterest.Data;
 using nxPinterest.Services.Interfaces;
 using nxPinterest.Utils;
 using System;
@@ -155,7 +155,6 @@ namespace nxPinterest.Services
                 // Upload image file to Azure Blob
                 string ContainerName = dev_Settings.blob_containerName_image;
                 string fileName = Path.GetFileName(file.FileName);
-                fileName = DateTime.Now.ToString("yyyyMMddHHmmss_") + fileName;
 
                 // If same name file exist, change file name.
                 _blobService.CreateContainerIfNotExistsAsync(ContainerName);
@@ -166,8 +165,7 @@ namespace nxPinterest.Services
                     {
                         if (fileName.Equals(existfile.ToString()))
                         {
-                            //fileName = DateTime.Now.ToString("yyyyMMddHHmmss_") + fileName;
-                            fileName = "_1" + fileName;
+                            fileName = DateTime.Now.ToString("yyyyMMddHHmmss_") + fileName;
                             break;
                         }
                     }
@@ -215,7 +213,7 @@ namespace nxPinterest.Services
                     userMedia.MediaFileName = result.Result.Name;                          
                     userMedia.MediaFileType = result.Result.Name.Split('.').Last();        
                     userMedia.Tags = tagsString;                                            
-                    userMedia.MediaThumbnailUrl = result.Result.Uri.ToString().Replace(dev_Settings.blob_containerName_image, dev_Settings.blob_containerName_thumb);
+                    userMedia.MediaThumbnailUrl = result.Result.Uri.ToString().Replace("demoimg","demothumb");
                     if (projectTab != null)
                         userMedia.ProjectTags = projectTab;
                 }
@@ -375,7 +373,7 @@ namespace nxPinterest.Services
                     userMedia.MediaFileName = result.Result.Name;
                     userMedia.MediaFileType = result.Result.Name.Split('.').Last();
                     userMedia.Tags = tagsString;
-                    userMedia.MediaThumbnailUrl = result.Result.Uri.ToString().Replace(dev_Settings.blob_containerName_image, dev_Settings.blob_containerName_thumb);
+                    userMedia.MediaThumbnailUrl = result.Result.StorageUri.SecondaryUri.ToString();
                     if (projectTab != null)
                         userMedia.ProjectTags = projectTab;
                 }

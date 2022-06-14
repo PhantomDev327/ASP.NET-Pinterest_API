@@ -11,6 +11,22 @@
 </div>
 
 <script>
+    $(document).ready(function() {
+        var page = 2;
+        $(window).scroll(function() {
+            if($(window).scrollTop() == $(document).height() - $(window).height()) {
+               $.ajax({
+                    url: "@Url.Action("getMedia", "Home")",
+                    method: "Post",
+                    data: { pageIndex: page, searchKey: $('#SearchKey').val() },
+                    success: function (sResult) {
+                        page++;
+                        console.log(sResult);
+                    }
+                });
+            }
+        });
+    });
     function onViewUserMediaDetails(media_id) {
         $("#imagePreview").html("");
 
