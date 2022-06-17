@@ -1,7 +1,7 @@
 ﻿@model IList<nxPinterest.Data.Models.UserMedia>
 
 <div class="content gallery" id="contentGallery">
-    <div class="thumbnail-container">
+    <div class="thumbnail-container" id="thumbnail-container">
         @foreach (nxPinterest.Data.Models.UserMedia userMedia in Model)
         {
             await Html.RenderPartialAsync("/Views/Home/_HomeImageDetail.cshtml", userMedia);
@@ -14,14 +14,17 @@
     $(document).ready(function() {
         var page = 2;
         $(window).scroll(function() {
-            if($(window).scrollTop() == $(document).height() - $(window).height()) {
-               $.ajax({
+            console.log(1);
+            if($(window).scrollTop() + $(window).height() == $(document).height()) {
+                $.ajax({
                     url: "@Url.Action("getMedia", "Home")",
                     method: "Post",
                     data: { pageIndex: page, searchKey: $('#SearchKey').val() },
                     success: function (sResult) {
+                        $.each(sResult.userMediaList, function(index, value) {
+                          $('#thumbnail-container').append('<figure><a href="/Home/GetUserMediaDetails?media_id='+value.MediaId+'"><img src="'+value.mediaThumbnailUrl+'" alt="'+value.mediaFileName+'"<figcaption><p class="title">'+value.MediaTitle+'</p><p class="description">'+value.MediaDescription+'</p></figcaption></a></figure>');
+                        });
                         page++;
-                        console.log(sResult);
                     }
                 });
             }
