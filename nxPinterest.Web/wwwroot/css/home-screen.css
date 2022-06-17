@@ -87,6 +87,7 @@ img.company-banner {
 
 .thumbnail-container img {
     max-width: 100%;
+    width: 100%;
     display: block;
 }
 
