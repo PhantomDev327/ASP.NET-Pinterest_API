@@ -1,7 +1,7 @@
 ﻿@model IList<nxPinterest.Data.Models.UserMedia>
 
 <div class="content gallery" id="contentGallery">
-    <div class="thumbnail-container row" id="thumbnail-container">
+    <div class="thumbnail-container" id="thumbnail-container">
         
     </div>
 </div>
@@ -9,24 +9,34 @@
 <script>
     window.page = 1;
     window.images= new Array();
-    $(window).on('resize', function(){
-        reloadImage();
-    });
+    
     $(document).ready(function() {
+        $(window).css('min-width',500);
         initCol();
         loadImg();
         $(window).scroll(function() {
             if($(window).scrollTop() + $(window).height() == $(document).height()) {
-                loadImg()
+                loadImg();
             }
         });
+        var timer = null;
+        $(window).on('resize', function(){
+            clearTimeout(timer); 
+            timer = setTimeout(function() {
+                reloadImage();
+            },500);
+        });
     });
+    function getColNum() {
+        var col_num = Math.floor($(window).width() / 264);
+        return col_num;
+    }
     function initCol() {
         $("#thumbnail-container").empty();
-        var col_num = Math.floor($(window).width() / 250);
-        var space = Math.floor(($(window).width() % 250)/2);
+        var col_num = getColNum();
+        var space = Math.floor(($(window).width() % 264)/2);
         for (var i = 1; i <= col_num; i++) {
-            $('#thumbnail-container').append('<div id="column-'+i+'" class="image-col" style="position:absolute; width:250px; padding:6px;left:'+ (250 * (i - 1) + space) +'px;"></div>');
+            $('#thumbnail-container').append('<div id="column-'+i+'" class="image-col" style="position:absolute; width:264px; padding:8px;left:'+ (260 * (i - 1) + space) +'px;"></div>');
         }
     }
     function loadImg() {
@@ -44,8 +54,6 @@
         });
     }
     function reloadImage() {
-        var tempScrollTop = $(window).scrollTop();
-        console.log(tempScrollTop);
         initCol();
         window.images.forEach(function (data) {
             data.forEach(function (value) {
@@ -58,7 +66,7 @@
         var newImgEl = document.createElement('img');
         newImgEl.addEventListener('load', function() {
             shortest = findShortestCol();
-            shortest.append('<figure id="'+value.mediaId+'"><a href="/Home/GetUserMediaDetails?media_id='+value.MediaId+'"><figcaption><p class="title">'+value.MediaTitle+'</p><p class="description">'+value.MediaDescription+'</p></figcaption></a></figure>');
+            shortest.append('<figure id="'+value.mediaId+'"><a href="/Home/GetUserMediaDetails?media_id='+value.mediaId+'"><figcaption><p class="title">'+value.mediaTitle+'</p><p class="description">'+value.mediaDescription+'</p></figcaption></a></figure>');
             $('#'+value.mediaId+' a').append(newImgEl);
         });
         newImgEl.setAttribute('src', value.mediaThumbnailUrl.replace("demothumb","demoimg"));

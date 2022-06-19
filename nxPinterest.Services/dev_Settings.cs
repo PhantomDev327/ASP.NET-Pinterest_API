@@ -72,7 +72,7 @@
         public const double tag_confidence_threshold = 0.80;        // Tag confidence threshold for search
         public const int displayMaxItems_search = 250;
         public const int pageSize_manage = 100;
-        public const int pageSize_regist = 15;
+        public const int pageSize_regist = 30;
         public const string mailAddress = "starse.noreply@gmail.com";
         public const string mailPassword = "starse2022";
     }

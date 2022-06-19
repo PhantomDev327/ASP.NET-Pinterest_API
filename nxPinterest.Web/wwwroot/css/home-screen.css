@@ -35,9 +35,16 @@ img.company-banner {
     flex-direction: row;
 }
 @media (max-width: 800px) {
-    #logo-search {
-        flex-direction: column;
+    #logo {
+        display: none;
     }
+    #logo-mobile {
+        display: block!important;
+    }
+}
+#logo-mobile {
+    display: none;
+    max-height: 38px;
 }
 #logo-search .company-banner-wrapper {
     margin-right: 15px;
@@ -71,7 +78,7 @@ img.company-banner {
     margin: 0;
     display: grid;
     grid-template-rows: 1fr auto;
-    margin-bottom: 10px;
+    margin-bottom: 16px;
     break-inside: avoid;
     transition: 1s;
     border-radius: 10px;
