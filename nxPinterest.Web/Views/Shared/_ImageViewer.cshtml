@@ -7,12 +7,38 @@
 	UserMedia primary_image_detail = Model.UserMediaDetail;
 }
 
+<style>
+
+    .btn-create{
+        margin-left: 0;
+        color: #eef2f7;
+        font-size: .9rem;
+        display: inline-block;
+        font-weight: 400;
+        line-height: 1.5;
+        /* color: #6c757d; */
+        text-align: center;
+        vertical-align: middle;
+        width: 100px;
+        height: 50px;
+    }
+
+    .btn-default {
+        background-color: #343a40;
+        border: none;
+        border-radius: 20px;
+        position: relative;
+        color: #eef2f7;
+        }
+     
+</style>
+
 <script src="~/lib/bootstrap-fileinput/js/fileinput.min.js" asp-append-version="true"></script>
 <script src="~/lib/bootstrap-tagsinput/bootstrap-tagsinput.min.js" asp-append-version="true"></script>
 <script src="~/lib/bootstrap-fileinput/js/locales/LANG.js" asp-append-version="true"></script>
 
 <div id="image-viewer-modal" tabindex="-1">
-	<div class="left-arrow-container">
+	<div class="left-arrow-container arrow-key">
 		<a href="@Url.Action("Index", "Home", new { pageIndex = 1})">
 			<i class="fas fa-arrow-circle-left fa-3x"></i>
 		</a>
@@ -23,30 +49,28 @@
 				<div class="modal-body bg-white">
 					<div class="row">
 						<div class="col">
-							<div class="container">
-								<div class="content h-100">
-									<div class="row">
-										<div class="image-uploader-wrapper">
-											<figure>
-												<img src="@primary_image_detail.MediaUrl" alt="@primary_image_detail.MediaFileName" class="main" />
-											</figure>
-										</div>
+							<div class="content h-100">
+								<div class="row" style = "margin-left: 0px;">
+									<div class="image-uploader-wrapper">
+										<figure>
+											<img src="@primary_image_detail.MediaThumbnailUrl" alt="@primary_image_detail.MediaFileName" class="main" style="max-height:initial!important"/>
+										</figure>
 									</div>
-									<div class="row">
-										<div class="col">
-											<div class="thumbnail-section-wrapper">
+								</div>
+								<div class="row">
+									<div class="col">
+										<div class="thumbnail-section-wrapper" style="margin-top:0!important">
 												@for (int i = 0; i < Model.UserMediaList.Count(); i++)
 												{
 													var userMediaThumbnail = Model.UserMediaList[i];
 													string activeClass = userMediaThumbnail.MediaFileName.Equals(primary_image_detail.MediaFileName) ? "active" : "";
 
-													<div class="thumbnail-wrapper @activeClass" >
+													<div class="thumbnail-wrapper @activeClass" style="margin-left:4.5px!important">
 														<a href="@Url.Action("GetUserMediaDetails", "Home", new { media_id = @userMediaThumbnail.MediaId })">
-															<img src="@userMediaThumbnail.MediaUrl" class="thumbnail" />
+															<img src="@userMediaThumbnail.MediaThumbnailUrl" class="thumbnail" />
 														</a>
 													</div>
 												}
-											</div>
 										</div>
 									</div>
 								</div>
@@ -65,12 +89,30 @@
 
 									<input hidden asp-for="@primary_image_detail.MediaId" name="MediaId" />
 
-									<div class="text-center">
+									@*ssa chg-btn-20220530*@
+									@*<div class="text-center">
 										<input type="button" value="保存" class="btn btn-default btn-save" style="margin-left:0" id="btn-save" />
+										<button type="submit" class="btn btn-lg btn-danger btn-delete" style="margin-left:0;border-radius:  1.3rem;font-size: 0.9rem"　onclick="filedelete('@primary_image_detail.MediaId');" id="btn-save">削除</button>
+										<input type="button" value="削除" class="btn btn-lg btn-danger btn-delete" style="margin-left:0;border-radius:  1.3rem;font-size: 0.9rem"　onclick="filedelete('@primary_image_detail.MediaId');" id="btn-save" />
+										//ssa_chg_20220527
 										<a class="btn btn-lg btn-danger btn-delete" onclick="filedelete('@primary_image_detail.MediaId');" style="border-radius: 1.3rem;">
+											削除
+										</a>									
+									</div>*@
+									<div class="row">
+										<input type="button" value="保存" class="btn btn-default btn-save" style="margin-right: 5px;" id="btn-save">
+										<a class="btn btn-lg btn-danger btn-delete" onclick="filedelete('217');" style="border-radius: 1.3rem;font-size: 0.9rem;flex-direction: column;justify-content: center;display: flex;">
 											削除
 										</a>
 									</div>
+									@*<div class="row">
+										<input type="button" value="保存" class="btn btn-default btn-save" style="/* margin-left: 2px; *//* margin-right: 50%; */margin-right: 5px;" id="btn-save">
+										<a class="btn btn-lg btn-danger btn-delete" onclick="filedelete('217');" style="border-radius: 1.3rem;/* text-align: center; */mergin: 0;/* margin: 0 auto; */    
+										   /* display: initial; */font-size: inherit;text-align: -moz-center;/* position: absolute; *//* bottom:   0; */justify-content: start;  flex-direction: column; /* height: 50px; *//* display: flex; */justify-content: center;display: flex;right: 20;/* margin-left: 50%; *//* margin-top: -11.5%; */">
+											削除
+										</a>
+									</div>*@
+
 								</div>
 							</div>
 						</div>

@@ -79,20 +79,7 @@ h4 {
     }
 /* Tag style */
 
-.input-control {
-    width: 50%;
-    margin-bottom: 4%;
-    border: none;
-    border-bottom: 1px solid #dee2e6;
-    border-radius: 0;
-    font-size: 1.3rem;
-}
-
-.tag-control-container {
-    padding-bottom: 5%;
-}
-
-.btn-save, .btn-delete {
+.btn-save, .btn-delete, .reigster-btn {
     width: 100px;
     height: 50px;
 }

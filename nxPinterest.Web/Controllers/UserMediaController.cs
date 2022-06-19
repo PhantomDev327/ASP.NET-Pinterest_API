@@ -165,7 +165,6 @@ namespace nxPinterest.Web.Controllers
             string path = "./wwwroot/images/temp/" + this.UserId;
             string path2 = "/images/temp/" + this.UserId + "/";
 
-
             for (int i = 0; i < request.imageInfoListSize; i++){
                 ImageInfo img = request.ImageInfoList[i];
 
@@ -178,7 +177,7 @@ namespace nxPinterest.Web.Controllers
                     }
                     String fullPath = path +"/"+ img.Images.FileName;
                     String imgNewWithouExt = Path.GetFileNameWithoutExtension(fullPath);
-                    String imgNewPath = fullPath.Replace(imgNewWithouExt, imgNewWithouExt + "-" + i);
+                    String imgNewPath = fullPath.Replace(imgNewWithouExt, imgNewWithouExt + "_00"+i);
                     System.IO.File.Move(fullPath, imgNewPath);
                     System.IO.FileInfo imgInfo = new System.IO.FileInfo(imgNewPath);
                     request.ImageInfoList[i].imgName = imgInfo.Name;

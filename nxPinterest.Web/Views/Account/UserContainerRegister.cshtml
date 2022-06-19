@@ -4,8 +4,7 @@
     Layout = "~/Views/Shared/_UserLayout.cshtml";
 }
 
-
-<body style="background-color: #dbdbdb;">
+<body>
     <div class="d-flex" id="wrapper">
         <!-- Sidebar-->
         <div class="border-end bg-white" id="sidebar-wrapper">
@@ -22,19 +21,37 @@
         <!-- Page content wrapper-->
         <div id="page-content-wrapper">
             <!-- Top navigation-->
-            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom" style="height: 58px;background-color: #fff !important;">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom nav-bar-style">
                 <div class="" style="margin-left: 25px;">
                     <h4>コンテナ登録</h4>
                 </div>
                 <div class="" style="position:absolute; right:70px;top:20%;">
-                   <div class="dropdown">
+                   @*<div class="dropdown">
                         <i class="bi bi-person-circle"></i>
                         <i class="bi bi-chevron-down"></i>
                         <div class="dropdown-content">
                             <a href="@Url.Action("ChangePassword", "account")">パスワード変更</a>
                             <a href="@Url.Action("LogOut", "account")">ログアウト</a>
                         </div>
-                    </div>
+                    </div>*@
+                     @*編集機能 20220527_ssa*@
+                    <div class="dropdown">
+                        <i class="bi bi-person-circle"></i>
+                            @{
+                                if(@ViewBag.UserDispName == null || @ViewBag.UserDispName.Trim() == "")
+                                {
+                                   <span style="padding-left:5px;padding-right:60px"></span>
+                                }
+                                else
+                                {
+                                    <span style="padding-left:5px;padding-right:10px">@ViewBag.UserDispName</span>
+                                }
+                            }
+                        <i class="bi bi-chevron-down"></i>
+                            <div class="dropdown-content">
+                                <a href="@Url.Action("ChangePassword", "account")">パスワード変更</a>
+                                <a href="@Url.Action("LogOut", "account")">ログアウト</a>
+                            </div>
                 </div>
             </nav>
             <div style="margin: 25px;">
@@ -49,7 +66,9 @@
                     </div>
                     <div class="col-lg-12 mb-3 row">
                         <div class="col-lg-5 col-md-12 col-sm-12">
-                            <button type="submit" class="col-4 btn btn-primary" id="btn-register">登録</button>
+                            @*<button type="submit" class="col-4 btn btn-primary" id="btn-register">登録</button>*@
+                            @*編集ボタン機能 ssa20220527*@
+                             <button type="submit" class="btn btn-default btn-create userregister">登録</button>    
                         </div>
                     </div>
                 </form>

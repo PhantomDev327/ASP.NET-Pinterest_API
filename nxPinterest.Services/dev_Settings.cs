@@ -32,7 +32,9 @@
 
         // Azure Storage Blob container for storing images.
         // public const string blob_containerName_image = "imagecontainer";
-        public const string blob_containerName_image = "imagecontainer";
+        //public const string blob_containerName_image = "imagecontainer";
+        public const string blob_containerName_image = "demoimg";
+        public const string blob_containerName_thumb = "demothumb";
 
         /* You can choose where to save the image info (metadata and computer vision analysis tag results) as follows
          *

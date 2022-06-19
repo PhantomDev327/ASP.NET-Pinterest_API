@@ -17,6 +17,8 @@ using System.Net;
 using System.IO;
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
+using System.Configuration;
+using Microsoft.Extensions.Configuration;
 
 namespace nxPinterest.Web.Controllers
 {
@@ -271,18 +273,28 @@ namespace nxPinterest.Web.Controllers
                     var Email = user.ToString();
                     var value = EncryptRijndael(Email, encryptionKey);
                     var activationCode = value.Replace('/', '-').Replace('+', '_').PadRight(4 * ((value.Length + 3) / 4), '=');
+                    //added by ssa 20220531
+                    var configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json", true, true).Build();
+                    IConfigurationSection section = configuration.GetSection("MailSetting");
+                    string mailAddress = section["From"];
+                    string MailServer = section["MailServer"];
+                    string Port = section["Port"];
+                    string mailPassword = section["Password"];
 
                     using (MailMessage mail = new MailMessage())
                     {
-                        mail.From = new MailAddress("starse.noreply@gmail.com");
+                        //mail.From = new MailAddress(nxPinterest.Services.dev_Settings.mailAddress);
+                        mail.From = new MailAddress(mailAddress);
                         mail.To.Add(Email);
                         mail.Subject = "パスワードリセットのお知らせ";
                         mail.Body = "パスワードリセットの申請を受け付けました。<br />パスワードの再設定をご希望の場合は、以下URLをクリックし新しいパスワードをご登録ください。<br /><a href = '" + string.Format("{0}://{1}/Account/ResetPassword/{2}", Request.Scheme, Request.Host, activationCode) + "'>Click here to reset your password.</a>";
                         mail.IsBodyHtml = true;
 
-                        using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+                        //using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+                        using (SmtpClient smtp = new SmtpClient(MailServer, Convert.ToInt32(Port)))
                         {
-                            smtp.Credentials = new NetworkCredential("starse.noreply@gmail.com", "starse2022");
+                            //smtp.Credentials = new NetworkCredential(nxPinterest.Services.dev_Settings.mailAddress, nxPinterest.Services.dev_Settings.mailPassword);
+                            smtp.Credentials = new NetworkCredential(mailAddress, mailPassword);
                             smtp.EnableSsl = true;
                             smtp.Send(mail);
                         }
@@ -377,17 +389,27 @@ namespace nxPinterest.Web.Controllers
                             var Email = user.ToString();
                             var value = EncryptRijndael(Email, encryptionKey);
                             var activationCode = value.Replace('/', '-').Replace('+', '_').PadRight(4 * ((value.Length + 3) / 4), '=');
+                            //added by ssa 20220531
+                            var configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json", true, true).Build();
+                            IConfigurationSection section = configuration.GetSection("MailSetting");
+                            string mailAddress = section["From"];
+                            string MailServer = section["MailServer"];
+                            string Port = section["Port"];
+                            string mailPassword = section["Password"];
+
                             using (MailMessage mail = new MailMessage())
                             {
-                                mail.From = new MailAddress("starse.noreply@gmail.com");
+                                //mail.From = new MailAddress(nxPinterest.Services.dev_Settings.mailAddress);
+                                mail.From = new MailAddress(mailAddress);
                                 mail.To.Add(Email);
                                 mail.Subject = "登録完了のお知らせ";
                                 mail.Body = "登録が完了いたしましたので、ご連絡いたします。<br />以下URLをクリックしパスワードをご登録ください。< br /><a href = '" + string.Format("{0}://{1}/Account/SetPassword/{2}", Request.Scheme, Request.Host, activationCode) + "'>Click here to activate your account.</a>";
                                 mail.IsBodyHtml = true;
 
-                                using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+                                //using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+                                using (SmtpClient smtp = new SmtpClient(MailServer, Convert.ToInt32(Port)))
                                 {
-                                    smtp.Credentials = new NetworkCredential("starse.noreply@gmail.com", "starse2022");
+                                    smtp.Credentials = new NetworkCredential(mailAddress, mailPassword);
                                     smtp.EnableSsl = true;
                                     smtp.Send(mail);
                                 }
@@ -550,7 +572,8 @@ namespace nxPinterest.Web.Controllers
                 int totalRecordCount = vm.ApplicationUserList.Count;
 
                 ViewBag.ItemCount = vm.ApplicationUserList.Count;
-
+                //追加 ssa20220527
+                ViewBag.UserDispName = user.UserDispName;
                 vm.ApplicationUserList = vm.ApplicationUserList.Skip(skip).Take(pageSize).ToList();
 
                 vm.PageIndex = pageIndex;
@@ -580,7 +603,8 @@ namespace nxPinterest.Web.Controllers
                 TempData["Message"] = "Access Denied!";
                 return View("~/Views/Error/204.cshtml");
             }
-
+            //追加 ssa20220527
+            ViewBag.UserDispName = user.UserDispName;
             Services.Models.Request.UserRegistrationRequest vm = new Services.Models.Request.UserRegistrationRequest();
   
             Task<IList<Data.Models.UserContainer>> list = this.userContainerManagementService.ListContainerAsyc();
@@ -595,7 +619,7 @@ namespace nxPinterest.Web.Controllers
         public async Task<IActionResult> UserContainerIdRegister(Services.Models.Request.UserRegistrationRequest vm)
         {
             try
-            {
+            {  
                 // システム管理者のみ利用可能な機能
                 var loginUser = await this._userManager.FindByIdAsync(this.UserId);
                 if (loginUser.Discriminator != "SysAdmin")
@@ -626,17 +650,29 @@ namespace nxPinterest.Web.Controllers
                         var Email = user.ToString();
                         var value = EncryptRijndael(Email, encryptionKey);
                         var activationCode = value.Replace('/', '-').Replace('+', '_').PadRight(4 * ((value.Length + 3) / 4), '=');
+
+                        //added by ssa 20220531
+                        var configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json", true, true).Build();
+                        IConfigurationSection section = configuration.GetSection("MailSetting");
+                        string mailAddress = section["From"];
+                        string MailServer = section["MailServer"];
+                        string Port = section["Port"];
+                        string mailPassword = section["Password"];
+
                         using (MailMessage mail = new MailMessage())
                         {
-                            mail.From = new MailAddress("starse.noreply@gmail.com");
+                            //mail.From = new MailAddress(nxPinterest.Services.dev_Settings.mailAddress);
+                            mail.From = new MailAddress(mailAddress);
                             mail.To.Add(Email);
                             mail.Subject = "ユーザー登録のお知らせ";
                             mail.Body = "ユーザー登録の申請を受け付けました。<br />パスワードの設定をご希望の場合は、以下URLをクリックし新しいパスワードをご登録ください。<br /><a href = '" + string.Format("{0}://{1}/Account/SetPassword/{2}", Request.Scheme, Request.Host, activationCode) + "'>Click here to set your password.</a>";
                             mail.IsBodyHtml = true;
 
-                            using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+                            //using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+                            using (SmtpClient smtp = new SmtpClient(MailServer, Convert.ToInt32(Port)))
                             {
-                                smtp.Credentials = new NetworkCredential("starse.noreply@gmail.com", "starse2022");
+                                //smtp.Credentials = new NetworkCredential(nxPinterest.Services.dev_Settings.mailAddress, nxPinterest.Services.dev_Settings.mailPassword);
+                                smtp.Credentials = new NetworkCredential(mailAddress, mailPassword);
                                 smtp.EnableSsl = true;
                                 smtp.Send(mail);
                             }
@@ -671,6 +707,9 @@ namespace nxPinterest.Web.Controllers
         {
             // システム管理者のみ利用可能な機能
             var user = await this._userManager.FindByIdAsync(this.UserId);
+            //追加 ssa20220527
+            ViewBag.UserDispName = user.UserDispName;
+
             if (user.Discriminator != "SysAdmin")
             {
                 TempData["Message"] = "Access Denied!";
@@ -690,6 +729,8 @@ namespace nxPinterest.Web.Controllers
                 vm.user_visibility = usr.user_visibility;
                 vm.UserDispName = usr.UserDispName;
             }
+            //追加 ssa20220527
+            ViewBag.UserDispName = user.UserDispName;
             Task<IList<Data.Models.UserContainer>> containerlist = this.userContainerManagementService.ListContainerAsyc();
             ViewBag.ContainerList = (containerlist != null) ? containerlist.Result.Where(c => c.container_visibility.Equals(true)) : new List<Data.Models.UserContainer>();
 
@@ -722,6 +763,7 @@ namespace nxPinterest.Web.Controllers
                         user.PhoneNumber = vm.PhoneNumber;
                         user.user_visibility = vm.user_visibility;
                         user.UserDispName = vm.UserDispName;
+                        user.container_id = vm.container_id;
                     }
                     var update = await this._userManager.UpdateAsync(user);
                     if (update.Succeeded)
@@ -780,7 +822,8 @@ namespace nxPinterest.Web.Controllers
             vm.TotalPages = totalPages;
             vm.TotalRecords = totalRecordCount;
             vm.CurrentPageName = "containerList";
-
+            //追加 ssa20220527
+            ViewBag.UserDispName = user.UserDispName;
             return this.View("~/Views/Account/UserContainerList.cshtml", vm);
         }
 
@@ -791,6 +834,9 @@ namespace nxPinterest.Web.Controllers
         {
             // システム管理者のみ利用可能な機能
             var user = this._userManager.FindByIdAsync(this.UserId);
+            //追加 ssa20220527
+            ViewBag.UserDispName = user.Result.UserDispName;
+
             if (user.Result.Discriminator != "SysAdmin")
             {
                 TempData["Message"] = "Access Denied!";
@@ -859,6 +905,10 @@ namespace nxPinterest.Web.Controllers
                 vm.container_name = usr.container_name;
                 vm.container_visibility = usr.container_visibility;
             }
+
+            //追加 ssa20220527
+            ViewBag.UserDispName = user.Result.UserDispName;
+
             return this.View("~/Views/Account/UserContainerEdit.cshtml", vm);
         }
 
@@ -936,13 +986,16 @@ namespace nxPinterest.Web.Controllers
             int totalRecordCount = vm.ApplicationUserList.Count;
 
             ViewBag.ItemCount = vm.ApplicationUserList.Count;
-
+            //追加 ssa20220527
+            ViewBag.UserDispName = user.UserDispName;
+            //
             vm.ApplicationUserList = vm.ApplicationUserList.Skip(skip).Take(pageSize).ToList();
 
             vm.PageIndex = pageIndex;
             vm.TotalPages = totalPages;
             vm.TotalRecords = totalRecordCount;
 
+            
             return this.View("~/Views/Account/NormalUserList.cshtml", vm);
         }
 
@@ -963,6 +1016,9 @@ namespace nxPinterest.Web.Controllers
             int container_id3 = Int32.Parse(container_id2);
             Services.Models.Request.NormalUserRegistrationRequest vm = new Services.Models.Request.NormalUserRegistrationRequest();
             vm.container_id = container_id3;
+            //追加 ssa20220527
+            ViewBag.UserDispName = user.UserDispName;
+            //
             return this.View("~/Views/Account/NormalUserRegister.cshtml", vm);
         }
 
@@ -1009,17 +1065,28 @@ namespace nxPinterest.Web.Controllers
                         var Email = user.ToString();
                         var value = EncryptRijndael(Email, encryptionKey);
                         var activationCode = value.Replace('/', '-').Replace('+', '_').PadRight(4 * ((value.Length + 3) / 4), '=');
+                        //added by ssa 20220531
+                        var configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json", true, true).Build();
+                        IConfigurationSection section = configuration.GetSection("MailSetting");
+                        string mailAddress = section["From"];
+                        string MailServer = section["MailServer"];
+                        string Port = section["Port"];
+                        string mailPassword = section["Password"];
+
                         using (MailMessage mail = new MailMessage())
                         {
-                            mail.From = new MailAddress("starse.noreply@gmail.com");
+                            //mail.From = new MailAddress(nxPinterest.Services.dev_Settings.mailAddress);
+                            mail.From = new MailAddress(mailAddress);
                             mail.To.Add(Email);
                             mail.Subject = "ユーザー登録のお知らせ";
                             mail.Body = "ユーザー登録の申請を受け付けました。<br />パスワードの設定をご希望の場合は、以下URLをクリックし新しいパスワードをご登録ください。<br /><a href = '" + string.Format("{0}://{1}/Account/SetPassword/{2}", Request.Scheme, Request.Host, activationCode) + "'>Click here to set your password.</a>";
                             mail.IsBodyHtml = true;
 
-                            using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+                            //using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+                            using (SmtpClient smtp = new SmtpClient(MailServer, Convert.ToInt32(Port)))
                             {
-                                smtp.Credentials = new NetworkCredential("starse.noreply@gmail.com", "starse2022");
+                                //smtp.Credentials = new NetworkCredential(nxPinterest.Services.dev_Settings.mailAddress, nxPinterest.Services.dev_Settings.mailPassword);
+                                smtp.Credentials = new NetworkCredential(mailAddress, mailPassword);
                                 smtp.EnableSsl = true;
                                 smtp.Send(mail);
                             }
@@ -1074,6 +1141,8 @@ namespace nxPinterest.Web.Controllers
             vm.PhoneNumber = usr.PhoneNumber;
             vm.Discriminator = usr.Discriminator;
             vm.user_visibility = usr.user_visibility;
+            //追加 ssa20220527
+            ViewBag.UserDispName = user.UserDispName;
 
             return this.View("~/Views/Account/NormalUserEdit.cshtml", vm);
         }
