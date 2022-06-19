@@ -213,7 +213,7 @@ namespace nxPinterest.Services
                     userMedia.MediaFileName = result.Result.Name;                          
                     userMedia.MediaFileType = result.Result.Name.Split('.').Last();        
                     userMedia.Tags = tagsString;                                            
-                    userMedia.MediaThumbnailUrl = result.Result.StorageUri.SecondaryUri.ToString();
+                    userMedia.MediaThumbnailUrl = result.Result.Uri.ToString().Replace("demoimg","demothumb");
                     if (projectTab != null)
                         userMedia.ProjectTags = projectTab;
                 }
