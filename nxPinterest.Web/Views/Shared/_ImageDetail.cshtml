@@ -31,20 +31,27 @@
 								</div>
 								<div class="row">
 									<div class="slider">
+										<input type="radio" name="slide_switch" checked="checked" id="@primary_image_detail.MediaId" value="@primary_image_detail.MediaId"/>
+									    <label for="@primary_image_detail.MediaId" style="background-image:url('@primary_image_detail.MediaThumbnailUrl');">
+									        
+									    </label>
 									    @for (int i = 0; i < Model.UserMediaList.Count(); i++)
 									    {
-									        var userMediaThumbnail = Model.UserMediaList[i];
+											var userMediaThumbnail = Model.UserMediaList[i];
 									        string activeClass = userMediaThumbnail.MediaFileName.Equals(primary_image_detail.MediaFileName) ? "active" : "";
-											string hide_lable = i > 11 ? "hide-lable" : "";
+											string hide_lable = i > 10 ? "hide-lable" : "";
 
-									        <input type="radio" name="slide_switch" id="@userMediaThumbnail.MediaId" value="@userMediaThumbnail.MediaId"/>
-									        <label class="@hide_lable" for="@userMediaThumbnail.MediaId"  style="background-image:url('@userMediaThumbnail.MediaThumbnailUrl');">
-									            
-									        </label>
+											@if(userMediaThumbnail.MediaId != primary_image_detail.MediaId)
+											{
+												<input type="radio" name="slide_switch" id="@userMediaThumbnail.MediaId" value="@userMediaThumbnail.MediaId"/>
+												<label class="@hide_lable" for="@userMediaThumbnail.MediaId"  style="background-image:url('@userMediaThumbnail.MediaThumbnailUrl');">
+												    
+												</label>
+											}
 									    }
 										
 									</div>
-									@if (Model.UserMediaList.Count() > 12) {
+									@if (Model.UserMediaList.Count() > 11) {
 											<input type="button" value="全て表示" class="btn btn-default btn-save" id="show-all-btn">
 										}
 								</div>
@@ -60,16 +67,16 @@
 									</div>
 									<h5 style="color:black;margin-left: 0%;">@primary_image_detail.MediaTitle</h5>
 									<br />
-									<p style="color:black;margin-left: 0%;">
+									<p class="media_desc" style="color:black;margin-left: 0%;">
 										@primary_image_detail.MediaDescription
 									</p>
 									<br />
 									<p class="text-black tag-text">Project Tag</p>
-									<p>
+									<div class="project_tags">
 										@foreach (var tag in @Model.project_tags_list){
 											<div style="display:inline-block;color:#fff;background-color: #343a40;padding:10px 20px 10px 20px;border-radius:3px;margin-right:7px;margin-bottom:7px;">@tag</div>
 										}
-									</p>
+									</div>
 
 									<input hidden asp-for="@primary_image_detail.MediaId" name="MediaId" />
 								</div>
@@ -112,6 +119,22 @@ $('#show-all-btn').on('click', function() {
     $(this).css('display', 'none');
 });
 $('.slider input').on('click', function() {
-    $('#main-image').attr('src', $(this).val());
+    var media_id = $(this).val();
+	$.ajax({
+            url: "@Url.Action("GetUserMediaDetailsAjax", "Home")",
+            method: "Post",
+            data: { media_id: media_id},
+            success: function (sResult) {
+                console.log(sResult);
+				$('#main-image').attr('src', sResult.userMediaDetail.mediaThumbnailUrl);
+                $('.dots-image-container a').attr('href',"/Home/GetUserMediaViewer?media_id=" + sResult.userMediaDetail.mediaId);
+                $('.image-detail-col h5').html(sResult.userMediaDetail.mediaTitle);
+				$('.image-detail-col .media_desc').html(sResult.userMediaDetail.mediaDescription);
+                $('.project_tags').empty();
+				$.each(sResult.project_tags_list, function(index, value) {
+                    $('.project_tags').append('<div style="display:inline-block;color:#fff;background-color: #343a40;padding:10px 20px 10px 20px;border-radius:3px;margin-right:7px;margin-bottom:7px;">'+value +'</div>');
+                });
+            }
+	});
 });
 </script>
