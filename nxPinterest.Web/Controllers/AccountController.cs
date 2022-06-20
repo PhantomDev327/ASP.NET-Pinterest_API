@@ -52,6 +52,7 @@ namespace nxPinterest.Web.Controllers
         public IActionResult Certification()
         {
             Services.Models.Request.LoginRequest vm = new Services.Models.Request.LoginRequest();
+            TempData["Message"] = "";
             return View(vm);
         }
 
@@ -83,7 +84,8 @@ namespace nxPinterest.Web.Controllers
                             return RedirectToAction("Index", "Home");
                         }
                     }
-                    throw new Exception("Incorrect User name or Password");
+                    TempData["Message"] = "ログインIDまたはパスワードが違います";
+                    return View("Certification", request);
                 }
             }
             catch (Exception ex)
