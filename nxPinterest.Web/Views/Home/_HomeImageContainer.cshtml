@@ -69,7 +69,7 @@
             shortest.append('<figure id="'+value.mediaId+'"><a href="/Home/GetUserMediaDetails?media_id='+value.mediaId+'"><figcaption><p class="title">'+value.mediaTitle+'</p><p class="description">'+value.mediaDescription+'</p></figcaption></a></figure>');
             $('#'+value.mediaId+' a').append(newImgEl);
         });
-        newImgEl.setAttribute('src', value.mediaThumbnailUrl.replace("demothumb","demoimg"));
+        newImgEl.setAttribute('src', value.mediaThumbnailUrl);
         newImgEl.setAttribute('alt', value.mediaFileName);
     }
     function findShortestCol() {
