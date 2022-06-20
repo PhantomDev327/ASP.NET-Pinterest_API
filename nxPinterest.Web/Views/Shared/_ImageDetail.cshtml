@@ -10,96 +10,47 @@
 <script src="~/lib/bootstrap-fileinput/js/fileinput.min.js" asp-append-version="true"></script>
 <script src="~/lib/bootstrap-tagsinput/bootstrap-tagsinput.min.js" asp-append-version="true"></script>
 <script src="~/lib/bootstrap-fileinput/js/locales/LANG.js" asp-append-version="true"></script>
-<style>
-
-	
-
-.slider{
-    width: 640px; /*Same as width of the large image*/
-    position: relative;
-    /*Instead of height we will use padding*/
-    padding: 20px 0; /*That helps bring the labels down*/
-}
-
-
-/*Last thing remaining is to add transitions*/
-.slider>img{
-    position: absolute;
-    left: 0; top: 0;
-    transition: all 0.5s;
-}
-
-.slider input[name='slide_switch'] {
-    display: none;
-}
-
-.slider label {
-    /*Lets add some spacing for the thumbnails*/
-    margin: 18px 0 0 18px;
-    border: 3px solid #999;
-    
-    float: left;
-    cursor: pointer;
-    transition: all 0.5s;
-	background-size:cover;
-	background-position: center;
-	width: 100px;
-    height: 100px;
-    
-    /*Default style = low opacity*/
-    opacity: 0.6;
-}
-
-.slider label img{
-    display: block;
-}
-
-/*Time to add the click effects*/
-.slider input[name='slide_switch']:checked+label {
-    border-color: #666;
-    opacity: 1;
-}
-/*Clicking any thumbnail now should change its opacity(style)*/
-/*Time to work on the main images*/
-.slider input[name='slide_switch'] ~ img {
-    opacity: 0;
-    transform: scale(1.1);
-}
-/*That hides all main images at a 110% size
-On click the images will be displayed at normal size to complete the effect
-*/
-.slider input[name='slide_switch']:checked+label+img {
-    opacity: 1;
-    transform: scale(1);
-}
-/*Clicking on any thumbnail now should activate the image related to it*/
-
-/*We are done :)*/
-</style>
 <div id="image-viewer-modal" tabindex="-1">
 	<div class="left-arrow-container arrow-key">
 		<a href="@Url.Action("Index", "Home", new { pageIndex = 1})">
 			<i class="fas fa-arrow-circle-left fa-3x"></i>
 		</a>
 	</div>
-	<div class="modal-dialog modal-xl modal-image-viewer" role="document">
-		<form method="post" id="update-user-media-form" enctype="multipart/form-data" asp-action="DeleteUserMedia" asp-controller="Home">
+	<div class="modal-image-viewer" role="document">
 			<div class="modal-content">
 				<div class="modal-body bg-white">
 					<div class="row">
-                        <div class="slider">
-                            @for (int i = 0; i < Model.UserMediaList.Count(); i++)
-                            {
-                                var userMediaThumbnail = Model.UserMediaList[i];
-                                string activeClass = userMediaThumbnail.MediaFileName.Equals(primary_image_detail.MediaFileName) ? "active" : "";
+						<div class="col-12  col-md-6 image-detail-col">
+							<div class="content h-100">
+								<div class="row">
+									<div class="image-uploader-wrapper">
+										<figure>
+											<img src="@primary_image_detail.MediaThumbnailUrl" alt="@primary_image_detail.MediaFileName" class="main" id="main-image" style="max-height:initial!important"/>
+										</figure>
+									</div>
+								</div>
+								<div class="row">
+									<div class="slider">
+									    @for (int i = 0; i < Model.UserMediaList.Count(); i++)
+									    {
+									        var userMediaThumbnail = Model.UserMediaList[i];
+									        string activeClass = userMediaThumbnail.MediaFileName.Equals(primary_image_detail.MediaFileName) ? "active" : "";
+											string hide_lable = i > 11 ? "hide-lable" : "";
 
-                                                    <input type="radio" name="slide_switch" id="@userMediaThumbnail.MediaId"/>
-                                                    <label for="@userMediaThumbnail.MediaId"  style="background-image:url('@userMediaThumbnail.MediaThumbnailUrl');">
-                                                        
-                                                    </label>
-                            }
-                        </div>
-						<div class="col ">
+									        <input type="radio" name="slide_switch" id="@userMediaThumbnail.MediaId" value="@userMediaThumbnail.MediaId"/>
+									        <label class="@hide_lable" for="@userMediaThumbnail.MediaId"  style="background-image:url('@userMediaThumbnail.MediaThumbnailUrl');">
+									            
+									        </label>
+									    }
+										
+									</div>
+									@if (Model.UserMediaList.Count() > 12) {
+											<input type="button" value="全て表示" class="btn btn-default btn-save" id="show-all-btn">
+										}
+								</div>
+							</div>
+						</div>
+						<div class="col-12 col-md-6 image-detail-col">
 							<div class="">
 								<div class="content">
 									<div class="dots-image-container">
@@ -127,7 +78,6 @@ On click the images will be displayed at normal size to complete the effect
 					</div>
 				</div>			
 			</div>
-		</form>
 	</div>
 			
 	<div class="content gallery">
@@ -157,5 +107,11 @@ On click the images will be displayed at normal size to complete the effect
 				}
 			});
 		}
-
+$('#show-all-btn').on('click', function() {
+    $('.slider label').removeClass('hide-lable');
+    $(this).css('display', 'none');
+});
+$('.slider input').on('click', function() {
+    $('#main-image').attr('src', $(this).val());
+});
 </script>
