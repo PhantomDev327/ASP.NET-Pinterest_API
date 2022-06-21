@@ -11,9 +11,15 @@
     position: relative;
     margin-top: 2%;
 }
-
+.login-err-msg {
+    position: absolute;
+    padding-top: 20px;
+    font-size: 15px;
+    left: 0;
+    width: 100%;
+}
 .text-align-center {
-    text-align:center;
+    text-align: center;
 }
 
 .text-register {
