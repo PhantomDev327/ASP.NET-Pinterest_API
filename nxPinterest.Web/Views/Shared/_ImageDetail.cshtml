@@ -39,7 +39,7 @@
 									    {
 											var userMediaThumbnail = Model.UserMediaList[i];
 									        string activeClass = userMediaThumbnail.MediaFileName.Equals(primary_image_detail.MediaFileName) ? "active" : "";
-											string hide_lable = i > 10 ? "hide-lable" : "";
+											string hide_lable = i > 13 ? "hide-lable" : "";
 
 											@if(userMediaThumbnail.MediaId != primary_image_detail.MediaId)
 											{
@@ -51,7 +51,7 @@
 									    }
 										
 									</div>
-									@if (Model.UserMediaList.Count() > 11) {
+									@if (Model.UserMediaList.Count() > 14) {
 											<input type="button" value="全て表示" class="btn btn-default btn-save" id="show-all-btn">
 										}
 								</div>
