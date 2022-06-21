@@ -60,7 +60,7 @@ namespace nxPinterest.Utils
                 userMediaJSON.MediaFileType = userMedia.MediaFileType;
                 userMediaJSON.MediaUrl = userMedia.MediaUrl;
                 userMediaJSON.DateTimeUploaded = userMedia.DateTimeUploaded;
-                userMediaJSON.Tags = imageAnalysisJSON.Tags;
+                userMediaJSON.Tags = tags_json;
 
                 return JsonConvert.SerializeObject(userMediaJSON, Formatting.None);
             }

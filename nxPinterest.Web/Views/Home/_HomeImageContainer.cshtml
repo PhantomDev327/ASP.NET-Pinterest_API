@@ -1,8 +1,8 @@
-﻿@model IList<nxPinterest.Data.Models.UserMedia>
+﻿@model IList<nxPinterest.Data.Models.UserMediaCosmosJSON>
 
 <div class="content gallery" id="contentGallery">
     <div class="thumbnail-container">
-        @foreach (nxPinterest.Data.Models.UserMedia userMedia in Model)
+        @foreach (nxPinterest.Data.Models.UserMediaCosmosJSON userMedia in Model)
         {
             await Html.RenderPartialAsync("/Views/Home/_HomeImageDetail.cshtml", userMedia);
         }

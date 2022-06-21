@@ -4,7 +4,7 @@
     ViewData["Title"] = "画像選択";
     Layout = "~/Views/Shared/_ImageLayout.cshtml";
 
-	UserMedia primary_image_detail = Model.UserMediaDetail;
+	UserMediaCosmosJSON primary_image_detail = Model.UserMediaDetailCosmos;
 }
 
 <script src="~/lib/bootstrap-fileinput/js/fileinput.min.js" asp-append-version="true"></script>
@@ -27,21 +27,21 @@
 								<div class="row" style = "margin-left: 0px;">
 									<div class="image-uploader-wrapper">
 										<figure>
-											<img src="@primary_image_detail.MediaThumbnailUrl" alt="@primary_image_detail.MediaFileName" class="main" style="max-height:initial!important"/>
+											<img src="@primary_image_detail.MediaUrl" alt="@primary_image_detail.MediaFileName" class="main" style="max-height:initial!important"/>
 										</figure>
 									</div>
 								</div>
 								<div class="row">
 									<div class="col">
 										<div class="thumbnail-section-wrapper" style="margin-top:0!important">
-											@for (int i = 0; i < Model.UserMediaList.Count(); i++)
+											@for (int i = 0; i < Model.UserMediaCosmosList.Count(); i++)
 											{
-												var userMediaThumbnail = Model.UserMediaList[i];
+												var userMediaThumbnail = Model.UserMediaCosmosList[i];
 												string activeClass = userMediaThumbnail.MediaFileName.Equals(primary_image_detail.MediaFileName) ? "active" : "";
 
 												<div class="thumbnail-wrapper @activeClass" style="margin-left:4.5px!important">
 													<a href="@Url.Action("GetUserMediaDetails", "Home", new { media_id = @userMediaThumbnail.MediaId })">
-														<img src="@userMediaThumbnail.MediaThumbnailUrl" class="thumbnail"/>
+														<img src="@userMediaThumbnail.MediaUrl" class="thumbnail"/>
 													</a>
 												</div>
 											}
@@ -86,7 +86,7 @@
 		<h5>似ている画像</h5>
 		<br/><br />
 		<div class="thumbnail-container">
-			@foreach (nxPinterest.Data.Models.UserMedia userMedia in Model.RelatedUserMediaList)
+			@foreach (nxPinterest.Data.Models.UserMediaCosmosJSON userMedia in Model.RelatedUserMediaCosmosList)
 			{
 				await Html.RenderPartialAsync("/Views/Home/_HomeImageDetail.cshtml", userMedia);
 			}
@@ -98,7 +98,7 @@
 <script>
 		function filedelete(media_id) {
 			$.ajax({
-				url: "@Url.Action("DeleteUserMedia", "Home", new { media_id = Model.UserMediaDetail.MediaId })",
+				url: "@Url.Action("DeleteUserMedia", "Home", new { media_id = Model.UserMediaDetailCosmos.MediaId })",
                 method: "Post",
                 data: { media_id },
 				processData: false,

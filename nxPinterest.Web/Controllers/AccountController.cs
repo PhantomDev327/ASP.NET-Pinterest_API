@@ -20,6 +20,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Configuration;
 using Microsoft.Extensions.Configuration;
 
+
 namespace nxPinterest.Web.Controllers
 {
     public class AccountController : Controller
