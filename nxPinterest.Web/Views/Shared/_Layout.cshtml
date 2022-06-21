@@ -104,13 +104,14 @@
 
     <div class="navbar-custom topnav-navbar topnav-navbar-dark d-flex align-items-center" style="z-index:5">
         <div class="mx-3 m-0 w-100">
-            <div class="page-header px-0">
+            <div class="page-header px-0" id="logo-search">
                 <div class="company-banner-wrapper">
                     <a href="@Url.Action("Index", "Home")">
-                        <img class="company-banner" src="~/images/banner.png" />
+                        <img id="logo" src="~/images/banner.png" />
+                        <img id="logo-mobile" src="~/images/banner-mobile.png" />
                     </a>
                 </div>
-                <div class="search-wrapper">
+                <div id="search-bar">
                     <div class="input-group">
                         <div class="input-group-append position-relative">
                             <button type="button" class="btn btn-search position-absolute" autofocus>

@@ -61,6 +61,31 @@ namespace nxPinterest.Web.Controllers
 
             return View(vm);
         }
+        [HttpPost]
+        public async Task<object> getMedia(int pageIndex = 1, string searchKey = "")
+        {
+            HomeViewModel vm = new HomeViewModel();
+
+            List<ApplicationUser> user = this._context.Users.Where(c => c.Id.Equals(this.UserId)).ToList();
+            vm.UserMediaList = await this.userMediaManagementService.SearchUserMediaAsync(searchKey, user[0].container_id);
+
+            int totalPages = (int)System.Math.Ceiling((decimal)(vm.UserMediaList.Count / (decimal)pageSize));
+            int skip = (pageIndex - 1) * pageSize;
+            int totalRecordCount = vm.UserMediaList.Count;
+
+            ViewBag.ItemCount = vm.UserMediaList.Count;
+            ViewBag.UserDispName = user[0].UserDispName;
+
+            vm.UserMediaList = vm.UserMediaList.Skip(skip).Take(pageSize).ToList();
+
+            vm.PageIndex = pageIndex;
+            vm.TotalPages = totalPages;
+            vm.SearchKey = searchKey;
+            vm.TotalRecords = totalRecordCount;
+            vm.Discriminator = user[0].Discriminator;
+
+            return Json(vm);
+        }
 
         public async Task<IActionResult> GetUserMediaDetails(int media_id)
         {
