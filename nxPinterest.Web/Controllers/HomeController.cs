@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using nxPinterest.Data;
 using nxPinterest.Data.Models;
 using nxPinterest.Services.Models.Response;
@@ -235,7 +236,7 @@ namespace nxPinterest.Web.Controllers
                 }
                 //追加ロジック ssa20220526
                 result.project_tags_list = project_tags_list;
-
+                ViewBag.RelatedUserMediaList = JsonConvert.SerializeObject(result.RelatedUserMediaList);
                 ViewBag.MediaID = media_id;
                 ViewBag.PorjectTags = (projectTags != null) ? string.Join(',', projectTags?.ToArray()) : null;
                 ViewBag.PhotoTags = string.Join(',', photo_tags_list.ToArray());
@@ -320,7 +321,7 @@ namespace nxPinterest.Web.Controllers
                 }
                 result.RelatedUserMediaList = UserMediaList.Where(v => mediaIdList.Contains(v.MediaId)).ToList();
                 result.project_tags_list = project_tags_list;
-
+                ViewBag.RelatedUserMediaList = JsonConvert.SerializeObject(result.RelatedUserMediaList);
                 ViewBag.MediaID = media_id;
                 ViewBag.PorjectTags = (projectTags != null) ? string.Join(',', projectTags?.ToArray()) : null;
                 ViewBag.PhotoTags = string.Join(',', photo_tags_list.ToArray());
