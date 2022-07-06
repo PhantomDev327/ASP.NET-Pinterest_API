@@ -167,7 +167,7 @@ namespace nxPinterest.Services
                         if (fileName.Equals(existfile.ToString()))
                         {
                             //fileName = DateTime.Now.ToString("yyyyMMddHHmmss_") + fileName;
-                            fileName = "_1" + fileName;
+                            fileName = fileName + "_1";
                             break;
                         }
                     }
