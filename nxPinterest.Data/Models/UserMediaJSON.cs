@@ -20,8 +20,10 @@ namespace nxPinterest.Data.Models
         [JsonProperty("mediaurl")]
         public string MediaUrl { get; set; }
 
-        [JsonProperty("tags")]
-        public List<ImageTagJSON> Tags { get; set; }
+        // old
+        // [JsonProperty("tags")]
+        [JsonProperty("Tags")]
+        public string Tags { get; set; }
 
         [JsonProperty("datetimeuploaded")]
         public DateTime DateTimeUploaded { get; set; }

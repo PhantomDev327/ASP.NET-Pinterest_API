@@ -11,13 +11,19 @@ namespace nxPinterest.Data.Models
         [JsonProperty("mediaid")]
         public int MediaId { get; set; }
 
-        [JsonProperty("mediatitle")]
+        [JsonProperty("media_title")]
         public string MediaTitle { get; set; }
 
-        [JsonProperty("mediadescription")]
+        [JsonProperty("media_description")]
         public string MediaDescription { get; set; }
 
-        [JsonProperty("projecttags")]
+        [JsonProperty("ProjectTags")]
         public string ProjectTags { get; set; }
+
+        [JsonProperty("media_thumbnail_url")]
+        public string MediaThumbnailUrl { get; set; }
+
+        [JsonProperty("container_id")]
+        public string container_id { get; set; }
     }
 }

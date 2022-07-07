@@ -11,6 +11,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
+using nxPinterest.Services;
+using Microsoft.Azure.Cosmos;
 
 namespace nxPinterest.Web.Controllers
 {
@@ -21,6 +25,7 @@ namespace nxPinterest.Web.Controllers
         public const int pageSize = nxPinterest.Services.dev_Settings.pageSize_regist;
         private readonly Services.Interfaces.IUserMediaManagementService userMediaManagementService;
         private readonly ApplicationDbContext _context;
+        private CosmosDbService _cosmosDbService;
 
         public HomeController(ILogger<HomeController> logger,
                               ApplicationDbContext context,
@@ -30,6 +35,7 @@ namespace nxPinterest.Web.Controllers
             _logger = logger;
             _context = context;
             this.userMediaManagementService = userMediaManagementService;
+            _cosmosDbService = new CosmosDbService();
         }
 
         /// <summary>
@@ -42,8 +48,14 @@ namespace nxPinterest.Web.Controllers
         {
             HomeViewModel vm = new HomeViewModel();
 
+            nxPinterest.Services.CognitiveSearchService cognitiveSearchService = new Services.CognitiveSearchService();
             List<ApplicationUser> user = this._context.Users.Where(c => c.Id.Equals(this.UserId)).ToList();
-            vm.UserMediaList = await this.userMediaManagementService.SearchUserMediaAsync(searchKey, user[0].container_id);
+            // OLD : SQL DB
+            //vm.UserMediaList = await this.userMediaManagementService.SearchUserMediaAsync(searchKey, user[0].container_id);
+
+            // NEW : Cosmos DB
+            nxPinterest.Services.CosmosDbService cosmosDbService = new Services.CosmosDbService();
+            vm.UserMediaList = await cosmosDbService.SelectByUserIDAsync(dev_Settings.cosmos_databaseName, dev_Settings.cosmos_containerName, searchKey, user[0].container_id.ToString());
 
             int totalPages = (int)System.Math.Ceiling((decimal)(vm.UserMediaList.Count / (decimal)pageSize));
             int skip = (pageIndex - 1) * pageSize;
@@ -154,42 +166,54 @@ namespace nxPinterest.Web.Controllers
                 throw ex;
             }
         }
-        public async Task<IActionResult> GetUserMediaDetails(int media_id)
+        
+        /// <summary>
+        /// Get View Image Detail
+        /// </summary>
+        /// <param name="searchKey"></param>
+        /// <param name="media_id"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> GetUserMediaDetails(string searchKey,int media_id)
         {
             try
             {
-                UserMediaDetailViewModel result = await this.userMediaManagementService.GetUserMediaDetailsByIDAsync(media_id);
+                // OLD : SQL DB
+                //UserMediaDetailViewModel result = await this.userMediaManagementService.GetUserMediaDetailsByIDAsync(media_id);
+                // NEW : Cosmos DB
+                nxPinterest.Services.CosmosDbService cosmosDbService = new Services.CosmosDbService();
+                UserMediaDetailViewModel result = await cosmosDbService.GetUserMediaDetailsCosmosByIDAsync(dev_Settings.cosmos_databaseName, dev_Settings.cosmos_containerName, media_id);
 
-                string[] tags = result.UserMediaDetail.Tags.Split('|');
+                string[] tags = result.UserMediaDetailCosmos.Tags.Split('|');
                 IList<string> photo_tags_list = new List<string>();
                 IList<string> project_tags_list = new List<string>();
 
                 foreach (var tag in tags)
                 {
                     string[] current_tags = tag.Split(':');
-                    string current_tag_name = current_tags[0].Trim();
-                    if (!string.IsNullOrEmpty(current_tag_name))
+                    if (current_tags != null && current_tags.Length == 3)
                     {
-                        decimal current_score = decimal.Parse(current_tags[1]);
-                        if (current_score < 1)
-                            photo_tags_list.Add(current_tag_name);
-                        else
-                            project_tags_list.Add(current_tag_name);
+                        string current_tag_name = current_tags[0].Trim();
+                        if (!string.IsNullOrEmpty(current_tag_name))
+                        {
+                            decimal current_score = decimal.Parse(current_tags[1]);
+                            if (current_score < 1)
+                                photo_tags_list.Add(current_tag_name);
+                            else
+                                project_tags_list.Add(current_tag_name);
+                        }
                     }
                 }
-                string[] projectTags = result.UserMediaDetail.ProjectTags?.Split('|');
-                if (projectTags != null)
-                {
-                    foreach (var tag in projectTags)
-                    {
-                        project_tags_list.Add(tag);
-                    }
-                }
+                string[] projectTags = result.UserMediaDetailCosmos.ProjectTags?.Split('|');
 
                 // 似ている画像取得
-                IList<Data.Models.UserMedia> UserMediaList = await this.userMediaManagementService.SearchUserMediaAsync("", result.UserMediaDetail.container_id);
-                
-                IList<Data.Models.UserMedia> tempUserMediaList = new List<Data.Models.UserMedia>();
+                // OLD : SQL DB
+                //IList<Data.Models.UserMedia> UserMediaList = await this.userMediaManagementService.SearchUserMediaAsync("", result.UserMediaDetail.container_id);
+                //IList<Data.Models.UserMedia> tempUserMediaList = new List<Data.Models.UserMedia>();
+                //tempUserMediaList = UserMediaList;
+
+                // NEW : Cosmos DB
+                IList<Data.Models.UserMediaCosmosJSON> UserMediaList = await cosmosDbService.SelectByUserIDAsync(dev_Settings.cosmos_databaseName, dev_Settings.cosmos_containerName, searchKey, result.UserMediaDetailCosmos.container_id);
+                IList<Data.Models.UserMediaCosmosJSON> tempUserMediaList = new List<Data.Models.UserMediaCosmosJSON>();
                 tempUserMediaList = UserMediaList;
 
                 Dictionary<int, List<string>> mediaTagsList = new Dictionary<int, List<string>>();
@@ -197,44 +221,53 @@ namespace nxPinterest.Web.Controllers
 
                 foreach (var value in tempUserMediaList)
                 {
-                    string[] phototags = value?.Tags.Split('|');
+                    string[] phototags = value?.Tags != null? value?.Tags.ToString().Split('|'): null ;
                     List<string> phototags_list = new List<string>();
 
-                    foreach (var tag in phototags)
+                    if (phototags != null && phototags.Length > 0)
                     {
-                        string[] current_tags = tag.Split(':');
-                        string current_tag_name = current_tags[0].Trim();
-                        if (!string.IsNullOrEmpty(current_tag_name))
+                        foreach (var tag in phototags)
                         {
-                            double current_score = double.Parse(current_tags[1]);
-                            if (current_score > 0.7)
+                            string[] current_tags = tag.Split(':');
+                            if(current_tags != null && current_tags.Length == 3)
                             {
-                                phototags_list.Add(current_tag_name);
-                            }
+                                string current_tag_name = current_tags[0].Trim();
+                                if (!string.IsNullOrEmpty(current_tag_name))
+                                {
+                                    double current_score = double.Parse(current_tags[1]);
+                                    if (current_score >= dev_Settings.tag_confidence_threshold && current_score != 1)
+                                    {
+                                        phototags_list.Add(current_tag_name);
+                                    }
+                                }
+                            } 
+                        }
+                        mediaTagsList.Add(value.MediaId, phototags_list);
+                    }                   
+                }
+
+                if (mediaTagsList.Count > 0)
+                {
+                    foreach (KeyValuePair<int, List<string>> keyVal in mediaTagsList)
+                    {
+                        if (mediaTagsList[media_id].Intersect(keyVal.Value).Count() >= 5)
+                        {
+                            mediaIdList.Add(keyVal.Key);
+                            continue;
                         }
                     }
-                    mediaTagsList.Add(value.MediaId, phototags_list);
                 }
 
-                foreach (KeyValuePair<int, List<string>> keyVal in mediaTagsList)
-                {
-                    if (mediaTagsList[media_id].Intersect(keyVal.Value).Count() >= 5)
-                    {
-                        mediaIdList.Add(keyVal.Key);
-                        continue;
-                    }
-                }
-                result.RelatedUserMediaList = UserMediaList.Where(v => mediaIdList.Contains(v.MediaId)).ToList();
+                result.RelatedUserMediaCosmosList = UserMediaList.Where(v => mediaIdList.Contains(v.MediaId)).ToList();
 
                 //似ている画像で選んだ画像が含んで除く件
-                for (int i = 0; i < result.RelatedUserMediaList.Count; i++)
+                for (int i = 0; i < result.RelatedUserMediaCosmosList.Count; i++)
                 {
-                    if (result.RelatedUserMediaList[i].MediaId == media_id)
+                    if (result.RelatedUserMediaCosmosList[i].MediaId == media_id)
                     {
-                        result.RelatedUserMediaList.Remove(result.RelatedUserMediaList[i]);
+                        result.RelatedUserMediaCosmosList.Remove(result.RelatedUserMediaCosmosList[i]);
                     }
                 }
-                //追加ロジック ssa20220526
                 result.project_tags_list = project_tags_list;
                 ViewBag.RelatedUserMediaList = JsonConvert.SerializeObject(result.RelatedUserMediaList);
                 ViewBag.MediaID = media_id;
@@ -245,34 +278,47 @@ namespace nxPinterest.Web.Controllers
             }
             catch (Exception ex)
             {
-                throw ex;
+                TempData["Message"] = ex.Message;
+                return View("~/Views/Error/204.cshtml");
             }
         }
 
+        /// <summary>
+        /// Image View For Edit Or Delete
+        /// </summary>
+        /// <param name="media_id"></param>
+        /// <returns></returns>
         public async Task<IActionResult> GetUserMediaViewer(int media_id)
         {
             try
             {
-                UserMediaDetailViewModel result = await this.userMediaManagementService.GetUserMediaDetailsByIDAsync(media_id);
+                // OLD : SQL DB
+                //UserMediaDetailViewModel result = await this.userMediaManagementService.GetUserMediaDetailsByIDAsync(media_id);
+                // NEW : Cosmos DB
+                nxPinterest.Services.CosmosDbService cosmosDbService = new Services.CosmosDbService();
+                UserMediaDetailViewModel result = await cosmosDbService.GetUserMediaDetailsCosmosByIDAsync(dev_Settings.cosmos_databaseName, dev_Settings.cosmos_containerName, media_id);
 
-                string[] tags = result.UserMediaDetail.Tags.Split('|');
+                string[] tags = result.UserMediaDetailCosmos.Tags.Split('|');
                 IList<string> photo_tags_list = new List<string>();
                 IList<string> project_tags_list = new List<string>();
 
                 foreach (var tag in tags)
                 {
                     string[] current_tags = tag.Split(':');
-                    string current_tag_name = current_tags[0].Trim();
-                    if (!string.IsNullOrEmpty(current_tag_name))
+                    if (current_tags != null && current_tags.Length == 3)
                     {
-                        decimal current_score = decimal.Parse(current_tags[1]);
-                        if (current_score < 1)
-                            photo_tags_list.Add(current_tag_name);
-                        else
-                            project_tags_list.Add(current_tag_name);
+                        string current_tag_name = current_tags[0].Trim();
+                        if (!string.IsNullOrEmpty(current_tag_name))
+                        {
+                            decimal current_score = decimal.Parse(current_tags[1]);
+                            if (current_score < 1)
+                                photo_tags_list.Add(current_tag_name);
+                            else
+                                project_tags_list.Add(current_tag_name);
+                        }
                     }
                 }
-                string[] projectTags = result.UserMediaDetail.ProjectTags?.Split('|');
+                string[] projectTags = result.UserMediaDetailCosmos.ProjectTags?.Split('|');
                 if (projectTags != null)
                 {
                     foreach (var tag in projectTags)
@@ -282,9 +328,11 @@ namespace nxPinterest.Web.Controllers
                 }
 
                 // 似ている画像取得
-                IList<Data.Models.UserMedia> UserMediaList = await this.userMediaManagementService.SearchUserMediaAsync("", result.UserMediaDetail.container_id);
-
-                IList<Data.Models.UserMedia> tempUserMediaList = new List<Data.Models.UserMedia>();
+                // OLD : SQL DB
+                //IList<Data.Models.UserMedia> UserMediaList = await this.userMediaManagementService.SearchUserMediaAsync("", result.UserMediaDetail.container_id);
+                // NEW : Cosmos DB
+                IList<Data.Models.UserMediaCosmosJSON> UserMediaList = await cosmosDbService.SelectByUserIDAsync(dev_Settings.cosmos_databaseName, dev_Settings.cosmos_containerName, "", result.UserMediaDetailCosmos.container_id);
+                IList<Data.Models.UserMediaCosmosJSON> tempUserMediaList = new List<Data.Models.UserMediaCosmosJSON>();
                 tempUserMediaList = UserMediaList;
 
                 Dictionary<int, List<string>> mediaTagsList = new Dictionary<int, List<string>>();
@@ -292,36 +340,56 @@ namespace nxPinterest.Web.Controllers
 
                 foreach (var value in tempUserMediaList)
                 {
-                    string[] phototags = value?.Tags.Split('|');
+                    string[] phototags = value?.Tags != null ? value?.Tags.ToString().Split('|') : null;
                     List<string> phototags_list = new List<string>();
 
-                    foreach (var tag in phototags)
+                    if (phototags != null && phototags.Length > 0)
                     {
-                        string[] current_tags = tag.Split(':');
-                        string current_tag_name = current_tags[0].Trim();
-                        if (!string.IsNullOrEmpty(current_tag_name))
+                        foreach (var tag in phototags)
                         {
-                            double current_score = double.Parse(current_tags[1]);
-                            if (current_score > 0.7)
+                            string[] current_tags = tag.Split(':');
+                            if (current_tags != null && current_tags.Length == 3)
                             {
-                                phototags_list.Add(current_tag_name);
+                                string current_tag_name = current_tags[0].Trim();
+                                if (!string.IsNullOrEmpty(current_tag_name))
+                                {
+                                    double current_score = double.Parse(current_tags[1]);
+                                    if (current_score >= dev_Settings.tag_confidence_threshold && current_score != 1)
+                                    {
+                                        phototags_list.Add(current_tag_name);
+                                    }
+                                }
                             }
                         }
+                        mediaTagsList.Add(value.MediaId, phototags_list);
                     }
-                    mediaTagsList.Add(value.MediaId, phototags_list);
                 }
 
-                foreach (KeyValuePair<int, List<string>> keyVal in mediaTagsList)
+                if (mediaTagsList.Count > 0)
                 {
-                    if (mediaTagsList[media_id].Intersect(keyVal.Value).Count() >= 5)
+                    foreach (KeyValuePair<int, List<string>> keyVal in mediaTagsList)
                     {
-                        mediaIdList.Add(keyVal.Key);
-                        continue;
+                        if (mediaTagsList[media_id].Intersect(keyVal.Value).Count() >= 5)
+                        {
+                            mediaIdList.Add(keyVal.Key);
+                            continue;
+                        }
                     }
                 }
-                result.RelatedUserMediaList = UserMediaList.Where(v => mediaIdList.Contains(v.MediaId)).ToList();
+                result.RelatedUserMediaCosmosList = UserMediaList.Where(v => mediaIdList.Contains(v.MediaId)).ToList();
                 result.project_tags_list = project_tags_list;
-                ViewBag.RelatedUserMediaList = JsonConvert.SerializeObject(result.RelatedUserMediaList);
+                
+                //ViewBag.RelatedUserMediaList = JsonConvert.SerializeObject(result.RelatedUserMediaList);
+
+                //似ている画像で選んだ画像が含んで除く件
+                for (int i = 0; i < result.RelatedUserMediaCosmosList.Count; i++)
+                {
+                    if (result.RelatedUserMediaCosmosList[i].MediaId == media_id)
+                    {
+                        result.RelatedUserMediaCosmosList.Remove(result.RelatedUserMediaCosmosList[i]);
+                    }
+                }
+
                 ViewBag.MediaID = media_id;
                 ViewBag.PorjectTags = (projectTags != null) ? string.Join(',', projectTags?.ToArray()) : null;
                 ViewBag.PhotoTags = string.Join(',', photo_tags_list.ToArray());
@@ -330,23 +398,33 @@ namespace nxPinterest.Web.Controllers
             }
             catch (Exception ex)
             {
-                throw ex;
+                TempData["Message"] = ex.Message;
+                return View("~/Views/Error/204.cshtml");
             }
         }
 
+        /// <summary>
+        /// Delete Image
+        /// </summary>
+        /// <param name="searchKey"></param>
+        /// <param name="media_id"></param>
+        /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> DeleteUserMedia(int media_id)
+        public async Task DeleteUserMedia(string searchKey,int media_id)
         {
-            try
-            {
-                UserMediaDetailViewModel result = await this.userMediaManagementService.GetUserMediaDetailsByIDAsync(media_id);
-                await this.userMediaManagementService.DeleteFromUserMedia(result.UserMediaDetail);
-                return Json(new { success = true });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, errMsg = ex.Message });
-            }
+            // OLD : SQL DB
+            //UserMediaDetailViewModel result = await this.userMediaManagementService.GetUserMediaDetailsByIDAsync(media_id);
+            //await this.userMediaManagementService.DeleteFromUserMedia(result.UserMediaDetail);
+            // NEW : Cosmos DB
+            CosmosClient cosmosClient = new CosmosClient(dev_Settings.cosmos_endpointUri, dev_Settings.cosmos_accountKey);
+            Database database = cosmosClient.GetDatabase(dev_Settings.cosmos_databaseName);
+            Container container = database.GetContainer(dev_Settings.cosmos_containerName);
+
+            UserMediaCosmosJSON _userMedia = container.GetItemLinqQueryable<UserMediaCosmosJSON>(true)
+                                                                .Where(x => x.MediaId == media_id)
+                                                                .AsEnumerable()
+                                                                .FirstOrDefault();
+            await _cosmosDbService.DeleteItemAsync(dev_Settings.cosmos_databaseName, dev_Settings.cosmos_containerName, _userMedia.Id);
         }
 
         public IActionResult Privacy()

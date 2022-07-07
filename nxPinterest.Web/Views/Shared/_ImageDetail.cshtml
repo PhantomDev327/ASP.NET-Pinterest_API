@@ -4,7 +4,7 @@
     ViewData["Title"] = "画像選択";
     Layout = "~/Views/Shared/_ImageLayout.cshtml";
 
-	UserMedia primary_image_detail = Model.UserMediaDetail;
+	UserMediaCosmosJSON primary_image_detail = Model.UserMediaDetailCosmos;
 }
 
 <script src="~/lib/bootstrap-fileinput/js/fileinput.min.js" asp-append-version="true"></script>
@@ -92,7 +92,6 @@
 		<h5>似ている画像</h5>
 		<br/><br />
 		<div class="thumbnail-container" id="thumbnail-container">
-			
 		</div>
 	</div>
 
@@ -101,7 +100,7 @@
 <script>
 		function filedelete(media_id) {
 			$.ajax({
-				url: "@Url.Action("DeleteUserMedia", "Home", new { media_id = Model.UserMediaDetail.MediaId })",
+				url: "@Url.Action("DeleteUserMedia", "Home", new { media_id = Model.UserMediaDetailCosmos.MediaId })",
                 method: "Post",
                 data: { media_id },
 				processData: false,
