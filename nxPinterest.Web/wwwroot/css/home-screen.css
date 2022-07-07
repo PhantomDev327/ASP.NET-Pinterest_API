@@ -63,7 +63,7 @@ img.company-banner {
     margin: 0;
     display: grid;
     grid-template-rows: 1fr auto;
-    margin-bottom: 10px;
+    margin-bottom: 16px;
     break-inside: avoid;
     transition: 1s;
     border-radius: 10px;
@@ -79,6 +79,7 @@ img.company-banner {
 
 .thumbnail-container img {
     max-width: 100%;
+    width: 100%;
     display: block;
 }
 

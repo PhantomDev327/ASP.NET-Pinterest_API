@@ -10,47 +10,54 @@
 <script src="~/lib/bootstrap-fileinput/js/fileinput.min.js" asp-append-version="true"></script>
 <script src="~/lib/bootstrap-tagsinput/bootstrap-tagsinput.min.js" asp-append-version="true"></script>
 <script src="~/lib/bootstrap-fileinput/js/locales/LANG.js" asp-append-version="true"></script>
-
 <div id="image-viewer-modal" tabindex="-1">
 	<div class="left-arrow-container arrow-key">
 		<a href="@Url.Action("Index", "Home", new { pageIndex = 1})">
 			<i class="fas fa-arrow-circle-left fa-3x"></i>
 		</a>
 	</div>
-	<div class="modal-dialog modal-xl modal-image-viewer" role="document">
-		<form method="post" id="update-user-media-form" enctype="multipart/form-data" asp-action="DeleteUserMedia" asp-controller="Home">
+	<div class="modal-image-viewer" role="document">
 			<div class="modal-content">
 				<div class="modal-body bg-white">
 					<div class="row">
-						<div class="col">
+						<div class="col-12  col-md-6 image-detail-col">
 							<div class="content h-100">
-								<div class="row" style = "margin-left: 0px;">
+								<div class="row">
 									<div class="image-uploader-wrapper">
 										<figure>
-											<img src="@primary_image_detail.MediaUrl" alt="@primary_image_detail.MediaFileName" class="main" style="max-height:initial!important"/>
+											<img src="@primary_image_detail.MediaThumbnailUrl" alt="@primary_image_detail.MediaFileName" class="main" id="main-image" style="max-height:initial!important"/>
 										</figure>
 									</div>
 								</div>
 								<div class="row">
-									<div class="col">
-										<div class="thumbnail-section-wrapper" style="margin-top:0!important">
-											@for (int i = 0; i < Model.UserMediaCosmosList.Count(); i++)
-											{
-												var userMediaThumbnail = Model.UserMediaCosmosList[i];
-												string activeClass = userMediaThumbnail.MediaFileName.Equals(primary_image_detail.MediaFileName) ? "active" : "";
+									<div class="slider">
+										<input type="radio" name="slide_switch" checked="checked" id="@primary_image_detail.MediaId" value="@primary_image_detail.MediaId"/>
+									    <label for="@primary_image_detail.MediaId" style="background-image:url('@primary_image_detail.MediaThumbnailUrl');">
+									        
+									    </label>
+									    @for (int i = 0; i < Model.UserMediaList.Count(); i++)
+									    {
+											var userMediaThumbnail = Model.UserMediaList[i];
+									        string activeClass = userMediaThumbnail.MediaFileName.Equals(primary_image_detail.MediaFileName) ? "active" : "";
+											string hide_lable = i > 13 ? "hide-lable" : "";
 
-												<div class="thumbnail-wrapper @activeClass" style="margin-left:4.5px!important">
-													<a href="@Url.Action("GetUserMediaDetails", "Home", new { media_id = @userMediaThumbnail.MediaId })">
-														<img src="@userMediaThumbnail.MediaUrl" class="thumbnail"/>
-													</a>
-												</div>
+											@if(userMediaThumbnail.MediaId != primary_image_detail.MediaId)
+											{
+												<input type="radio" name="slide_switch" id="@userMediaThumbnail.MediaId" value="@userMediaThumbnail.MediaId"/>
+												<label class="@hide_lable" for="@userMediaThumbnail.MediaId"  style="background-image:url('@userMediaThumbnail.MediaThumbnailUrl');">
+												    
+												</label>
 											}
-										</div>
+									    }
+										
 									</div>
+									@if (Model.UserMediaList.Count() > 14) {
+											<input type="button" value="全て表示" class="btn btn-default btn-save" id="show-all-btn">
+										}
 								</div>
 							</div>
 						</div>
-						<div class="col ">
+						<div class="col-12 col-md-6 image-detail-col">
 							<div class="">
 								<div class="content">
 									<div class="dots-image-container">
@@ -60,16 +67,16 @@
 									</div>
 									<h5 style="color:black;margin-left: 0%;">@primary_image_detail.MediaTitle</h5>
 									<br />
-									<p style="color:black;margin-left: 0%;">
+									<p class="media_desc" style="color:black;margin-left: 0%;">
 										@primary_image_detail.MediaDescription
 									</p>
 									<br />
 									<p class="text-black tag-text">Project Tag</p>
-									<p>
+									<div class="project_tags">
 										@foreach (var tag in @Model.project_tags_list){
 											<div style="display:inline-block;color:#fff;background-color: #343a40;padding:10px 20px 10px 20px;border-radius:3px;margin-right:7px;margin-bottom:7px;">@tag</div>
 										}
-									</p>
+									</div>
 
 									<input hidden asp-for="@primary_image_detail.MediaId" name="MediaId" />
 								</div>
@@ -78,18 +85,13 @@
 					</div>
 				</div>			
 			</div>
-		</form>
 	</div>
 			
 	<div class="content gallery">
 		<br />
 		<h5>似ている画像</h5>
 		<br/><br />
-		<div class="thumbnail-container">
-			@foreach (nxPinterest.Data.Models.UserMediaCosmosJSON userMedia in Model.RelatedUserMediaCosmosList)
-			{
-				await Html.RenderPartialAsync("/Views/Home/_HomeImageDetail.cshtml", userMedia);
-			}
+		<div class="thumbnail-container" id="thumbnail-container">
 		</div>
 	</div>
 
@@ -108,5 +110,80 @@
 				}
 			});
 		}
-
+	$('#show-all-btn').on('click', function() {
+	    $('.slider label').removeClass('hide-lable');
+	    $(this).css('display', 'none');
+	});
+	$('.slider input').on('click', function() {
+	    var media_id = $(this).val();
+		$.ajax({
+	            url: "@Url.Action("GetUserMediaDetailsAjax", "Home")",
+	            method: "Post",
+	            data: { media_id: media_id},
+	            success: function (sResult) {
+	                console.log(sResult);
+					$('#main-image').attr('src', sResult.userMediaDetail.mediaThumbnailUrl);
+	                $('.dots-image-container a').attr('href',"/Home/GetUserMediaViewer?media_id=" + sResult.userMediaDetail.mediaId);
+	                $('.image-detail-col h5').html(sResult.userMediaDetail.mediaTitle);
+					$('.image-detail-col .media_desc').html(sResult.userMediaDetail.mediaDescription);
+	                $('.project_tags').empty();
+					$.each(sResult.project_tags_list, function(index, value) {
+	                    $('.project_tags').append('<div style="display:inline-block;color:#fff;background-color: #343a40;padding:10px 20px 10px 20px;border-radius:3px;margin-right:7px;margin-bottom:7px;">'+value +'</div>');
+	                });
+	            }
+		});
+	});
+	window.images= JSON.parse('@Html.Raw(@ViewBag.RelatedUserMediaList)');
+    
+	$(document).ready(function() {
+		reloadImage();
+        $(window).css('min-width',500);
+        var timer = null;
+        $(window).on('resize', function(){
+            clearTimeout(timer); 
+            timer = setTimeout(function() {
+                reloadImage();
+            },500);
+        });
+    });
+    function getColNum() {
+        var col_num = Math.floor($(window).width() / 264);
+        return col_num;
+    }
+    function initCol() {
+        $("#thumbnail-container").empty();
+        var col_num = getColNum();
+        var space = Math.floor(($(window).width() % 264)/2);
+        for (var i = 1; i <= col_num; i++) {
+            $('#thumbnail-container').append('<div id="column-'+i+'" class="image-col" style="position:absolute; width:264px; padding:8px;left:'+ (260 * (i - 1) + space) +'px;"></div>');
+        }
+    }
+    
+    function reloadImage() {
+        initCol();
+        window.images.forEach(function (data) {
+            console.log(data);
+            appendData(data);
+        });
+        
+    }
+    function appendData(value) {
+        var newImgEl = document.createElement('img');
+        newImgEl.addEventListener('load', function() {
+            shortest = findShortestCol();
+            shortest.append('<figure id="'+value.MediaId+'"><a href="/Home/GetUserMediaDetails?Media_id='+value.MediaId+'"><figcaption><p class="title">'+value.MediaTitle+'</p><p class="description">'+value.MediaDescription+'</p></figcaption></a></figure>');$('#'+value.MediaId+' a').append(newImgEl);
+        });
+        newImgEl.setAttribute('src', value.MediaThumbnailUrl);
+        newImgEl.setAttribute('alt', value.MediaFileName);
+    }
+    function findShortestCol() {
+        var count = $("#thumbnail-container").children().length;
+        var shortest = $("#column-1");
+        for (var i = 1; i <= count; i++) {
+            if (Math.floor(shortest.height()) > Math.floor($("#column-"+ i +"").height())) {
+                shortest = $("#column-" + i + "");
+            }
+        }
+        return shortest;
+    }
 </script>

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using nxPinterest.Data;
 using nxPinterest.Data.Models;
 using nxPinterest.Services.Models.Response;
@@ -74,6 +75,98 @@ namespace nxPinterest.Web.Controllers
             return View(vm);
         }
 
+        [HttpPost]
+        public async Task<object> GetUserMediaDetailsAjax(int media_id)
+        {
+            try
+            {
+                UserMediaDetailViewModel result = await this.userMediaManagementService.GetUserMediaDetailsByIDAsync(media_id);
+
+                string[] tags = result.UserMediaDetail.Tags.Split('|');
+                IList<string> photo_tags_list = new List<string>();
+                IList<string> project_tags_list = new List<string>();
+
+                foreach (var tag in tags)
+                {
+                    string[] current_tags = tag.Split(':');
+                    string current_tag_name = current_tags[0].Trim();
+                    if (!string.IsNullOrEmpty(current_tag_name))
+                    {
+                        decimal current_score = decimal.Parse(current_tags[1]);
+                        if (current_score < 1)
+                            photo_tags_list.Add(current_tag_name);
+                        else
+                            project_tags_list.Add(current_tag_name);
+                    }
+                }
+                string[] projectTags = result.UserMediaDetail.ProjectTags?.Split('|');
+                if (projectTags != null)
+                {
+                    foreach (var tag in projectTags)
+                    {
+                        project_tags_list.Add(tag);
+                    }
+                }
+
+                // 似ている画像取得
+                IList<Data.Models.UserMedia> UserMediaList = await this.userMediaManagementService.SearchUserMediaAsync("", result.UserMediaDetail.container_id);
+
+                IList<Data.Models.UserMedia> tempUserMediaList = new List<Data.Models.UserMedia>();
+                tempUserMediaList = UserMediaList;
+
+                Dictionary<int, List<string>> mediaTagsList = new Dictionary<int, List<string>>();
+                List<int> mediaIdList = new List<int>();
+
+                foreach (var value in tempUserMediaList)
+                {
+                    string[] phototags = value?.Tags.Split('|');
+                    List<string> phototags_list = new List<string>();
+
+                    foreach (var tag in phototags)
+                    {
+                        string[] current_tags = tag.Split(':');
+                        string current_tag_name = current_tags[0].Trim();
+                        if (!string.IsNullOrEmpty(current_tag_name))
+                        {
+                            double current_score = double.Parse(current_tags[1]);
+                            if (current_score > 0.7)
+                            {
+                                phototags_list.Add(current_tag_name);
+                            }
+                        }
+                    }
+                    mediaTagsList.Add(value.MediaId, phototags_list);
+                }
+
+                foreach (KeyValuePair<int, List<string>> keyVal in mediaTagsList)
+                {
+                    if (mediaTagsList[media_id].Intersect(keyVal.Value).Count() >= 5)
+                    {
+                        mediaIdList.Add(keyVal.Key);
+                        continue;
+                    }
+                }
+                result.RelatedUserMediaList = UserMediaList.Where(v => mediaIdList.Contains(v.MediaId)).ToList();
+
+                //似ている画像で選んだ画像が含んで除く件
+                for (int i = 0; i < result.RelatedUserMediaList.Count; i++)
+                {
+                    if (result.RelatedUserMediaList[i].MediaId == media_id)
+                    {
+                        result.RelatedUserMediaList.Remove(result.RelatedUserMediaList[i]);
+                    }
+                }
+                //追加ロジック ssa20220526
+                result.project_tags_list = project_tags_list;
+
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        
         /// <summary>
         /// Get View Image Detail
         /// </summary>
@@ -176,7 +269,7 @@ namespace nxPinterest.Web.Controllers
                     }
                 }
                 result.project_tags_list = project_tags_list;
-
+                ViewBag.RelatedUserMediaList = JsonConvert.SerializeObject(result.RelatedUserMediaList);
                 ViewBag.MediaID = media_id;
                 ViewBag.PorjectTags = (projectTags != null) ? string.Join(',', projectTags?.ToArray()) : null;
                 ViewBag.PhotoTags = string.Join(',', photo_tags_list.ToArray());
@@ -285,6 +378,8 @@ namespace nxPinterest.Web.Controllers
                 }
                 result.RelatedUserMediaCosmosList = UserMediaList.Where(v => mediaIdList.Contains(v.MediaId)).ToList();
                 result.project_tags_list = project_tags_list;
+                
+                //ViewBag.RelatedUserMediaList = JsonConvert.SerializeObject(result.RelatedUserMediaList);
 
                 //似ている画像で選んだ画像が含んで除く件
                 for (int i = 0; i < result.RelatedUserMediaCosmosList.Count; i++)
