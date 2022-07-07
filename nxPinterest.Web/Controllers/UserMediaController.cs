@@ -46,8 +46,16 @@ namespace nxPinterest.Web.Controllers
         [HttpPost]
         public IActionResult UploadMediaFile(ImageRegistrationRequests request)
         {
-                // 個別編集ボタンを押下
-                if (request.BtnName == "kobetsu")
+            // Validate param
+            if (!ModelState.IsValid)
+            {
+                // To Do
+                TempData["Message"] = "Validate fails!";
+                return View("~/Views/Error/204.cshtml");
+            }
+
+            // 個別編集ボタンを押下
+            if (request.BtnName == "kobetsu")
                 {
                     if (request.Images.Count == 0)
                     {
@@ -68,13 +76,6 @@ namespace nxPinterest.Web.Controllers
                     }
                     return UploadImageFileHidden(individual);
                 }
-            // Validate param
-            if (!ModelState.IsValid)
-            {
-                // To Do
-                TempData["Message"] = "Validate fails!";
-                return View("~/Views/Error/204.cshtml");
-            }
 
             // Store
             try
@@ -89,9 +90,10 @@ namespace nxPinterest.Web.Controllers
             return RedirectToAction("Index","Home");
         }
 
-        /*
-         * 個別編集
-         */
+        /// <summary>
+        /// 個別編集
+        /// </summary>
+        /// <returns></returns>
         public IActionResult IndividualImageRegistration()
         {
             CreateImageDirectory();
