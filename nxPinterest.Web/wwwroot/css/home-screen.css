@@ -30,7 +30,32 @@ img.company-banner {
     width: 37.38px;
     margin-right: 1rem;
 }
+#logo-search {
+    display: flex;
+    flex-direction: row;
+}
+@media (max-width: 800px) {
+    #logo {
+        display: none;
+    }
+    #logo-mobile {
+        display: block!important;
+    }
+}
+#logo-mobile {
+    display: none;
+    max-height: 38px;
+}
+#logo-search .company-banner-wrapper {
+    margin-right: 15px;
+}
+#logo-search .company-banner-wrapper a{
+    line-height: 38px;
+}
 
+#search-bar {
+    width: -webkit-fill-available;
+}
 .search-wrapper .icon-search {
     color: #bdbdbd;
 }

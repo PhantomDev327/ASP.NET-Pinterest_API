@@ -1,4 +1,4 @@
-﻿using nxPinterest.Data;
+using nxPinterest.Data;
 using nxPinterest.Services.Interfaces;
 using nxPinterest.Utils;
 using System;
