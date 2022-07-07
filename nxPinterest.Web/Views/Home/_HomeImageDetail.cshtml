@@ -1,4 +1,4 @@
-﻿@model nxPinterest.Data.Models.UserMedia;
+﻿@model nxPinterest.Data.Models.UserMediaCosmosJSON;
 
 <figure>
     <a href="@Url.Action("GetUserMediaDetails", "Home", new { media_id = @Model.MediaId })"><img src="@Model.MediaThumbnailUrl" alt="@Model.MediaFileName"/>

@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
 using nxPinterest.Web.Models;
+using Microsoft.Azure.Cosmos;
 
 namespace nxPinterest.Web.Controllers
 {
@@ -30,6 +31,7 @@ namespace nxPinterest.Web.Controllers
         private readonly ApplicationDbContext _context;
         private readonly Models.DestinationPathModel _destinationPathModel;
         private Base64stringUtility encode = new Base64stringUtility("UTF-8");
+        private CosmosDbService _cosmosDbService;
         public ImageManagementController(ILogger<HomeController> logger,
                                          IOptions<Models.DestinationPathModel> destinationPathModel,
                                          ApplicationDbContext context)
@@ -37,18 +39,60 @@ namespace nxPinterest.Web.Controllers
             this._logger = logger;
             this._context = context;
             this._destinationPathModel = destinationPathModel.Value;
+            _cosmosDbService = new CosmosDbService();
 
             blobService = new StorageBlobOldService();
         }
 
 
-        [HttpPost]
+        //[HttpPost]
+        ////OLD : SQL DB
+        //public async Task<IActionResult> UploadMediaFile(ImageRegistrationRequests request)
+        //{
+        //    bool isUpdate = request.MediaId != 0;
+
+        //    if (isUpdate)
+        //        ModelState.Remove("Images");
+
+        //    if (ModelState.IsValid)
+        //    {
+        //        try
+        //        {
+        //            string media_title = request.Title;
+        //            string media_desc = request.Description;
+        //            //int userMediaId = 0;
+        //            IList<IFormFile> uploaded_images = request.Images;
+        //            string projectTags = request.ProjectTags;
+
+        //            if (isUpdate)
+        //            {
+        //                UserMedia _userMedia = await this._context.UserMedia.FirstOrDefaultAsync(c => c.MediaId.Equals(request.MediaId));
+        //                _userMedia.MediaTitle = request.Title;
+        //                _userMedia.MediaDescription = request.Description;
+        //                UpdateUserMediaTags(_userMedia, projectTags);
+        //                await this._context.SaveChangesAsync();
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            throw ex;
+        //        }
+        //    }
+        //    return RedirectToAction("Index", "Home");
+        //}
+
+        // NEW : Cosmos DB
         public async Task<IActionResult> UploadMediaFile(ImageRegistrationRequests request)
         {
             bool isUpdate = request.MediaId != 0;
+            CosmosClient cosmosClient = new CosmosClient(dev_Settings.cosmos_endpointUri, dev_Settings.cosmos_accountKey);
+            Database database = cosmosClient.GetDatabase(dev_Settings.cosmos_databaseName);
+            Container container = database.GetContainer(dev_Settings.cosmos_containerName);
 
             if (isUpdate)
+            {
                 ModelState.Remove("Images");
+            }
 
             if (ModelState.IsValid)
             {
@@ -62,16 +106,20 @@ namespace nxPinterest.Web.Controllers
 
                     if (isUpdate)
                     {
-                        UserMedia _userMedia = await this._context.UserMedia.FirstOrDefaultAsync(c => c.MediaId.Equals(request.MediaId));
+                        UserMediaCosmosJSON _userMedia = container.GetItemLinqQueryable<UserMediaCosmosJSON>(true)
+                                                                .Where(x => x.MediaId == request.MediaId)
+                                                                .AsEnumerable()
+                                                                .FirstOrDefault();
                         _userMedia.MediaTitle = request.Title;
                         _userMedia.MediaDescription = request.Description;
                         UpdateUserMediaTags(_userMedia, projectTags);
-                        await this._context.SaveChangesAsync();
+                        await _cosmosDbService.UpdateOneItemAsync(dev_Settings.cosmos_databaseName, dev_Settings.cosmos_containerName, _userMedia.Id, _userMedia);
                     }
                 }
                 catch (Exception ex)
                 {
-                    throw ex;
+                    TempData["Message"] = ex.Message;
+                    return View("~/Views/Error/204.cshtml");
                 }
             }
             return RedirectToAction("Index", "Home");
@@ -90,6 +138,7 @@ namespace nxPinterest.Web.Controllers
             return ms;
         }
 
+        // OLD : SQL DB
         private bool UpdateUserMediaTags(UserMedia userMedia, string projectTags)
         {
             try
@@ -112,6 +161,67 @@ namespace nxPinterest.Web.Controllers
                             if (score < 1)
                                 phototag_list_container.Add(string.Format("{0}:{1}:{2}|", tag_name, score, type));
                         }
+                    }
+
+                    string tagString = String.Join("", phototag_list_container);
+                    userMedia.Tags = tagString;
+                    userMedia.ProjectTags = projectTags;
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// NEW : Cosmos DB
+        /// <summary>
+        ///  Update Tags
+        /// </summary>
+        /// <param name="userMedia"></param>
+        /// <param name="projectTags"></param>
+        /// <returns></returns>
+        private bool UpdateUserMediaTags(UserMediaCosmosJSON userMedia, string projectTags)
+        {
+            try
+            {
+                if (userMedia != null)
+                {
+                    string[] tag_list = userMedia.Tags.Split('|');
+                    IList<string> phototag_list_container = new List<string>();
+
+                    string[] _projectTags = new string[] { };
+                    if (!string.IsNullOrEmpty(projectTags))
+                    {
+                        _projectTags = projectTags.Split(',');
+                        decimal tag_score = 1;
+                        decimal tag_type = 1;
+
+                        for (int i = 0; i < _projectTags.Length; i++)
+                        {
+                            string _projectTag = _projectTags[i].Trim();
+                            phototag_list_container.Add(string.Format("{0}:{1}:{2}|", _projectTag, tag_score, tag_type));
+                        }
+                    }
+
+                    for (int i = 0; i < tag_list.Count(); i++)
+                    {
+                        string[] tag_input = tag_list[i].Split(':');
+                        string tag_name = tag_input[0];
+                        if (!string.IsNullOrEmpty(tag_name))
+                        {
+                            decimal score = decimal.Parse(tag_input[1]);
+                            int type = int.Parse(tag_input[2]);
+
+                            if (score < 1)
+                                phototag_list_container.Add(string.Format("{0}:{1}:{2}|", tag_name, score, type));
+                        }
+                    }
+
+                    if (projectTags != null)
+                    {
+                        projectTags = projectTags.Trim().Replace(',', '|');
                     }
 
                     string tagString = String.Join("", phototag_list_container);

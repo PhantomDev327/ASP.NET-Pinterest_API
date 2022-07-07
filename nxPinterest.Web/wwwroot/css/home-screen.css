@@ -30,7 +30,32 @@ img.company-banner {
     width: 37.38px;
     margin-right: 1rem;
 }
+#logo-search {
+    display: flex;
+    flex-direction: row;
+}
+@media (max-width: 800px) {
+    #logo {
+        display: none;
+    }
+    #logo-mobile {
+        display: block!important;
+    }
+}
+#logo-mobile {
+    display: none;
+    max-height: 38px;
+}
+#logo-search .company-banner-wrapper {
+    margin-right: 15px;
+}
+#logo-search .company-banner-wrapper a{
+    line-height: 38px;
+}
 
+#search-bar {
+    width: -webkit-fill-available;
+}
 .search-wrapper .icon-search {
     color: #bdbdbd;
 }
@@ -46,12 +71,24 @@ img.company-banner {
     column-gap: 15px;
 }
 
+@media screen and (min-width: 768px) and (max-width: 990px) {
+    .thumbnail-container {
+        column-count: 2;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .thumbnail-container {
+        column-count: 1;
+    }
+}
+
 .thumbnail-container figure {
     position: relative;
     margin: 0;
     display: grid;
     grid-template-rows: 1fr auto;
-    margin-bottom: 10px;
+    margin-bottom: 16px;
     break-inside: avoid;
     transition: 1s;
     border-radius: 10px;
@@ -67,6 +104,7 @@ img.company-banner {
 
 .thumbnail-container img {
     max-width: 100%;
+    width: 100%;
     display: block;
 }
 

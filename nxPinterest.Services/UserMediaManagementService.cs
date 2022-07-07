@@ -1,4 +1,4 @@
-﻿using nxPinterest.Data;
+using nxPinterest.Data;
 using nxPinterest.Services.Interfaces;
 using nxPinterest.Utils;
 using System;
@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Http;
 using System.IO;
 using Newtonsoft.Json;
 using Microsoft.WindowsAzure.Storage.Blob;
+using nxPinterest.Services.Models;
 
 namespace nxPinterest.Services
 {
@@ -87,6 +88,44 @@ namespace nxPinterest.Services
             }
         }
 
+       /* public async Task<UserMediaDetailViewModel> GetUserMediaDetailsByIDAsync(int media_id)
+        {
+
+            Data.Models.UserMedia userMedia = await (this._context.UserMedia.AsNoTracking()
+                                             .FirstOrDefaultAsync(c => c.MediaId.Equals(media_id)));
+
+            UserMediaDetailViewModel result = new UserMediaDetailViewModel();
+
+            IList<UserMedia> mediaList = new List<UserMedia>();
+
+            if (userMedia != null)
+            {
+                var query = this._context.UserMedia.AsNoTracking()
+                                     .Where(c => c.container_id.Equals(userMedia.container_id)).ToList();
+
+                query = query.Select(c => new UserMedia()
+                {
+                    MediaId = c.MediaId,
+                    UserId = c.UserId,
+                    MediaTitle = c.MediaTitle?.TrimExtraSpaces(),
+                    MediaDescription = c.MediaDescription?.TrimExtraSpaces(),
+                    MediaFileName = c.MediaFileName,
+                    MediaFileType = c.MediaFileType,
+                    MediaUrl = c.MediaUrl,
+                    Tags = c.Tags,
+                    MediaThumbnailUrl = c.MediaThumbnailUrl
+                })
+                .Where(c => !string.IsNullOrEmpty(c.MediaTitle) && !string.IsNullOrEmpty(userMedia.MediaTitle) && c.MediaTitle.Equals(userMedia.MediaTitle.TrimExtraSpaces())).ToList();
+
+                mediaList = query;
+            }
+
+            result.UserMediaDetail = userMedia;
+            result.UserMediaList = mediaList;
+
+            return result;
+        }*/
+
         public async Task<UserMediaDetailViewModel> GetUserMediaDetailsByIDAsync(int media_id)
         {
 
@@ -125,7 +164,8 @@ namespace nxPinterest.Services
             return result;
         }
 
-        public async Task DeleteFromUserMedia(UserMedia userMedia)
+        // OLD : SQL DB
+        /*public async Task DeleteFromUserMedia(UserMedia userMedia)
         {
             if (userMedia != null)
             {
@@ -137,6 +177,16 @@ namespace nxPinterest.Services
                 this._context.UserMedia.RemoveRange(userMediaList);
                 await this._context.SaveChangesAsync();
             }
+        }*/
+
+        /// <summary>
+        /// Delete Image
+        /// </summary>
+        /// <param name="media_id"></param>
+        /// <returns></returns>
+        public async Task DeleteFromUserMedia(string media_id)
+        {
+            await _cosmosDbService.DeleteItemAsync(dev_Settings.cosmos_databaseName, dev_Settings.cosmos_containerName, media_id);
         }
 
         /// <summary>
@@ -186,7 +236,7 @@ namespace nxPinterest.Services
                 // Get tags by ProjectTags
                 string projectTab = null;
                 if (request.ProjectTags != null)
-                    projectTab = request.ProjectTags.Trim().Replace(',', '|');
+                    projectTab = request.ProjectTags.Trim().Replace("|",",");
 
                 // Get tags by Computer Vision API
                 try
@@ -215,7 +265,7 @@ namespace nxPinterest.Services
                     userMedia.MediaFileName = result.Result.Name;                          
                     userMedia.MediaFileType = result.Result.Name.Split('.').Last();        
                     userMedia.Tags = tagsString;                                            
-                    userMedia.MediaThumbnailUrl = result.Result.Uri.ToString().Replace(dev_Settings.blob_containerName_image, dev_Settings.blob_containerName_thumb);
+                    userMedia.MediaThumbnailUrl = result.Result.StorageUri.SecondaryUri.ToString();
                     if (projectTab != null)
                         userMedia.ProjectTags = projectTab;
                 }
@@ -224,35 +274,58 @@ namespace nxPinterest.Services
                     throw new Exception("タグ情報を整形できませんでした。ファイルは登録されません");
                 }
 
-                // Save image info and tags data 
-                try
-                {
-                    List<ApplicationUser> user = this._context.Users.Where(c => c.Id.Equals(UserId)).ToList();
+                List<ApplicationUser> user = this._context.Users.Where(c => c.Id.Equals(UserId)).ToList();
 
-                    // Add info image
-                    userMedia.MediaTitle = request.Title;
-                    userMedia.MediaDescription = request.Description;
-                    userMedia.container_id = user[0].container_id;
-                    userMedia.DateTimeUploaded = request.DateTimeUploaded;
-
-                    //string id = _cosmosDbService.inserted_id;
-                    _context.UserMedia.Add(userMedia);
-                    _context.SaveChanges();
-                }
-                catch (Exception)
-                {
-                    throw new Exception("SQL database への登録に失敗しました");
-                }
-
+                // Cosmos DB
                 // save data for cosmos db
                 try
                 {
+                    string tagsJson;
+                    ComputerVisionService cv = new ComputerVisionService();
+                    string[] _projectTags = new string[] { };
+
+                    tagsJson = cv.GetImageTag_str(result.Result.Uri.ToString());          // Get as json            -> 2) Cosmos and 4) Blob 
+
+                    //StringBuilder _tagString = new StringBuilder(tagsString);
+                    //TagList _tagList = System.Text.Json.JsonSerializer.Deserialize<TagList>(tagsJson, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                    if (!string.IsNullOrEmpty(projectTab))
+                    {
+                        _projectTags = projectTab.Split(',');
+
+                        for (int i = 0; i < _projectTags.Length; i++)
+                        {
+                            string _projectTag = _projectTags[i].Trim();
+
+                            if (i == 0)
+                            {
+                                tagsJson = tagsJson + "" + _projectTag + ":1:1";
+                            }
+                            else 
+                            {
+                                tagsJson = tagsJson + '|' + _projectTag + ":1:1";
+                            }
+                            
+                        }
+                    }
+
+                    // MediaIDの取得
+                    int mediaId = _cosmosDbService.GetLatestMediaId();
+
+                    //ImageAnalysisJSON imageAnalysisJSON = JsonConvert.DeserializeObject<ImageAnalysisJSON>(tagsJson);
                     UserMediaCosmosJSON userMediaJSON = new UserMediaCosmosJSON();
                     userMediaJSON.UserId = UserId;
-                    userMediaJSON.MediaId = userMedia.MediaId;
+                    userMediaJSON.MediaId = mediaId;
                     userMediaJSON.MediaTitle = request.Title;
                     userMediaJSON.MediaDescription = request.Description;
-                    userMediaJSON.ProjectTags = request.ProjectTags;
+                    userMediaJSON.MediaThumbnailUrl = result.Result.StorageUri.SecondaryUri.ToString();
+                    userMediaJSON.ProjectTags = request.ProjectTags;                    
+                    userMediaJSON.Tags = tagsJson;
+                    userMediaJSON.MediaFileName = result.Result.Name;
+                    userMediaJSON.MediaFileType = result.Result.Name.Split('.').Last();
+                    userMediaJSON.MediaUrl = result.Result.Uri.ToString();
+                    userMediaJSON.DateTimeUploaded = request.DateTimeUploaded;
+                    userMediaJSON.container_id = user[0].container_id+"";
 
                     var jsonString = JsonConvert.SerializeObject(userMediaJSON, Formatting.None);
 
@@ -346,7 +419,7 @@ namespace nxPinterest.Services
                 // Get tags by ProjectTags
                 string projectTab = null;
                 if (imageInfo.ProjectTags != null)
-                    projectTab = imageInfo.ProjectTags.Trim().Replace(',', '|');
+                    projectTab = imageInfo.ProjectTags.Trim();
 
                 // Get tags by Computer Vision API
                 try
@@ -375,7 +448,7 @@ namespace nxPinterest.Services
                     userMedia.MediaFileName = result.Result.Name;
                     userMedia.MediaFileType = result.Result.Name.Split('.').Last();
                     userMedia.Tags = tagsString;
-                    userMedia.MediaThumbnailUrl = result.Result.Uri.ToString().Replace(dev_Settings.blob_containerName_image, dev_Settings.blob_containerName_thumb);
+                    userMedia.MediaThumbnailUrl = result.Result.StorageUri.SecondaryUri.ToString();
                     if (projectTab != null)
                         userMedia.ProjectTags = projectTab;
                 }
@@ -384,34 +457,58 @@ namespace nxPinterest.Services
                     throw new Exception("タグ情報を整形できませんでした。ファイルは登録されません");
                 }
 
-                // Save image info and tags data 
-                try
-                {
-                    List<ApplicationUser> user = this._context.Users.Where(c => c.Id.Equals(UserId)).ToList();
-                    // Add info image
-                    userMedia.MediaTitle = imageInfo.Title;
-                    userMedia.MediaDescription = imageInfo.Description;
-                    userMedia.container_id = user[0].container_id;
-                    userMedia.DateTimeUploaded = imageInfo.DateTimeUploaded;
+                List<ApplicationUser> user = this._context.Users.Where(c => c.Id.Equals(UserId)).ToList();
 
-                    //string id = _cosmosDbService.inserted_id;
-                    _context.UserMedia.Add(userMedia);
-                    _context.SaveChanges();
-                }
-                catch (Exception)
-                {
-                    throw new Exception("SQL database への登録に失敗しました");
-                }
-
+                // Cosmos DB
                 // save data for cosmos db
                 try
                 {
+                    string tagsJson;
+                    ComputerVisionService cv = new ComputerVisionService();
+                    string[] _projectTags = new string[] { };
+
+                    tagsJson = cv.GetImageTag_str(result.Result.Uri.ToString());          // Get as json            -> 2) Cosmos and 4) Blob 
+
+                    //StringBuilder _tagString = new StringBuilder(tagsString);
+                    //TagList _tagList = System.Text.Json.JsonSerializer.Deserialize<TagList>(tagsJson, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                    if (!string.IsNullOrEmpty(projectTab))
+                    {
+                        _projectTags = projectTab.Split(',');
+
+                        for (int i = 0; i < _projectTags.Length; i++)
+                        {
+                            string _projectTag = _projectTags[i].Trim();
+
+                            if (i == 0)
+                            {
+                                tagsJson = tagsJson + "" + _projectTag + ":1:1";
+                            }
+                            else
+                            {
+                                tagsJson = tagsJson + '|' + _projectTag + ":1:1";
+                            }
+
+                        }
+                    }
+
+                    // MediaIDの取得
+                    int mediaId = _cosmosDbService.GetLatestMediaId();
+
+                    //ImageAnalysisJSON imageAnalysisJSON = JsonConvert.DeserializeObject<ImageAnalysisJSON>(tagsJson);
                     UserMediaCosmosJSON userMediaJSON = new UserMediaCosmosJSON();
                     userMediaJSON.UserId = UserId;
-                    userMediaJSON.MediaId = userMedia.MediaId;
+                    userMediaJSON.MediaId = mediaId;
                     userMediaJSON.MediaTitle = imageInfo.Title;
                     userMediaJSON.MediaDescription = imageInfo.Description;
+                    userMediaJSON.MediaThumbnailUrl = result.Result.StorageUri.SecondaryUri.ToString();
                     userMediaJSON.ProjectTags = imageInfo.ProjectTags;
+                    userMediaJSON.Tags = tagsJson;
+                    userMediaJSON.MediaFileName = result.Result.Name;
+                    userMediaJSON.MediaFileType = result.Result.Name.Split('.').Last();
+                    userMediaJSON.MediaUrl = result.Result.Uri.ToString();
+                    userMediaJSON.DateTimeUploaded = imageInfo.DateTimeUploaded;
+                    userMediaJSON.container_id = user[0].container_id + "";
 
                     var jsonString = JsonConvert.SerializeObject(userMediaJSON, Formatting.None);
 
