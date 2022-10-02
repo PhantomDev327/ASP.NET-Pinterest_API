@@ -1,9 +1,11 @@
-﻿@model nxPinterest.Data.Models.UserMediaCosmosJSON;
+﻿@*@model nxPinterest.Data.Models.UserMediaCosmosJSON*@
+@model nxPinterest.Data.Models.UserMedia;
 
 <figure>
     <a href="@Url.Action("GetUserMediaDetails", "Home", new { media_id = @Model.MediaId })"><img src="@Model.MediaThumbnailUrl" alt="@Model.MediaFileName"/>
-    <figcaption>
-        <p class="title">@Html.DisplayFor(title => Model.MediaTitle)</p>
-        <p class="description">@Html.DisplayFor(description => Model.MediaDescription)</p>
-    </figcaption></a>
+        <figcaption>
+            <p class="title">@Html.DisplayFor(title => Model.MediaTitle)</p>
+            <p class="description">@Html.DisplayFor(description => Model.MediaDescription)</p>
+        </figcaption>
+    </a>
 </figure>

@@ -92,6 +92,27 @@ namespace nxPinterest.Services
             }
         }
 
+        /// <summary>
+        /// Upload image
+        /// </summary>
+        public async Task<CloudBlockBlob> UploadStreamBlobAsync(string BlobName, string ContainerName, Stream file)
+        {
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer container = blobClient.GetContainerReference(ContainerName.ToLower());
+            CloudBlockBlob blockBlob = container.GetBlockBlobReference(BlobName);
+
+            try
+            {
+                await container.CreateIfNotExistsAsync(BlobContainerPublicAccessType.Container, null, null);
+                await blockBlob.UploadFromStreamAsync(file);
+                return blockBlob;
+            }
+            catch (StorageException)
+            {
+                return null;
+            }
+        }
+
         public async Task<bool> StoreJsonBlobAsync(string fileName, string ContainerName, string json)
         {
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();

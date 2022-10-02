@@ -12,10 +12,11 @@ namespace nxPinterest.Data
         }
         public virtual DbSet<UserMedia> UserMedia { get; set; }
         public virtual DbSet<MediaId> MediaId { get; set; }
-        public virtual DbSet<EditTags> EditTags { get; set; }
-        public virtual DbSet<EditTag> EditTag { get; set; }
+        //public virtual DbSet<EditTags> EditTags { get; set; }
+        //public virtual DbSet<EditTag> EditTag { get; set; }
         public virtual DbSet<SearchResultUserMedia> SearchResultUserMedia { get; set; }
         public virtual DbSet<UserContainer> UserContainer { get; set; }
+        public virtual DbSet<UserMediaTags> UserMediaTags { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -28,6 +29,7 @@ namespace nxPinterest.Data
                     .HasName("PK__UserMedia");
 
                 entity.Property(e => e.UserId).HasColumnName("user_id");
+                entity.Property(e => e.ContainerId).HasColumnName("container_id");
 
                 entity.Property(e => e.MediaId)
                     //.ValueGeneratedNever()
@@ -48,6 +50,11 @@ namespace nxPinterest.Data
                     .HasMaxLength(1000)
                     .IsUnicode(true)
                     .HasColumnName("media_url");
+
+                entity.Property(e => e.MediaSmallUrl)
+                    .HasMaxLength(1000)
+                    .IsUnicode(true)
+                    .HasColumnName("media_small_url");
 
                 entity.Property(e => e.MediaThumbnailUrl)
                     .HasMaxLength(1000)
@@ -82,6 +89,16 @@ namespace nxPinterest.Data
                 entity.Property(e => e.container_id)
                 .ValueGeneratedOnAdd()
                 .HasColumnName("container_id");
+            });
+
+            modelBuilder.Entity<UserMediaTags>(entity =>
+            {
+                entity.HasKey(e => e.TagsMediaName)
+                    .HasName("PK__UserMediaTags");
+
+                entity.Property(e => e.TagsMediaName)
+                .ValueGeneratedOnAdd()
+                .HasColumnName("user_media_name");
             });
 
             base.OnModelCreating(modelBuilder);

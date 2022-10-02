@@ -15,8 +15,11 @@ namespace nxPinterest.Data.Models
         public string MediaUrl { get; set; }
         public string Tags { get; set; } // generated photo tags
         public string ProjectTags { get; set; } // generated ProjectTags
+        public string MediaSmallUrl { get; set; }
         public string MediaThumbnailUrl { get; set; }
-        public int container_id { get; set; }
+        public int ContainerId { get; set; }
+
+        public List<UserMediaTags> TagsList { get; set; } // generated ProjectTags
 
         [NotMapped]
         public string tagsJson { get; set; }

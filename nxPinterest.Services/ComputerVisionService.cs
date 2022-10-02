@@ -35,7 +35,8 @@ namespace nxPinterest.Services
 
         public string GetImageTag_str(string ImageUrl)
         {
-            return ImageAnalysisUtility.AddTypeToTag_str(AnalyzeImageUrl_Tags_str(client, ImageUrl).Result);
+            var str = AnalyzeImageUrl_Tags_str(client, ImageUrl).Result;
+            return ImageAnalysisUtility.AddTypeToTag_str(str);
         }
 
         private static async Task<string> AnalyzeImageUrl_Tags_json(ComputerVisionClient client, string imageUrl)
@@ -188,6 +189,12 @@ namespace nxPinterest.Services
             Console.WriteLine("Clip Art Type: " + results.ImageType.ClipArtType);
             Console.WriteLine("Line Drawing Type: " + results.ImageType.LineDrawingType);
             Console.WriteLine();
+        }
+        public Stream GetThumbnail(string ImageUrl)
+        {
+            // Get thumbnail data
+            var thumbnailStream = client.GenerateThumbnailAsync(248, 165, ImageUrl, true).Result;
+            return thumbnailStream;
         }
     }
 }

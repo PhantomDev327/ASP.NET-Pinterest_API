@@ -108,7 +108,7 @@ namespace nxPinterest.Services
 
                 UserMediaCosmosJSON userMedia = JsonConvert.DeserializeObject<UserMediaCosmosJSON>(json);
                 Base64stringUtility encode = new Base64stringUtility("UTF-8");
-                inserted_id = userMedia.Id = (encode.Encode(userMedia.UserId + DateTime.Now.ToString("_yyyyMMddHHmmss_") + userMedia.MediaFileName)).Replace("+", "==");
+                inserted_id = userMedia.Id = (encode.Encode(userMedia.UserId + DateTime.Now.ToString("_yyyyMMddHHmmssfff_") + userMedia.MediaFileName)).Replace("+", "==");
                 await container.CreateItemAsync(userMedia);
                 return true;
             }
@@ -156,70 +156,70 @@ namespace nxPinterest.Services
             }
         }
 
-        /// <summary>
-        /// Get Image Detail By MediaID
-        /// </summary>
-        /// <param name="databaseName"></param>
-        /// <param name="containerName"></param>
-        /// <param name="media_id"></param>
-        /// <returns></returns>
-        public async Task<UserMediaDetailViewModel> GetUserMediaDetailsCosmosByIDAsync(string databaseName, string containerName, int media_id)
-        {
-            CosmosClient cosmosClient = new CosmosClient(dev_Settings.cosmos_endpointUri, dev_Settings.cosmos_accountKey);
-            Database database = cosmosClient.GetDatabase(databaseName);
-            Container container = database.GetContainer(containerName);
+        ///// <summary>
+        ///// Get Image Detail By MediaID
+        ///// </summary>
+        ///// <param name="databaseName"></param>
+        ///// <param name="containerName"></param>
+        ///// <param name="media_id"></param>
+        ///// <returns></returns>
+        //public async Task<UserMediaDetailViewModel> GetUserMediaDetailsCosmosByIDAsync(string databaseName, string containerName, int media_id)
+        //{
+        //    CosmosClient cosmosClient = new CosmosClient(dev_Settings.cosmos_endpointUri, dev_Settings.cosmos_accountKey);
+        //    Database database = cosmosClient.GetDatabase(databaseName);
+        //    Container container = database.GetContainer(containerName);
 
-            Data.Models.UserMediaCosmosJSON userMedia = container.GetItemLinqQueryable<UserMediaCosmosJSON>(true)
-                          .Where(x => x.MediaId == media_id)
-                          .AsEnumerable()
-                          .FirstOrDefault();
+        //    Data.Models.UserMediaCosmosJSON userMedia = container.GetItemLinqQueryable<UserMediaCosmosJSON>(true)
+        //                  .Where(x => x.MediaId == media_id)
+        //                  .AsEnumerable()
+        //                  .FirstOrDefault();
 
-            UserMediaDetailViewModel result = new UserMediaDetailViewModel();
+        //    UserMediaDetailViewModel result = new UserMediaDetailViewModel();
 
-            IList<UserMediaCosmosJSON> mediaList = new List<UserMediaCosmosJSON>();
+        //    IList<UserMediaCosmosJSON> mediaList = new List<UserMediaCosmosJSON>();
 
-            if (userMedia != null)
-            {
-                var query = container.GetItemLinqQueryable<UserMediaCosmosJSON>(true).Where(u => u.container_id == userMedia.container_id).ToList();
+        //    if (userMedia != null)
+        //    {
+        //        var query = container.GetItemLinqQueryable<UserMediaCosmosJSON>(true).Where(u => u.container_id == userMedia.container_id).ToList();
 
-                query = query.Select(c => new UserMediaCosmosJSON()
-                {
-                    MediaId = c.MediaId,
-                    UserId = c.UserId,
-                    MediaTitle = c.MediaTitle,
-                    MediaDescription = c.MediaDescription,
-                    MediaFileName = c.MediaFileName,
-                    MediaFileType = c.MediaFileType,
-                    MediaUrl = c.MediaUrl,
-                    Tags = c.Tags,
-                    MediaThumbnailUrl = c.MediaThumbnailUrl
-                })
-                .Where(c => !string.IsNullOrEmpty(c.MediaTitle) && !string.IsNullOrEmpty(userMedia.MediaTitle) && c.MediaTitle.Equals(userMedia.MediaTitle)).ToList();
+        //        query = query.Select(c => new UserMediaCosmosJSON()
+        //        {
+        //            MediaId = c.MediaId,
+        //            UserId = c.UserId,
+        //            MediaTitle = c.MediaTitle,
+        //            MediaDescription = c.MediaDescription,
+        //            MediaFileName = c.MediaFileName,
+        //            MediaFileType = c.MediaFileType,
+        //            MediaUrl = c.MediaUrl,
+        //            Tags = c.Tags,
+        //            MediaThumbnailUrl = c.MediaThumbnailUrl
+        //        })
+        //        .Where(c => !string.IsNullOrEmpty(c.MediaTitle) && !string.IsNullOrEmpty(userMedia.MediaTitle) && c.MediaTitle.Equals(userMedia.MediaTitle)).ToList();
 
-                mediaList = query;
-            }
+        //        mediaList = query;
+        //    }
 
-            result.UserMediaDetailCosmos = userMedia;
-            result.UserMediaCosmosList = mediaList;
+        //    result.UserMediaDetailCosmos = userMedia;
+        //    result.UserMediaCosmosList = mediaList;
 
-            return result;
-        }
+        //    return result;
+        //}
 
-        public int GetLatestMediaId()
-        {
-            int mediaid = 0;
-            CosmosClient cosmosClient = new CosmosClient(dev_Settings.cosmos_endpointUri, dev_Settings.cosmos_accountKey);
-            Database database = cosmosClient.GetDatabase(dev_Settings.cosmos_databaseName);
-            Container container = database.GetContainer(dev_Settings.cosmos_containerName);
-            var query = container.GetItemLinqQueryable<UserMediaCosmosJSON>(true).OrderByDescending(i => i.MediaId);
-            IList<UserMediaCosmosJSON> usermedialist = query.ToList<UserMediaCosmosJSON>();
+        //public int GetLatestMediaId()
+        //{
+        //    int mediaid = 0;
+        //    CosmosClient cosmosClient = new CosmosClient(dev_Settings.cosmos_endpointUri, dev_Settings.cosmos_accountKey);
+        //    Database database = cosmosClient.GetDatabase(dev_Settings.cosmos_databaseName);
+        //    Container container = database.GetContainer(dev_Settings.cosmos_containerName);
+        //    var query = container.GetItemLinqQueryable<UserMediaCosmosJSON>(true).OrderByDescending(i => i.MediaId);
+        //    IList<UserMediaCosmosJSON> usermedialist = query.ToList<UserMediaCosmosJSON>();
 
-            if (usermedialist != null)
-            {
-                mediaid = usermedialist[0].MediaId + 1;
-            }
-            return mediaid;
-        }
+        //    if (usermedialist != null)
+        //    {
+        //        mediaid = usermedialist[0].MediaId + 1;
+        //    }
+        //    return mediaid;
+        //}
     }
 
 

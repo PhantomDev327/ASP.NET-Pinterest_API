@@ -52,7 +52,7 @@ namespace nxPinterest.Utils
 
             try
             {
-                ImageAnalysisJSON imageAnalysisJSON = JsonConvert.DeserializeObject<ImageAnalysisJSON>(tags_json);
+                //ImageAnalysisJSON imageAnalysisJSON = JsonConvert.DeserializeObject<ImageAnalysisJSON>(tags_json);
                 UserMediaJSON userMediaJSON = new UserMediaJSON();
 
                 userMediaJSON.UserId = userMedia.UserId;
@@ -61,6 +61,7 @@ namespace nxPinterest.Utils
                 userMediaJSON.MediaUrl = userMedia.MediaUrl;
                 userMediaJSON.DateTimeUploaded = userMedia.DateTimeUploaded;
                 userMediaJSON.Tags = tags_json;
+                //userMediaJSON.Tags = imageAnalysisJSON.Tags;
 
                 return JsonConvert.SerializeObject(userMediaJSON, Formatting.None);
             }

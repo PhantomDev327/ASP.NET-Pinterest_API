@@ -44,6 +44,8 @@ namespace nxPinterest.Web.Controllers
         /// <param name="request">Form Data</param>
         /// <returns></returns>
         [HttpPost]
+        [DisableRequestSizeLimit]
+        [RequestFormLimits(MultipartBodyLengthLimit = long.MaxValue, ValueLengthLimit = int.MaxValue)]
         public IActionResult UploadMediaFile(ImageRegistrationRequests request)
         {
             // Validate param

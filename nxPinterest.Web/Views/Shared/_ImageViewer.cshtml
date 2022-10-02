@@ -4,7 +4,8 @@
     ViewData["Title"] = "画像選択";
     Layout = "~/Views/Shared/_ImageLayout.cshtml";
 
-	UserMediaCosmosJSON primary_image_detail = Model.UserMediaDetailCosmos;
+	//UserMediaCosmosJSON primary_image_detail = Model.UserMediaDetailCosmos;
+	UserMedia primary_image_detail = Model.UserMediaDetail;
 }
 
 <style>
@@ -60,9 +61,20 @@
 								<div class="row">
 									<div class="col">
 										<div class="thumbnail-section-wrapper" style="margin-top:0!important">
-												@for (int i = 0; i < Model.UserMediaCosmosList.Count(); i++)
+												@*@for (int i = 0; i < Model.UserMediaCosmosList.Count(); i++)
 												{
 													var userMediaThumbnail = Model.UserMediaCosmosList[i];
+													string activeClass = userMediaThumbnail.MediaFileName.Equals(primary_image_detail.MediaFileName) ? "active" : "";
+
+													<div class="thumbnail-wrapper @activeClass" style="margin-left:4.5px!important">
+														<a href="@Url.Action("GetUserMediaDetails", "Home", new { media_id = @userMediaThumbnail.MediaId })">
+															<img src="@userMediaThumbnail.MediaThumbnailUrl" class="thumbnail" />
+														</a>
+													</div>
+												}*@
+												@for (int i = 0; i < Model.UserMediaList.Count(); i++)
+												{
+													var userMediaThumbnail = Model.UserMediaList[i];
 													string activeClass = userMediaThumbnail.MediaFileName.Equals(primary_image_detail.MediaFileName) ? "active" : "";
 
 													<div class="thumbnail-wrapper @activeClass" style="margin-left:4.5px!important">
@@ -79,8 +91,8 @@
 						<div class="col">
 							<div class="mb-2">
 								<div class="content">
-									<input type="text" class="form-control input-control input-title " placeholder="田代歯科医院" asp-for="UserMediaDetailCosmos.MediaTitle" name="Title" />
-									<textarea rows="3" class="form-control input-control input-explanation" placeholder="ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。" asp-for="UserMediaDetailCosmos.MediaDescription" name="Description" ></textarea>
+									<input type="text" class="form-control input-control input-title " placeholder="田代歯科医院" asp-for="UserMediaDetail.MediaTitle" name="Title" />
+									<textarea rows="3" class="form-control input-control input-explanation" placeholder="ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。ここは説明です。" asp-for="UserMediaDetail.MediaDescription" name="Description" ></textarea>
 
 									<div class="tag-control-container">
 										<p class="text-black tag-text">Tags</p>
@@ -133,49 +145,50 @@
 </div>
 
 <script>
-	window.images= JSON.parse('@Html.Raw(@ViewBag.RelatedUserMediaList)');
+	//TODO 以下191までコメントでいいの？
+	//window.images= JSON.parse('@Html.Raw(@ViewBag.RelatedUserMediaList)');
     
-	$(document).ready(function() {
-		reloadImage();
-        $(window).css('min-width',500);
-        var timer = null;
-        $(window).on('resize', function(){
-            clearTimeout(timer); 
-            timer = setTimeout(function() {
-                reloadImage();
-            },500);
-        });
-    });
-    function getColNum() {
-        var col_num = Math.floor($(window).width() / 264);
-        return col_num;
-    }
-    function initCol() {
-        $("#thumbnail-container").empty();
-        var col_num = getColNum();
-        var space = Math.floor(($(window).width() % 264)/2);
-        for (var i = 1; i <= col_num; i++) {
-            $('#thumbnail-container').append('<div id="column-'+i+'" class="image-col" style="position:absolute; width:264px; padding:8px;left:'+ (260 * (i - 1) + space) +'px;"></div>');
-        }
-    }
+	//$(document).ready(function() {
+	//	reloadImage();
+ //       $(window).css('min-width',500);
+ //       var timer = null;
+ //       $(window).on('resize', function(){
+ //           clearTimeout(timer); 
+ //           timer = setTimeout(function() {
+ //               reloadImage();
+ //           },500);
+ //       });
+ //   });
+ //   function getColNum() {
+ //       var col_num = Math.floor($(window).width() / 264);
+ //       return col_num;
+ //   }
+ //   function initCol() {
+ //       $("#thumbnail-container").empty();
+ //       var col_num = getColNum();
+ //       var space = Math.floor(($(window).width() % 264)/2);
+ //       for (var i = 1; i <= col_num; i++) {
+ //           $('#thumbnail-container').append('<div id="column-'+i+'" class="image-col" style="position:absolute; width:264px; padding:8px;left:'+ (260 * (i - 1) + space) +'px;"></div>');
+ //       }
+ //   }
     
-    function reloadImage() {
-        initCol();
-        window.images.forEach(function (data) {
-            console.log(data);
-            appendData(data);
-        });
+ //   function reloadImage() {
+ //       initCol();
+ //       window.images.forEach(function (data) {
+ //           console.log(data);
+ //           appendData(data);
+ //       });
         
-    }
-    function appendData(value) {
-        var newImgEl = document.createElement('img');
-        newImgEl.addEventListener('load', function() {
-            shortest = findShortestCol();
-            shortest.append('<figure id="'+value.MediaId+'"><a href="/Home/GetUserMediaDetails?Media_id='+value.MediaId+'"><figcaption><p class="title">'+value.MediaTitle+'</p><p class="description">'+value.MediaDescription+'</p></figcaption></a></figure>');$('#'+value.MediaId+' a').append(newImgEl);
-        });
-        newImgEl.setAttribute('src', value.MediaThumbnailUrl);
-        newImgEl.setAttribute('alt', value.MediaFileName);
-    }
+ //   }
+ //   function appendData(value) {
+ //       var newImgEl = document.createElement('img');
+ //       newImgEl.addEventListener('load', function() {
+ //           shortest = findShortestCol();
+ //           shortest.append('<figure id="'+value.MediaId+'"><a href="/Home/GetUserMediaDetails?Media_id='+value.MediaId+'"><figcaption><p class="title">'+value.MediaTitle+'</p><p class="description">'+value.MediaDescription+'</p></figcaption></a></figure>');$('#'+value.MediaId+' a').append(newImgEl);
+ //       });
+ //       newImgEl.setAttribute('src', value.MediaThumbnailUrl);
+ //       newImgEl.setAttribute('alt', value.MediaFileName);
+ //   }
     function findShortestCol() {
         var count = $("#thumbnail-container").children().length;
         var shortest = $("#column-1");
@@ -192,7 +205,8 @@
 
 			//	$(this).fileinput({
 			//		allowedFileTypes: ['image'],
-			//		deleteUrl: '@Url.Action("DeleteUserMedia", "Home", new { media_id = Model.UserMediaDetailCosmos.MediaId })',
+			////		deleteUrl: '@@Url.Action("DeleteUserMedia", "Home", new { media_id = Model.UserMediaDetailCosmos.MediaId })',
+			//		deleteUrl: '@Url.Action("DeleteUserMedia", "Home", new { media_id = Model.UserMediaDetail.MediaId })',
 			//		initialPreviewAsData: true,
 			//		overwriteInitial: true,
 			//		browseOnZoneClick: true,
@@ -210,7 +224,8 @@
 
 		function filedelete(media_id) {
 			$.ajax({
-				url: "@Url.Action("DeleteUserMedia", "Home", new { media_id = Model.UserMediaDetailCosmos.MediaId })",
+				//url: "@@Url.Action("DeleteUserMedia", "Home", new { media_id = Model.UserMediaDetailCosmos.MediaId })",
+				url: '@Url.Action("DeleteUserMedia", "Home", new { media_id = Model.UserMediaDetail.MediaId })',
                 method: "Post",
                 data: { media_id },
 				processData: false,

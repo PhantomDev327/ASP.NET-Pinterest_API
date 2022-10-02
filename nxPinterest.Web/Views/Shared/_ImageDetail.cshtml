@@ -4,7 +4,8 @@
     ViewData["Title"] = "画像選択";
     Layout = "~/Views/Shared/_ImageLayout.cshtml";
 
-	UserMediaCosmosJSON primary_image_detail = Model.UserMediaDetailCosmos;
+	//UserMediaCosmosJSON primary_image_detail = Model.UserMediaDetailCosmos;
+	UserMedia primary_image_detail = Model.UserMediaDetail;
 }
 
 <script src="~/lib/bootstrap-fileinput/js/fileinput.min.js" asp-append-version="true"></script>
@@ -25,7 +26,7 @@
 								<div class="row">
 									<div class="image-uploader-wrapper">
 										<figure>
-											<img src="@primary_image_detail.MediaThumbnailUrl" alt="@primary_image_detail.MediaFileName" class="main" id="main-image" style="max-height:initial!important"/>
+											<img src="@primary_image_detail.MediaSmallUrl" alt="@primary_image_detail.MediaFileName" class="main" id="main-image" style="max-height:initial!important"/>
 										</figure>
 									</div>
 								</div>
@@ -98,18 +99,19 @@
 </div>
 
 <script>
-		function filedelete(media_id) {
-			$.ajax({
-				url: "@Url.Action("DeleteUserMedia", "Home", new { media_id = Model.UserMediaDetailCosmos.MediaId })",
-                method: "Post",
-                data: { media_id },
-				processData: false,
-				contentType: false,
-				success: function (sResponse) {
-					window.location = '@Url.Action("Index","Home")';
-				}
-			});
-		}
+	function filedelete(media_id) {
+		$.ajax({
+			//url: "@@Url.Action("DeleteUserMedia", "Home", new { media_id = Model.UserMediaDetailCosmos.MediaId })",
+			url: "@Url.Action("DeleteUserMedia", "Home", new { media_id = Model.UserMediaDetail.MediaId })",
+            method: "Post",
+            data: { media_id },
+			processData: false,
+			contentType: false,
+			success: function (sResponse) {
+				window.location = '@Url.Action("Index","Home")';
+			}
+		});
+	}
 	$('#show-all-btn').on('click', function() {
 	    $('.slider label').removeClass('hide-lable');
 	    $(this).css('display', 'none');
@@ -122,7 +124,7 @@
 	            data: { media_id: media_id},
 	            success: function (sResult) {
 	                console.log(sResult);
-					$('#main-image').attr('src', sResult.userMediaDetail.mediaThumbnailUrl);
+					$('#main-image').attr('src', sResult.userMediaDetail.mediaUrl);
 	                $('.dots-image-container a').attr('href',"/Home/GetUserMediaViewer?media_id=" + sResult.userMediaDetail.mediaId);
 	                $('.image-detail-col h5').html(sResult.userMediaDetail.mediaTitle);
 					$('.image-detail-col .media_desc').html(sResult.userMediaDetail.mediaDescription);
@@ -134,7 +136,7 @@
 		});
 	});
 	window.images= JSON.parse('@Html.Raw(@ViewBag.RelatedUserMediaList)');
-    
+
 	$(document).ready(function() {
 		reloadImage();
         $(window).css('min-width',500);

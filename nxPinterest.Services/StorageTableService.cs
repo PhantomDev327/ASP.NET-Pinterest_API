@@ -51,7 +51,7 @@ namespace nxPinterest.Services
                 entity.PartitionKey = entity.UserId;
 
                 Base64stringUtility encode = new Base64stringUtility("UTF-8");
-                entity.RowKey = (encode.Encode(DateTime.Now.ToString("yyyyMMddHHmmss_") + entity.MediaFileName)).Replace("+", "==");
+                entity.RowKey = (encode.Encode(DateTime.Now.ToString("yyyyMMddHHmmssfff_") + entity.MediaFileName)).Replace("+", "==");
 
                 await table.CreateIfNotExistsAsync();
                 TableOperation insertOrMergeOperation = TableOperation.InsertOrMerge(entity);
