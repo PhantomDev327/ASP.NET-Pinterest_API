@@ -34,7 +34,7 @@
         // public const string blob_containerName_image = "imagecontainer";
         //public const string blob_containerName_image = "imagecontainer";
         public const string blob_containerName_image = "demoimg";
-        public const string blob_containerName_thumb = "demothumb";
+        //public const string blob_containerName_thumb = "demothumb";
 
         /* You can choose where to save the image info (metadata and computer vision analysis tag results) as follows
          *
@@ -73,7 +73,7 @@
         public const int displayMaxItems_search = 250;
         //public const int pageSize_manage = 100;
         public const int pageSize_regist = 50;
-        public const string mailAddress = "starse.noreply@gmail.com";
+        public const string mailAddress = "starse.noreply@xxxxx.xxx";
         public const string mailPassword = "starse2022";
     }
 }
