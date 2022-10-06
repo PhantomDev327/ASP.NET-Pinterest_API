@@ -17,7 +17,8 @@
 
 .page-header {
     background-color: #343a40;
-    padding: 2%;
+    /*padding: 2%;*/
+    padding: 18px;
     display: flex;
 }
 
@@ -27,7 +28,7 @@
     }
 
 img.company-banner {
-    width: 37.38px;
+    width: 300px;
     margin-right: 1rem;
 }
 

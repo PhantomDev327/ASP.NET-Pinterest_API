@@ -114,7 +114,8 @@
 }
 
 h5, .h5 {
-    margin-left: 45%;
+    /*margin-left: 45%;*/
+    text-align: center;
 }
 /*ssa add 20220527*/
 @media screen and (max-width: 640px){
