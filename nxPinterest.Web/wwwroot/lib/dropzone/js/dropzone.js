@@ -243,7 +243,8 @@ var Dropzone = function (_Emitter) {
         /**
          * In MB. When the filename exceeds this limit, the thumbnail will not be generated.
          */
-        maxThumbnailFilesize: 10,
+        //maxThumbnailFilesize: 10,
+        maxThumbnailFilesize: 20,
 
         /**
          * If `null`, the ratio of the image will be used to calculate it.
@@ -253,7 +254,8 @@ var Dropzone = function (_Emitter) {
         /**
          * The same as `thumbnailWidth`. If both are null, images will not be resized.
          */
-        thumbnailHeight: 120,
+        /*thumbnailHeight: 120,*/
+        thumbnailHeight: 80,
 
         /**
          * How the images should be scaled down in case both, `thumbnailWidth` and `thumbnailHeight` are provided.
@@ -305,7 +307,8 @@ var Dropzone = function (_Emitter) {
         /**
          * Can be used to limit the maximum number of files that will be handled by this Dropzone
          */
-        maxFiles: 50,
+        /*maxFiles: 50,*/
+        maxFiles: 200,
 
         /**
          * An optional object to send additional headers to the server. Eg:
