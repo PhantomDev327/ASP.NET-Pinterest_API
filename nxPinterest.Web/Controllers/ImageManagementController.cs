@@ -46,7 +46,6 @@ namespace nxPinterest.Web.Controllers
 
 
         [HttpPost]
-        //OLD : SQL DB
         public async Task<IActionResult> UploadMediaFile(ImageRegistrationRequests request)
         {
             bool isUpdate = request.MediaId != 0;
@@ -138,7 +137,6 @@ namespace nxPinterest.Web.Controllers
             return ms;
         }
 
-        // OLD : SQL DB
         private bool UpdateUserMediaTags(UserMedia userMedia, string projectTags)
         {
             try

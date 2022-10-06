@@ -1,10 +1,9 @@
 ﻿@using nxPinterest.Data.Models;
-@model nxPinterest.Services.Models.Response.UserMediaDetailViewModel
+@model nxPinterest.Web.Models.DetailsViewModel
 @{
     ViewData["Title"] = "画像選択";
     Layout = "~/Views/Shared/_ImageLayout.cshtml";
 
-	//UserMediaCosmosJSON primary_image_detail = Model.UserMediaDetailCosmos;
 	UserMedia primary_image_detail = Model.UserMediaDetail;
 }
 
@@ -32,13 +31,14 @@
 								</div>
 								<div class="row">
 									<div class="slider">
+										<h6 style="color:#111111;margin-left: 0%;">Other images registered in &quot; @primary_image_detail.MediaTitle &quot;</h6>
 										<input type="radio" name="slide_switch" checked="checked" id="@primary_image_detail.MediaId" value="@primary_image_detail.MediaId"/>
 									    <label for="@primary_image_detail.MediaId" style="background-image:url('@primary_image_detail.MediaThumbnailUrl');">
 									        
 									    </label>
-									    @for (int i = 0; i < Model.UserMediaList.Count(); i++)
+									    @for (int i = 0; i < Model.SameTitleUserMediaList.Count(); i++)
 									    {
-											var userMediaThumbnail = Model.UserMediaList[i];
+											var userMediaThumbnail = Model.SameTitleUserMediaList[i];
 									        string activeClass = userMediaThumbnail.MediaFileName.Equals(primary_image_detail.MediaFileName) ? "active" : "";
 											string hide_lable = i > 13 ? "hide-lable" : "";
 
@@ -52,8 +52,8 @@
 									    }
 										
 									</div>
-									@if (Model.UserMediaList.Count() > 14) {
-											<input type="button" value="全て表示" class="btn btn-default btn-save" id="show-all-btn">
+									@if (Model.SameTitleUserMediaList.Count() > 14) {
+											<input type="button" value="Show all" class="btn btn-default btn-save" id="show-all-btn">
 										}
 								</div>
 							</div>
@@ -66,7 +66,7 @@
 											<i class="fas fa-ellipsis-h fa-2x" style="color:black"></i>
 										</a>
 									</div>
-									<h5 style="color:black;margin-left: 0%;">@primary_image_detail.MediaTitle</h5>
+									<h5 style="color:black; text-align: left;">@primary_image_detail.MediaTitle</h5>
 									<br />
 									<p class="media_desc" style="color:black;margin-left: 0%;">
 										@primary_image_detail.MediaDescription
@@ -75,7 +75,8 @@
 									<p class="text-black tag-text">Tag</p>
 									<div class="project_tags">
 										@foreach (var tag in @Model.project_tags_list){
-											<div style="display:inline-block;color:#fff;background-color: #343a40;padding:10px 20px 10px 20px;border-radius:3px;margin-right:7px;margin-bottom:7px;">@tag</div>
+											var url = "/?searchKey=" + tag;
+											<a href="@url"><div style="display:inline-block;color:#fff;background-color: #343a40;padding:10px 20px 10px 20px;border-radius:3px;margin-right:7px;margin-bottom:7px;">@tag</div></a>
 										}
 									</div>
 
@@ -90,7 +91,7 @@
 			
 	<div class="content gallery">
 		<br />
-		<h5>似ている画像</h5>
+		<h5>Similar images</h5>
 		<br/><br />
 		<div class="thumbnail-container" id="thumbnail-container">
 		</div>
@@ -101,7 +102,6 @@
 <script>
 	function filedelete(media_id) {
 		$.ajax({
-			//url: "@@Url.Action("DeleteUserMedia", "Home", new { media_id = Model.UserMediaDetailCosmos.MediaId })",
 			url: "@Url.Action("DeleteUserMedia", "Home", new { media_id = Model.UserMediaDetail.MediaId })",
             method: "Post",
             data: { media_id },
@@ -119,18 +119,19 @@
 	$('.slider input').on('click', function() {
 	    var media_id = $(this).val();
 		$.ajax({
-	            url: "@Url.Action("GetUserMediaDetailsAjax", "Home")",
+	            url: "@Url.Action("DetailsAjax", "Home")",
 	            method: "Post",
 	            data: { media_id: media_id},
 	            success: function (sResult) {
 	                console.log(sResult);
-					$('#main-image').attr('src', sResult.userMediaDetail.mediaUrl);
+					$('#main-image').attr('src', sResult.userMediaDetail.mediaSmallUrl);
 	                $('.dots-image-container a').attr('href',"/Home/GetUserMediaViewer?media_id=" + sResult.userMediaDetail.mediaId);
 	                $('.image-detail-col h5').html(sResult.userMediaDetail.mediaTitle);
 					$('.image-detail-col .media_desc').html(sResult.userMediaDetail.mediaDescription);
 	                $('.project_tags').empty();
 					$.each(sResult.project_tags_list, function(index, value) {
-	                    $('.project_tags').append('<div style="display:inline-block;color:#fff;background-color: #343a40;padding:10px 20px 10px 20px;border-radius:3px;margin-right:7px;margin-bottom:7px;">'+value +'</div>');
+                        var url = '/' + "?searchKey=" + value;
+	                    $('.project_tags').append('<a href='+url+'><div style="display:inline-block;color:#fff;background-color: #343a40;padding:10px 20px 10px 20px;border-radius:3px;margin-right:7px;margin-bottom:7px;">'+value +'</div></a>');
 	                });
 	            }
 		});
@@ -173,7 +174,7 @@
         var newImgEl = document.createElement('img');
         newImgEl.addEventListener('load', function() {
             shortest = findShortestCol();
-            shortest.append('<figure id="'+value.MediaId+'"><a href="/Home/GetUserMediaDetails?Media_id='+value.MediaId+'"><figcaption><p class="title">'+value.MediaTitle+'</p><p class="description">'+value.MediaDescription+'</p></figcaption></a></figure>');$('#'+value.MediaId+' a').append(newImgEl);
+            shortest.append('<figure id="'+value.MediaId+'"><a href="/Home/Details?Media_id='+value.MediaId+'"><figcaption><p class="title">'+value.MediaTitle+'</p><p class="description">'+value.MediaDescription+'</p></figcaption></a></figure>');$('#'+value.MediaId+' a').append(newImgEl);
         });
         newImgEl.setAttribute('src', value.MediaThumbnailUrl);
         newImgEl.setAttribute('alt', value.MediaFileName);

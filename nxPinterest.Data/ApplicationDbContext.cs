@@ -93,13 +93,31 @@ namespace nxPinterest.Data
 
             modelBuilder.Entity<UserMediaTags>(entity =>
             {
-                entity.HasKey(e => e.TagsMediaName)
+                entity.HasKey(e => new { e.UserMediaTagsId })
                     .HasName("PK__UserMediaTags");
 
-                entity.Property(e => e.TagsMediaName)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("user_media_name");
+                entity.Property(e => e.UserMediaTagsId)
+                    .HasColumnName("user_media_tags_id");
+
+                entity.Property(e => e.UserMediaName)
+                    .HasColumnName("user_media_name");
+
+                entity.Property(e => e.ContainerId)
+                    .HasColumnName("container_id");
+
+                entity.Property(e => e.TagsType)
+                    .HasColumnName("tags_type");
+
+                entity.Property(e => e.Tag)
+                    .HasMaxLength(100)
+                    .IsUnicode(true)
+                    .HasColumnName("tag");
+
+                entity.Property(e => e.Confidence)
+                    .HasColumnName("confidence");
+
             });
+
 
             base.OnModelCreating(modelBuilder);
         }

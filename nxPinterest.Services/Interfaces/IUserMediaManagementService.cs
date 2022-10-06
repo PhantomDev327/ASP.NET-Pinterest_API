@@ -13,7 +13,9 @@ namespace nxPinterest.Services.Interfaces
     {
         Task<IList<Data.Models.UserMedia>> ListUserMediaAsyc(string userId = "");
         Task<IList<Data.Models.UserMedia>> SearchUserMediaAsync(string searchKey, int containerId);
-        Task<UserMediaDetailViewModel> GetUserMediaDetailsByIDAsync(int media_id);
+        Task<IList<Data.Models.UserMedia>> SearchSimilarImagesAsync(UserMedia userMedia, int container_id);
+        Task<UserMedia> GetUserMediaAsync(int mediaId);
+        Task<UserMediaDetailModel> GetUserMediaDetailsByIDAsync(int mediaId);
         Task DeleteFromUserMedia(UserMedia userMedia);
         //Task DeleteFromUserMedia(string media_id);
         public void UploadMediaFile(ImageRegistrationRequests request, string UserId);

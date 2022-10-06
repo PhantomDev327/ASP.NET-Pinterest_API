@@ -56,13 +56,11 @@ namespace nxPinterest.Services
         ///     Search Image by conditions
         /// </summary>
         /// <param name="searchKey"></param>
-        /// <param name="userId"></param>
+        /// <param name="container_id"></param>
         /// <returns></returns>
         public async Task<IList<Data.Models.UserMedia>> SearchUserMediaAsync(string searchKey, int container_id)
         {
-
             //var cosmosdata = this._cosmosDbService.SelectByUserIDAsync(dev_Settings.cosmos_databaseName, dev_Settings.cosmos_containerName, UserId);
-
             try
             {
                 var query = this._context.UserMedia.AsNoTracking()
@@ -79,59 +77,107 @@ namespace nxPinterest.Services
                     }
                     else
                     {
-                        query = query.Where(c => c.ProjectTags.Contains(searchKey) || c.MediaTitle.Contains(searchKey));
+                        query = query.Where(c => c.Tags.Contains(searchKey) || c.MediaTitle.Contains(searchKey));
                     }
                 }
 
                 IList<Data.Models.UserMedia> userMediaList = await query.OrderByDescending(c => c.MediaId).ToListAsync();
                 return userMediaList;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw;
             }
         }
+        /// <summary>
+        ///     GetUserMedia By ID
+        /// </summary>
+        /// <param name="media_id"></param>
+        /// <returns></returns>
+        public async Task<UserMedia> GetUserMediaAsync(int mediaId)
+        {
 
-        public async Task<UserMediaDetailViewModel> GetUserMediaDetailsByIDAsync(int media_id)
+            return await (this._context.UserMedia.AsNoTracking()
+                                                .FirstOrDefaultAsync(c => c.MediaId.Equals(mediaId)));
+        }
+        /// <summary>
+        ///     GetUserMediaDetails By ID
+        /// </summary>
+        /// <param name="media_id"></param>
+        /// <returns></returns>
+        public async Task<UserMediaDetailModel> GetUserMediaDetailsByIDAsync(int mediaId)
         {
 
             Data.Models.UserMedia userMedia = await (this._context.UserMedia.AsNoTracking()
-                                             .FirstOrDefaultAsync(c => c.MediaId.Equals(media_id)));
+                                                .FirstOrDefaultAsync(c => c.MediaId.Equals(mediaId)));
 
-            UserMediaDetailViewModel result = new UserMediaDetailViewModel();
+            UserMediaDetailModel result = new UserMediaDetailModel();
 
             IList<UserMedia> mediaList = new List<UserMedia>();
 
             if (userMedia != null)
             {
-                var query = this._context.UserMedia.AsNoTracking()
-                                     .Where(c => c.ContainerId.Equals(userMedia.ContainerId)).ToList();
+                mediaList = this._context.UserMedia.AsNoTracking()
+                                     .Where(c => c.ContainerId.Equals(userMedia.ContainerId) && c.MediaTitle.Equals(userMedia.MediaTitle.TrimExtraSpaces())).ToList();
 
-                query = query.Select(c => new UserMedia()
-                {
-                    MediaId = c.MediaId,
-                    UserId = c.UserId,
-                    MediaTitle = c.MediaTitle?.TrimExtraSpaces(),
-                    MediaDescription = c.MediaDescription?.TrimExtraSpaces(),
-                    MediaFileName = c.MediaFileName,
-                    MediaFileType = c.MediaFileType,
-                    MediaUrl = c.MediaUrl,
-                    Tags = c.Tags,
-                    MediaSmallUrl = c.MediaSmallUrl,
-                    MediaThumbnailUrl = c.MediaThumbnailUrl
-                })
-                .Where(c => !string.IsNullOrEmpty(c.MediaTitle) && !string.IsNullOrEmpty(userMedia.MediaTitle) && c.MediaTitle.Equals(userMedia.MediaTitle.TrimExtraSpaces())).ToList();
-
-                mediaList = query;
+                //Todo trimは登録時に行おうよ
+                //mediaList = query.Select(c => new UserMedia()
+                //{
+                //    MediaId = c.MediaId,
+                //    UserId = c.UserId,
+                //    MediaTitle = c.MediaTitle?.TrimExtraSpaces(),
+                //    MediaDescription = c.MediaDescription?.TrimExtraSpaces(),
+                //    MediaFileName = c.MediaFileName,
+                //    MediaFileType = c.MediaFileType,
+                //    MediaUrl = c.MediaUrl,
+                //    Tags = c.Tags,
+                //    MediaSmallUrl = c.MediaSmallUrl,
+                //    MediaThumbnailUrl = c.MediaThumbnailUrl
+                //}).ToList();
             }
 
             result.UserMediaDetail = userMedia;
-            result.UserMediaList = mediaList;
+            result.SameTitleUserMediaList = mediaList;
+
+            // 似ている画像取得
+            result.RelatedUserMediaList = await SearchSimilarImagesAsync(result.UserMediaDetail, result.UserMediaDetail.ContainerId);
 
             return result;
         }
 
-        // OLD : SQL DB
+        /// <summary>
+        ///     Search Similar images
+        /// </summary>
+        /// <param name="userMedia"></param>
+        /// <param name="container_id"></param>
+        /// <returns></returns>
+        public async Task<IList<Data.Models.UserMedia>> SearchSimilarImagesAsync(UserMedia userMedia, int container_id)
+        {
+            try
+            {
+                var searchTags = userMedia.Tags.Split("|").Where(w => w != "").Select(str => str.Substring(0, str.IndexOf(":"))).ToList();
+                var searchMedias = this._context.UserMediaTags.AsNoTracking()
+                                                    .Where(u => u.ContainerId.Equals(userMedia.ContainerId) && searchTags.Contains(u.Tag))
+                                                    .GroupBy(g => g.UserMediaName)
+                                                    .Select(s => new { UserMediaName = s.Key, Confidence = s.Sum(z => z.Confidence) })
+                                                    .OrderByDescending(z => z.Confidence)
+
+                                                    .Select(s => s.UserMediaName)
+                                                    .ToList();
+
+                var userMediaList = await this._context.UserMedia.AsNoTracking()
+                                                //.Include(u => u.TagsList)
+                                    .Where(u => u.ContainerId.Equals(container_id) && searchMedias.Contains(u.MediaFileName))
+                                    .Where(v => !v.MediaId.Equals(userMedia.MediaId)).ToListAsync();
+
+                return userMediaList;
+            }
+            catch(Exception)
+            {
+                throw;
+            }
+        }
+        
         public async Task DeleteFromUserMedia(UserMedia userMedia)
         {
             if (userMedia != null)
@@ -189,22 +235,6 @@ namespace nxPinterest.Services
                 string small = String.Format(blobFilePath, userContainerId, "small", blobFileName);
                 string thumb = String.Format(blobFilePath, userContainerId, "thumb", blobFileName);
 
-                //ファイル名は重複しないので不要では？
-                //// If same name file exist, change file name.
-                //_blobService.CreateContainerIfNotExistsAsync(ContainerName);
-                //var existFiles = _blobService.GetBlobFileList(ContainerName);
-                //if (existFiles.Result != null)
-                //{
-                //    foreach (var existfile in existFiles.Result)
-                //    {
-                //        if (fileName.Equals(existfile.ToString()))
-                //        {
-                //            //fileName = DateTime.Now.ToString("yyyyMMddHHmmssfff_") + fileName;
-                //            fileName = fileName + "_1";
-                //            break;
-                //        }
-                //    }
-                //}
 
                 // Upload file (no Validation)
                 //Stream imageStream = file.OpenReadStream();
@@ -261,9 +291,6 @@ namespace nxPinterest.Services
                     projectTags = request.ProjectTags.Trim().Replace("|",",");
                     Tags = request.ProjectTags.Trim().Replace(",", ":1.0:1|");
                     Tags += ":1.0:1|";
-
-                    // Create Model Tags Data
-
                 }
 
                 // Get tags by Computer Vision API
@@ -309,29 +336,54 @@ namespace nxPinterest.Services
                     userMedia.UserId = loggedInUserId;                                      
                     userMedia.MediaUrl = result.Result.Uri.ToString();                      
                     userMedia.MediaFileName = orgFileName;                          
-                    userMedia.MediaFileType = orgFileName.Split('.').Last();        
+                    userMedia.MediaFileType = blobFileName.Split('.').Last();        
                     userMedia.Tags = tagsString;
                     userMedia.MediaSmallUrl = small_result.Result.Uri.ToString();
                     userMedia.MediaThumbnailUrl = thumb_result.Result.Uri.ToString();
                     if (projectTags != null)
+                    {
                         userMedia.ProjectTags = projectTags;
                         userMedia.Tags += Tags;
-                }
-                catch (Exception)
-                {
-                    throw new Exception("タグ情報を整形できませんでした。ファイルは登録されません");
-                }
+                    }
+                //}
+                //catch (Exception)
+                //{
+                //    throw new Exception("タグ情報を整形できませんでした。ファイルは登録されません");
+                //}
 
-                // Save image info and tags data 
-                try
-                {
-                    // Add info image
+                //// Save image info and tags data 
+                //try
+                //{
                     userMedia.MediaTitle = request.Title;
                     userMedia.MediaDescription = request.Description;
                     userMedia.ContainerId = int.Parse(userContainerId);
                     userMedia.DateTimeUploaded = request.DateTimeUploaded;
 
                     _context.UserMedia.Add(userMedia);
+
+                    // tagテーブル
+                    foreach (var tag in tagsString.Split("|"))
+                    {
+                        if (tag == "") break;
+                        var tagstr = tag.Split(":");
+                        UserMediaTags userMediaTags = new UserMediaTags();
+                        userMediaTags.UserMediaName = orgFileName;
+                        userMediaTags.TagsType = 1;
+                        userMediaTags.Tag = tagstr[0];
+                        userMediaTags.Confidence = double.Parse(tagstr[1]);
+                        _context.UserMediaTags.Add(userMediaTags);
+                    }
+                    foreach (var tag in projectTags.Split(","))
+                    {
+                        if (tag == "") break;
+                        UserMediaTags userMediaTags = new UserMediaTags();
+                        userMediaTags.UserMediaName = orgFileName;
+                        userMediaTags.TagsType = 2;
+                        userMediaTags.Tag = tag;
+                        userMediaTags.Confidence = 1.0;
+                        _context.UserMediaTags.Add(userMediaTags);
+                    }
+                    // save
                     _context.SaveChanges();
                 }
                 catch (Exception)

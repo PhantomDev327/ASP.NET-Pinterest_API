@@ -1,5 +1,5 @@
 ﻿@using nxPinterest.Data.Models;
-@model nxPinterest.Services.Models.Response.UserMediaDetailViewModel
+@model nxPinterest.Services.Models.Response.UserMediaDetailModel
 @{
     ViewData["Title"] = "画像選択";
     Layout = "~/Views/Shared/_ImageLayout.cshtml";
@@ -67,18 +67,18 @@
 													string activeClass = userMediaThumbnail.MediaFileName.Equals(primary_image_detail.MediaFileName) ? "active" : "";
 
 													<div class="thumbnail-wrapper @activeClass" style="margin-left:4.5px!important">
-														<a href="@Url.Action("GetUserMediaDetails", "Home", new { media_id = @userMediaThumbnail.MediaId })">
+														<a href="@Url.Action("Details", "Home", new { media_id = @userMediaThumbnail.MediaId })">
 															<img src="@userMediaThumbnail.MediaThumbnailUrl" class="thumbnail" />
 														</a>
 													</div>
 												}*@
-												@for (int i = 0; i < Model.UserMediaList.Count(); i++)
+												@for (int i = 0; i < Model.SameTitleUserMediaList.Count(); i++)
 												{
-													var userMediaThumbnail = Model.UserMediaList[i];
+													var userMediaThumbnail = Model.SameTitleUserMediaList[i];
 													string activeClass = userMediaThumbnail.MediaFileName.Equals(primary_image_detail.MediaFileName) ? "active" : "";
 
 													<div class="thumbnail-wrapper @activeClass" style="margin-left:4.5px!important">
-														<a href="@Url.Action("GetUserMediaDetails", "Home", new { media_id = @userMediaThumbnail.MediaId })">
+														<a href="@Url.Action("Details", "Home", new { media_id = @userMediaThumbnail.MediaId })">
 															<img src="@userMediaThumbnail.MediaThumbnailUrl" class="thumbnail" />
 														</a>
 													</div>
@@ -184,7 +184,7 @@
  //       var newImgEl = document.createElement('img');
  //       newImgEl.addEventListener('load', function() {
  //           shortest = findShortestCol();
- //           shortest.append('<figure id="'+value.MediaId+'"><a href="/Home/GetUserMediaDetails?Media_id='+value.MediaId+'"><figcaption><p class="title">'+value.MediaTitle+'</p><p class="description">'+value.MediaDescription+'</p></figcaption></a></figure>');$('#'+value.MediaId+' a').append(newImgEl);
+ //           shortest.append('<figure id="'+value.MediaId+'"><a href="/Home/Details?Media_id='+value.MediaId+'"><figcaption><p class="title">'+value.MediaTitle+'</p><p class="description">'+value.MediaDescription+'</p></figcaption></a></figure>');$('#'+value.MediaId+' a').append(newImgEl);
  //       });
  //       newImgEl.setAttribute('src', value.MediaThumbnailUrl);
  //       newImgEl.setAttribute('alt', value.MediaFileName);
