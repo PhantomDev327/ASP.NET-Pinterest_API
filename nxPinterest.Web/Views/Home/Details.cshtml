@@ -1,0 +1,230 @@
+﻿@using nxPinterest.Data.Models;
+@model nxPinterest.Web.Models.DetailsViewModel
+@{
+    ViewData["Title"] = "画像選択";
+    Layout = "~/Views/Shared/_ImageLayout.cshtml";
+
+	UserMedia primary_image_detail = Model.UserMediaDetail;
+}
+
+<script src="~/lib/bootstrap-fileinput/js/fileinput.min.js" asp-append-version="true"></script>
+<script src="~/lib/bootstrap-tagsinput/bootstrap-tagsinput.min.js" asp-append-version="true"></script>
+<script src="~/lib/bootstrap-fileinput/js/locales/LANG.js" asp-append-version="true"></script>
+<div id="image-viewer-modal" tabindex="-1">
+	<div class="left-arrow-container arrow-key">
+		<a href="@Url.Action("Index", "Home", new { pageIndex = 1})">
+			<i class="fas fa-arrow-circle-left fa-3x"></i>
+		</a>
+	</div>
+	<div class="modal-image-viewer" role="document">
+			<div class="modal-content">
+				<div class="modal-body bg-white">
+					<div class="row">
+						<div class="col-12  col-md-6 image-detail-col">
+							<div class="content h-100">
+								<div class="row">
+									<div class="image-uploader-wrapper">
+										<figure>
+											<img src="@primary_image_detail.MediaSmallUrl" alt="@primary_image_detail.MediaFileName" class="main" id="main-image" style="max-height:initial!important"/>
+										</figure>
+									</div>
+								</div>
+								<div class="row">
+									<div class="slider">
+										<h6 style="color:#111111;margin-left: 0%;">Other images registered in &quot; @primary_image_detail.MediaTitle &quot;</h6>
+										<input type="radio" name="slide_switch" checked="checked" id="@primary_image_detail.MediaId" value="@primary_image_detail.MediaId"/>
+									    <label for="@primary_image_detail.MediaId" style="background-image:url('@primary_image_detail.MediaThumbnailUrl');">
+									        
+									    </label>
+									    @for (int i = 0; i < Model.SameTitleUserMediaList.Count(); i++)
+									    {
+											var userMediaThumbnail = Model.SameTitleUserMediaList[i];
+									        string activeClass = userMediaThumbnail.MediaFileName.Equals(primary_image_detail.MediaFileName) ? "active" : "";
+											string hide_lable = i > 13 ? "hide-lable" : "";
+
+											@if(userMediaThumbnail.MediaId != primary_image_detail.MediaId)
+											{
+												<input type="radio" name="slide_switch" id="@userMediaThumbnail.MediaId" value="@userMediaThumbnail.MediaId"/>
+												<label class="@hide_lable" for="@userMediaThumbnail.MediaId"  style="background-image:url('@userMediaThumbnail.MediaThumbnailUrl');">
+												    
+												</label>
+											}
+									    }
+										
+									</div>
+									@if (Model.SameTitleUserMediaList.Count() > 14) {
+											<input type="button" value="Show all" class="btn btn-default btn-save" id="show-all-btn">
+										}
+								</div>
+							</div>
+						</div>
+						<div class="col-12 col-md-6 image-detail-col">
+							<div class="">
+								<div class="content">
+									<div class="dots-image-container">
+										<a href="@Url.Action("GetUserMediaViewer", "Home", new { media_id = @primary_image_detail.MediaId })">
+											<i class="fas fa-ellipsis-h fa-2x" style="color:black"></i>
+										</a>
+									</div>
+									<h5 style="color:black; text-align: left;">@primary_image_detail.MediaTitle</h5>
+									<br />
+									<p class="media_desc" style="color:black;margin-left: 0%;">
+										@primary_image_detail.MediaDescription
+									</p>
+									<br />
+									<p class="text-black tag-text">Tag</p>
+									<div class="project_tags">
+										@foreach (var tag in @Model.project_tags_list){
+											var url = "/?searchKey=" + tag;
+											<a href="@url"><div style="display:inline-block;color:#fff;background-color: #343a40;padding:10px 20px 10px 20px;border-radius:3px;margin-right:7px;margin-bottom:7px;">@tag</div></a>
+										}
+									</div>
+
+									<input hidden asp-for="@primary_image_detail.MediaId" name="MediaId" />
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>			
+			</div>
+	</div>
+			
+	<div class="content gallery">
+		<br />
+		<h5>Similar images</h5>
+		<br/>
+		<div class="thumbnail-container" id="thumbnail-container">
+		</div>
+	</div>
+
+</div>
+
+<script>
+    window.page = 1;
+    window.images= new Array();   
+
+	$(document).ready(function() {
+        $(window).css('min-width',500);
+		initCol();
+        loadImg();
+		//reloadImage();
+        $(window).scroll(function() {
+            if($(window).scrollTop() + $(window).height() == $(document).height()) {
+                loadImg();
+            }
+        });
+        var timer = null;
+        $(window).on('resize', function(){
+            clearTimeout(timer); 
+            timer = setTimeout(function() {
+                reloadImage();
+            },500);
+        });
+    });
+
+	function filedelete(media_id) {
+		$.ajax({
+			url: "@Url.Action("DeleteUserMedia", "Home", new { media_id = Model.UserMediaDetail.MediaId })",
+            method: "Post",
+            data: { media_id },
+			processData: false,
+			contentType: false,
+			success: function (sResponse) {
+				window.location = '@Url.Action("Index","Home")';
+			}
+		});
+	}
+	$('#show-all-btn').on('click', function() {
+	    $('.slider label').removeClass('hide-lable');
+	    $(this).css('display', 'none');
+	});
+	$('.slider input').on('click', function() {
+	    var media_id = $(this).val();
+		$.ajax({
+	            url: "@Url.Action("DetailsAjax", "Home")",
+	            method: "Post",
+	            data: { media_id: media_id},
+	            success: function (sResult) {
+	                console.log(sResult);
+					$('#main-image').attr('src', sResult.userMediaDetail.mediaSmallUrl);
+	                $('.dots-image-container a').attr('href',"/Home/GetUserMediaViewer?media_id=" + sResult.userMediaDetail.mediaId);
+	                $('.image-detail-col h5').html(sResult.userMediaDetail.mediaTitle);
+					$('.image-detail-col .media_desc').html(sResult.userMediaDetail.mediaDescription);
+	                $('.project_tags').empty();
+					$.each(sResult.project_tags_list, function(index, value) {
+                        var url = '/' + "?searchKey=" + value;
+	                    $('.project_tags').append('<a href='+url+'><div style="display:inline-block;color:#fff;background-color: #343a40;padding:10px 20px 10px 20px;border-radius:3px;margin-right:7px;margin-bottom:7px;">'+value +'</div></a>');
+	                });
+	            }
+		});
+	});
+	//window.images= JSON.parse('@Html.Raw(@ViewBag.RelatedUserMediaList)');
+
+    function getColNum() {
+        var col_num = Math.floor($(window).width() / 264);
+        return col_num;
+    }
+    function initCol() {
+        $("#thumbnail-container").empty();
+        var col_num = getColNum();
+        var space = Math.floor(($(window).width() % 264)/2);
+        for (var i = 1; i <= col_num; i++) {
+            $('#thumbnail-container').append('<div id="column-'+i+'" class="image-col" style="position:absolute; width:264px; padding:8px;left:'+ (260 * (i - 1) + space) +'px;"></div>');
+        }
+    }
+
+    function loadImg() {
+		console.log($('#primary_image_detail_MediaId').val());
+		var media_id = $('#primary_image_detail_MediaId').val();
+        $.ajax({
+            url: "@Url.Action("getSimilarMedia", "Home")",
+            method: "Post",
+            data: { pageIndex: window.page, media_id: media_id, searchKey: $('#SearchKey').val() },
+            success: function (sResult) {
+                window.images.push( sResult.relatedUserMediaList );
+                $.each(sResult.relatedUserMediaList, function(index, value) {
+                    appendData(value);
+                });
+                window.page = window.page + 1;
+            }
+        });
+    }
+
+    function reloadImage() {
+        initCol();
+        window.images.forEach(function (data) {
+            //console.log(data);
+            appendData(data);
+        });        
+    }
+    function appendData(value) {
+        var newImgEl = document.createElement('img');
+        newImgEl.addEventListener('load', function() {
+            shortest = findShortestCol();
+            shortest.append('<figure id="'+value.mediaId+'"><a href="/Home/Details?media_id='+value.mediaId+'"><figcaption><p class="title">'+value.mediaTitle+'</p><p class="description">'+value.mediaDescription+'</p></figcaption></a></figure>');
+            $('#'+value.mediaId+' a').append(newImgEl);
+        });
+        newImgEl.setAttribute('src', value.mediaThumbnailUrl);
+        newImgEl.setAttribute('alt', value.mediaFileName);
+    }
+    function findShortestCol() {
+        var count = $("#thumbnail-container").children().length;
+        var shortest = $("#column-1");
+        for (var i = 1; i <= count; i++) {
+            if (Math.floor(shortest.height()) > Math.floor($("#column-"+ i +"").height())) {
+                shortest = $("#column-" + i + "");
+            }
+        }
+        return shortest;
+    }
+    function findShortestCol() {
+        var count = $("#thumbnail-container").children().length;
+        var shortest = $("#column-1");
+        for (var i = 1; i <= count; i++) {
+            if (Math.floor(shortest.height()) > Math.floor($("#column-"+ i +"").height())) {
+                shortest = $("#column-" + i + "");
+            }
+        }
+        return shortest;
+    }
+</script>

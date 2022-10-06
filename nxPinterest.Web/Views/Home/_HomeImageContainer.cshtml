@@ -1,5 +1,4 @@
-﻿@*@model IList<nxPinterest.Data.Models.UserMediaCosmosJSON>*@
-@model IList<nxPinterest.Data.Models.UserMedia>
+﻿@model IList<nxPinterest.Data.Models.UserMedia>
 
 <div class="content gallery" id="contentGallery">
     <div class="thumbnail-container" id="thumbnail-container">        
@@ -66,7 +65,7 @@
         var newImgEl = document.createElement('img');
         newImgEl.addEventListener('load', function() {
             shortest = findShortestCol();
-            shortest.append('<figure id="'+value.mediaId+'"><a href="/Home/GetUserMediaDetails?media_id='+value.mediaId+'"><figcaption><p class="title">'+value.mediaTitle+'</p><p class="description">'+value.mediaDescription+'</p></figcaption></a></figure>');
+            shortest.append('<figure id="'+value.mediaId+'"><a href="/Home/Details?media_id='+value.mediaId+'"><figcaption><p class="title">'+value.mediaTitle+'</p><p class="description">'+value.mediaDescription+'</p></figcaption></a></figure>');
             $('#'+value.mediaId+' a').append(newImgEl);
         });
         newImgEl.setAttribute('src', value.mediaThumbnailUrl);
@@ -98,7 +97,7 @@
     async function OnGetUserMediaDetails(media_id) {
         var promise = await new Promise(function (resolve, reject) {
             $.ajax({
-                url: "@Url.Action("GetUserMediaDetails", "Home")",
+                url: "@Url.Action("Details", "Home")",
                 method: "Post",
                 data: { media_id },
                 success: function (sResult) {
