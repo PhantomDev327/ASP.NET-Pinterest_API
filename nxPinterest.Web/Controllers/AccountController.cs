@@ -115,7 +115,7 @@ namespace nxPinterest.Web.Controllers
         // 画像登録
         public IActionResult ImageRegister()
         {
-            Models.ImageRegisterModel vm = new Models.ImageRegisterModel();
+            Models.ImageRegisterViewModel vm = new Models.ImageRegisterViewModel();
             return View(vm);
         }
 

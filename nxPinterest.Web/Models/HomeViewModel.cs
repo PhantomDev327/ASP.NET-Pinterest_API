@@ -10,8 +10,9 @@ namespace nxPinterest.Web.Models
     public class HomeViewModel
     {
         public string SearchKey { get; set; }
-        public Services.Models.Request.ImageRegistrationRequests ImageRegistrationRequests { get; set; } = new Services.Models.Request.ImageRegistrationRequests();
-        // OLD : SQL DB
+        //public Services.Models.Request.ImageRegistrationRequests ImageRegistrationRequests { get; set; } = new Services.Models.Request.ImageRegistrationRequests();
+        public ImageRegisterViewModel ImageRegistrationVM { get; set; } = new ImageRegisterViewModel();
+        
         public IList<Data.Models.UserMedia> UserMediaList { get; set; } = new List<Data.Models.UserMedia>();
 
         //// NEW : Cosmos DB
@@ -20,5 +21,7 @@ namespace nxPinterest.Web.Models
         public int TotalPages { get; set; }
         public int TotalRecords { get; set; }
         public virtual string Discriminator { get; set; }
+
+        public IList<string> TagsList { get; set; }
     }
 }
