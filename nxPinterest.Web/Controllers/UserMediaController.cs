@@ -58,26 +58,26 @@ namespace nxPinterest.Web.Controllers
 
             // 個別編集ボタンを押下
             if (request.BtnName == "kobetsu")
+            {
+                if (request.Images.Count == 0)
                 {
-                    if (request.Images.Count == 0)
-                    {
-                        return IndividualImageRegistration();
-                    }
-                    IndividualImageRegistrationRequests individual = new IndividualImageRegistrationRequests();
-                    foreach (var file in request.Images)
-                    {
-                        ImageInfo imageInfo = new ImageInfo();
-                        imageInfo.Images = file;
-                        imageInfo.Title = request.Title;
-                        imageInfo.Description = request.Description;
-                        imageInfo.ProjectTags = request.ProjectTags;
-                        imageInfo.PhotoTags = request.PhotoTags;
-                        imageInfo.DateTimeUploaded = request.DateTimeUploaded;
-                        individual.ImageInfoList.Add(imageInfo);
-                        CreateImageDirectory();
-                    }
-                    return UploadImageFileHidden(individual);
+                    return IndividualImageRegistration();
                 }
+                IndividualImageRegistrationRequests individual = new IndividualImageRegistrationRequests();
+                foreach (var file in request.Images)
+                {
+                    ImageInfo imageInfo = new ImageInfo();
+                    imageInfo.Images = file;
+                    imageInfo.Title = request.Title;
+                    imageInfo.Description = request.Description;
+                    imageInfo.ProjectTags = request.ProjectTags;
+                    imageInfo.PhotoTags = request.PhotoTags;
+                    imageInfo.DateTimeUploaded = request.DateTimeUploaded;
+                    individual.ImageInfoList.Add(imageInfo);
+                    CreateImageDirectory();
+                }
+                return UploadImageFileHidden(individual);
+            }
 
             // Store
             try
@@ -109,7 +109,7 @@ namespace nxPinterest.Web.Controllers
         /// <param name="request">Form Data</param>
         /// <returns></returns>
         [HttpPost]
-        public IActionResult UploadImageFile(IndividualImageRegistrationRequests request)
+        public IActionResult UploadIndividualMediaFile(IndividualImageRegistrationRequests request)
         {
             request.imageInfoListSize = request.ImageInfoList.Count;
             if (request.imageInfoListSize == 0)
@@ -137,14 +137,14 @@ namespace nxPinterest.Web.Controllers
                     request.ImageInfoList[i].Images = f;
                     file.Close();
                 }
-                _mediaManagementService.UploadImageFile(request, UserId);
+                _mediaManagementService.UploadIndividualMediaFile(request, UserId);
                 if (Directory.Exists(path))
                 {
                     foreach (string filename in Directory.GetFiles(path))
                     {
                         System.IO.File.Delete(filename);
                     }
-                    Directory.Delete(path);
+                    Directory.Delete(path, true);
                 }
             }
             catch (Exception ex)

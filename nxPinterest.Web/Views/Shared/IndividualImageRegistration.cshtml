@@ -30,11 +30,11 @@
       }
     </div>
     <h4>イメージ登録</h4>
-    <form class="text-color-white" method="post" enctype="multipart/form-data" asp-action="UploadImageFile" asp-controller="UserMedia" name="dropzoneForm" id="dropzoneForm">
+    <form class="text-color-white" method="post" enctype="multipart/form-data" asp-action="UploadIndividualMediaFile" asp-controller="UserMedia" name="dropzoneForm" id="dropzoneForm">
         <div class="image-upload-wrap">
             <input class="file-upload-input upload__inputfile" id="upload_file" type='file' multiple="" onchange="viewItemList();" accept="image/*" />
             <div class="drag-text">
-                <i class="bi bi-card-image image-icon"></i>&nbsp;<span>ファイルをドラッグ＆ドロップするか、クリックしてファイルを選択してください。</span>
+                <i class="bi bi-card-image image-icon"></i>@*&nbsp;<span>ファイルをドラッグ＆ドロップするか、クリックしてファイルを選択してください。</span>*@
             </div>
         </div>
         <div class="row mt-3 mb-5">
