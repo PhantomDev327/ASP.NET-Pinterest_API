@@ -18,7 +18,8 @@ namespace nxPinterest.Services.Interfaces
         Task<UserMediaDetailModel> GetUserMediaDetailsByIDAsync(int mediaId);
         Task DeleteFromUserMedia(UserMedia userMedia);
         //Task DeleteFromUserMedia(string media_id);
+        Task<IList<string>> GetOftenUseTagsAsyc(int containerId);
         public void UploadMediaFile(ImageRegistrationRequests request, string UserId);
-        public void UploadImageFile(IndividualImageRegistrationRequests request, string UserId);
+        public void UploadIndividualMediaFile(IndividualImageRegistrationRequests request, string UserId);
     }
 }
