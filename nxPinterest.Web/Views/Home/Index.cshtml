@@ -11,17 +11,14 @@
     bool hasPagination = Model.TotalRecords > nxPinterest.Services.dev_Settings.pageSize_regist;
 }
 
-
-@{
-    await Html.RenderPartialAsync("/Views/Shared/_ImageRegistration.cshtml", Model.ImageRegistrationRequests);
-}
-
+@*@{
+    await Html.RenderPartialAsync("/Views/Shared/_ImageRegistration.cshtml", Model.ImageRegistrationVM);
+}*@
 
 @{
     await Html.RenderPartialAsync("/Views/Home/_HomeImageContainer.cshtml", Model.UserMediaList);
 }
 
-
 @{
-    await Html.RenderPartialAsync("/Views/Shared/_ImageRegistration.cshtml", Model.ImageRegistrationRequests);
+    await Html.RenderPartialAsync("/Views/Shared/_ImageRegistration.cshtml", Model.ImageRegistrationVM);
 }

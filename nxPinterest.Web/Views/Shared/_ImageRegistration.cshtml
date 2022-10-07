@@ -1,4 +1,4 @@
-﻿@model nxPinterest.Services.Models.Request.ImageRegistrationRequests
+﻿@model ImageRegisterViewModel
 
 <div class="modal fade" id="image-registration-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-registration " role="document">
@@ -25,9 +25,9 @@
                     </div>
 
                     <div class="col-12 col-md-6">
-                        <input type="text" class="form-control input-control input-title px-0" placeholder="タイトル" asp-for="Title" />
+                        <input type="text" class="form-control input-control input-title px-0" placeholder="写真のタイトル" asp-for="Title" />
                         <div class="form-text text-danger mt-4">
-                            @Html.ValidationMessageFor(c => c.Title)
+                            @Html.ValidationMessageFor(c => c.Title)\
                         </div>
                         <input type="text" class="form-control input-control input-title px-0" placeholder="説明" asp-for="Description" />
                         <div class="form-text text-danger mt-4">
@@ -35,22 +35,23 @@
                         </div>
 
                         <div class="tag-control-container" id="style">
-                            <p class="tag-text" style="color: #adb5bd; ">Tags</p>
+                            <p class="tag-text" style="color: #adb5bd; ">タグ</p>
                             <input data-role="tagsinput" asp-for="ProjectTags" />
+                            <div class="project_tags" style="margin-top:10px;">
+		                        @foreach (var tag in @Model.SuggestTagsList){
+			                        <div onclick=addTags("@tag") style="display:inline-block;color:#4d4d4d;background-color: #F7F7F7;padding:10px 20px 10px 20px;border-radius:3px;margin-right:7px;margin-bottom:7px;">@tag</div>
+		                        }
+	                        </div>
                         </div>
-
-                        @*<div class="tag-control-container" id="style">
-                            <input data-role="tagsinput" disabled />
-                        </div>*@
-
+@*
                         <input hidden asp-for="PhotoTags" />
                         <input hidden asp-for="UserCreated" />
-                        <input hidden asp-for="DateTimeUploaded" />
+                        <input hidden asp-for="Uploaded" />
+*@                        
                         <div class="text-center">
                             <input type="button" value="写真を投稿" class="btn btn-default btn-save" id="upload_submit" form="dropzoneForm" />
                         </div> <br>
-                        <div class="text-center" style="margin-top:20px;margin-bottom:20px">
-                            @*<a href="/usermedia/individualimageregistration" style="color:#000;font-weight:bold; font-size:15px;">個別編集</a>*@
+                        <div class="text-center" style="margin-top:10px;margin-bottom:10px">
                             <input type="button" value="個別編集" id="kobetsu_submit" form="dropzoneForm" style="border-style: none; background: #fff; font-weight: bold;"/>
                         </div>
                     </div>
@@ -123,5 +124,7 @@
             done();
         }
     };
-
+    function addTags(value) {
+        $('#ProjectTags').tagsinput('add', value);
+    }
 </script>

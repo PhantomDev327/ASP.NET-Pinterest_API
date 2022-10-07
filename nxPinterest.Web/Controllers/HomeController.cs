@@ -48,7 +48,8 @@ namespace nxPinterest.Web.Controllers
         {
             HomeViewModel vm = new HomeViewModel();
 
-            nxPinterest.Services.CognitiveSearchService cognitiveSearchService = new Services.CognitiveSearchService();
+            //nxPinterest.Services.CognitiveSearchService cognitiveSearchService = new Services.CognitiveSearchService();
+
             List<ApplicationUser> user = this._context.Users.Where(c => c.Id.Equals(this.UserId)).ToList();
             if (user == null || user.Count == 0) return RedirectToAction("LogOut", "Account");
 
@@ -68,6 +69,12 @@ namespace nxPinterest.Web.Controllers
             vm.SearchKey = searchKey;
             vm.TotalRecords = totalRecordCount;
             vm.Discriminator = user[0].Discriminator;
+
+            //ホーム検索画面よく使用されているタグ候補
+            vm.TagsList = await this.userMediaManagementService.GetOftenUseTagsAsyc(user[0].container_id);
+
+            //登録画面で使用されているタグ候補
+            vm.ImageRegistrationVM.SuggestTagsList = vm.TagsList;
 
             return View(vm);
         }

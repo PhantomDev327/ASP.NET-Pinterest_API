@@ -27,6 +27,10 @@
         position: relative;
     }
 
+.project_tags {
+    padding-bottom: 10px;
+}
+
 img.company-banner {
     width: 300px;
     margin-right: 1rem;
@@ -299,7 +303,8 @@ img.company-banner {
         }
 
     .modal-registration .tag-control-container {
-        padding-bottom: 5%;
+        /*padding-bottom: 5%;*/
+        padding-bottom: 10px;
     }
 
 .dropzone {
