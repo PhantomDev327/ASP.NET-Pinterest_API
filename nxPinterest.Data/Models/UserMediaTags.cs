@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace nxPinterest.Data.Models
@@ -12,5 +13,6 @@ namespace nxPinterest.Data.Models
         public int TagsType { get; set; }
         public string Tag { get; set; }
         public double Confidence { get; set; }
+        public DateTime Created { get; set; }
     }
 }

@@ -13,11 +13,15 @@ namespace nxPinterest.Data.Models
         public string MediaFileName { get; set; }
         public string MediaFileType { get; set; }
         public string MediaUrl { get; set; }
-        public string Tags { get; set; } // generated photo tags　※未使用化　todo
+        public string Tags { get; set; }
         public string ProjectTags { get; set; } // generated ProjectTags　※未使用化　todo
         public string MediaSmallUrl { get; set; }
         public string MediaThumbnailUrl { get; set; }
         public int ContainerId { get; set; }
+        public DateTime Created { get; set; }
+        public DateTime? Updated { get; set; }
+        public DateTime? Deleted { get; set; }
+        public byte Status { get; set; }
 
         [NotMapped]
         public List<UserMediaTags> TagsList { get; set; } // New Tags

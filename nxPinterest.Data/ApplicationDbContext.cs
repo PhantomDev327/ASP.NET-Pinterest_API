@@ -71,6 +71,19 @@ namespace nxPinterest.Data
                     .IsUnicode(false)
                     .HasColumnName("media_file_type");
 
+                entity.Property(e => e.Created)
+                    .HasDefaultValueSql("getdate()")
+                    .HasColumnName("media_created");
+
+                entity.Property(e => e.Updated)
+                    .HasColumnName("media_updated");
+
+                entity.Property(e => e.Deleted)
+                    .HasColumnName("media_deleted");
+
+                entity.Property(e => e.Status)
+                    .HasColumnName("media_status");
+
                 entity.Property(e => e.DateTimeUploaded)
                     .HasDefaultValueSql("getdate()");
 
@@ -116,6 +129,9 @@ namespace nxPinterest.Data
                 entity.Property(e => e.Confidence)
                     .HasColumnName("confidence");
 
+                entity.Property(e => e.Created)
+                   .HasDefaultValueSql("getdate()")
+                   .HasColumnName("tags_created");
             });
 
 
