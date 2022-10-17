@@ -173,16 +173,23 @@ namespace nxPinterest.Services
             }
         }
         
-        public async Task DeleteFromUserMedia(UserMedia userMedia)
+        public async Task DeleteFromUserMediaList(List<UserMedia> userMediaList)
         {
-            if (userMedia != null)
+            if (userMediaList != null)
             {
-                var userMediaList = await this._context.UserMedia.AsNoTracking()
-                                         .Where(c => c.MediaFileName.Equals(userMedia.MediaFileName))
-                                         .ToListAsync();
+                ////var userMediaList = await this._context.UserMedia.AsNoTracking()
+                ////                         .Where(c => c.MediaFileName.Equals(userMedia.MediaFileName))
+                ////                         .ToListAsync();
+                //this._context.UserMedia.RemoveRange(userMediaList);
+                //await this._context.SaveChangesAsync();
 
-
-                this._context.UserMedia.RemoveRange(userMediaList);
+                //deleteから論理削除へ
+                foreach (var userMedia in userMediaList)
+                {
+                    userMedia.Status = 9;
+                    userMedia.Deleted = DateTime.Now;
+                }
+                _context.UserMedia.UpdateRange(userMediaList);
                 await this._context.SaveChangesAsync();
             }
         }
@@ -347,8 +354,13 @@ namespace nxPinterest.Services
                     }
 
                     userMedia.MediaTitle = request.Title;
-                    userMedia.MediaDescription = request.Description;
+                    userMedia.MediaDescription = request.Description ?? "";
                     userMedia.ContainerId = int.Parse(userContainerId);
+
+                    userMedia.Created = DateTime.Now;
+                    userMedia.Status = 0;
+
+
                     userMedia.DateTimeUploaded = request.DateTimeUploaded;
 
                     _context.UserMedia.Add(userMedia);
@@ -356,6 +368,7 @@ namespace nxPinterest.Services
                     // tagテーブル titleもtag
                     UserMediaTags userMediaTags = new UserMediaTags();
                     userMediaTags.UserMediaName = orgFileName;
+                    userMediaTags.ContainerId = userMedia.ContainerId;
                     userMediaTags.TagsType = 0;
                     userMediaTags.Tag = userMedia.MediaTitle;
                     userMediaTags.Confidence = 1.0;
