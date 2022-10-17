@@ -1,4 +1,4 @@
-﻿@model nxPinterest.Web.Models.HomeViewModel
+﻿@model HomeViewModel
 
 <!DOCTYPE html>
 <html lang="en">
@@ -35,6 +35,9 @@
     <script src="~/lib/Hyper_v4.4/Bootstrap_5x/hyper/dist/modern/assets/js/app.min.js"></script>
 
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <link rel="stylesheet" href="~/css/multi_select_by_mouse.css" />
+
     <style>
         .dropdown {
           position: relative;
@@ -62,49 +65,112 @@
 <body class="loading" data-layout="detached" data-layout-config='{"leftSidebarCondensed":false,"darkMode":false, "showRightSidebarOnStart": true}'>
     
     <!-- Topbar Start -->
-    <div class="navbar navbar-header d-flex justify-content-end" style="padding-right:30px;padding-bottom: 30px;">
-        @{
-        if (@Model.Discriminator == "ContainerAdmin")
-        {
-                <div style="margin-right:30px">
-                <a href="@Url.Action("NormalUserList", "account")" style="color:#fff">
-                    <i class="bi bi-card-checklist" data-toggle="tooltip" data-placement="bottom" title="ユーザ一覧" style=""></i>&nbsp;&nbsp;ユーザ一覧
+    <div class="navbar navbar-header d-flex justify-content-end">
+        <div class="container-fluid">
+            <div class="row">
+                <a class="col navbar-brand" href="@Url.Action("Index", "Home")">
+                    <img id="logo" src="/images/banner.png">
+                    <img id="logo-mobile" src="/images/banner-mobile.png">
                 </a>
+                <input class="custom-range w-25 col" type="range">
+
+                <div class="input-group col w-auto">
+                    <div class="input-group-append position-relative">
+                        <button type="button" class="btn btn-search position-absolute" autofocus>
+                            <i class="fas fa-search icon-search"></i>
+                        </button>
+                    </div>
+                    <input type="text" id="SearchKey" class="form-control m-0 px-4 rounded" placeholder="検索" asp-for="SearchKey" autocomplete="off"/>
                 </div>
-        }
-        }
-        <div class="dropdown">
-            <i class="bi bi-person-circle"></i>
+            </div>
+
+            <div class="my-1">
+                <span id="selectedImageNumberShow"></span>
+                <a onclick="RegiterUserMediaFile();" id="uploadMedia" title="アップロード">
+                    <i class="bi bi-cloud-upload fa-lg px-2"></i>
+                </a>
+                <a onclick="createUserMediaFolder();" id="createMediaFolder" title="アルバムに追加" class="disabled-link">
+                    <i class="bi bi-folder-plus fa-lg px-2"></i>
+                </a>
+                <a onclick="shareUserMediaFile();" id="shareMedia" title="共有" class="disabled-link">
+                    <i class="bi bi-box-arrow-up fa-lg px-2"></i>
+                </a>
+                <a onclick="downloadUserMediaFile();" id="downloadMedia" title="ダウンロード" class="disabled-link">
+                    <i class="bi bi-cloud-download fa-lg px-2"></i>
+                </a>
+                <a onclick="deleteUserMediaFile();" id="deleteMedia" title="ゴミ箱" class="disabled-link">
+                    <i class="bi bi-trash fa-lg px-2"></i>
+                </a>
                 @{
-                    if(@ViewBag.UserDispName == null || @ViewBag.UserDispName.Trim() == "")
+                if (@Model.Discriminator == "ContainerAdmin")
                     {
-                               <span style="padding-left:5px;padding-right:60px"></span>
-                    }
-                    else
-                    {
-                                <span style="padding-left:5px;padding-right:10px">@ViewBag.UserDispName</span>
+                        <a href="@Url.Action("NormalUserList", "account")" style="color:#fff">
+                            <i class="bi bi-card-checklist px-2" data-toggle="tooltip" data-placement="bottom" title="ユーザ一覧" style=""></i>&nbsp;&nbsp;ユーザ一覧
+                        </a>
                     }
                 }
-            <i class="bi bi-chevron-down"></i>
-            <div class="dropdown-content">
-                <a href="@Url.Action("ChangePassword", "account")">パスワード変更</a>
-                <a href="@Url.Action("LogOut", "account")">ログアウト</a>
+                <div class="dropdown px-2">
+                    <i class="bi bi-person-circle"></i>
+                        @{
+                            if(@ViewBag.UserDispName == null)
+                            {
+                                <span class="px-1"></span>
+                            }
+                            else
+                            {
+                                <span class="px-1">@ViewBag.UserDispName</span>
+                            }
+                        }
+                    <i class="bi bi-chevron-down"></i>
+                    <div class="dropdown-content">
+                        <a href="@Url.Action("ChangePassword", "account")">パスワード変更</a>
+                        <a href="@Url.Action("LogOut", "account")">ログアウト</a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
-
-    <div class="navbar-custom topnav-navbar topnav-navbar-dark d-flex align-items-center" style="z-index:5">
-        <div class="mx-3 m-0 w-100">
-            <div class="page-header px-0" id="logo-search">
-                <div class="company-banner-wrapper">
-                    <a href="@Url.Action("Index", "Home")">
-                        @*<img id="logo" class="company-banner" src="~/images/banner.png" />
-                        <img id="logo-mobile" src="~/images/banner-mobile.png" />logo-mobile*@
-                        <img id="logo" style="max-height: 36px;" src="~/images/logo-mobile.png" />
-                        @*<img id="logo-mobile" src="~/images/logo-mobile.png" />*@
-                    </a>
+@*    <div class="navbar navbar-header d-flex justify-content-end">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="@Url.Action("Index", "Home")">
+                <img id="logo" src="~/images/banner.png" />
+                <img id="logo-mobile" src="~/images/banner-mobile.png" />
+            </a>
+            @{
+            if (@Model.Discriminator == "ContainerAdmin")
+                {
+                    <div style="margin-right:30px">
+                        <a href="@Url.Action("NormalUserList", "account")" style="color:#fff">
+                            <i class="bi bi-card-checklist" data-toggle="tooltip" data-placement="bottom" title="ユーザ一覧" style=""></i>&nbsp;&nbsp;ユーザ一覧
+                        </a>
+                    </div>
+                }
+            }
+            <div class="dropdown">
+                <i class="bi bi-person-circle"></i>
+                    @{
+                        if(@ViewBag.UserDispName == null || @ViewBag.UserDispName.Trim() == "")
+                        {
+                            <span style="padding-left:5px;padding-right:60px"></span>
+                        }
+                        else
+                        {
+                            <span style="padding-left:5px;padding-right:10px">@ViewBag.UserDispName</span>
+                        }
+                    }
+                <i class="bi bi-chevron-down"></i>
+                <div class="dropdown-content">
+                    <a href="@Url.Action("ChangePassword", "account")">パスワード変更</a>
+                    <a href="@Url.Action("LogOut", "account")">ログアウト</a>
                 </div>
+            </div>
+        </div>
+    </div>
+*@
+
+    <div id="navbarSearchAndTag" class="navbar-custom topnav-navbar topnav-navbar-dark d-flex align-items-center" style="z-index:5">
+        <div class="mx-3 m-0 w-100">
+            @*<div class="page-header px-0" id="logo-search">
                 <div id="search-bar">
                     <div class="input-group">
                         <div class="input-group-append position-relative">
@@ -115,9 +181,9 @@
                         <input type="text" id="SearchKey" class="form-control m-0 px-4 rounded" placeholder="検索" asp-for="SearchKey" autocomplete="off"/>
                     </div>
                 </div>
-            </div>
-   	        <div class="project_tags">
-                <p>Often use tags</p>
+            </div>*@
+   	        <div class="project_tags m-1">
+                @*<p>Often use tags</p>*@<p>よく使うタグ</p>
 		        @foreach (var tag in @Model.TagsList){
 			        <div onclick=addTags("@tag") style="display:inline-block;color:#4d4d4d;background-color: #F7F7F7;padding:10px 20px 10px 20px;border-radius:3px;margin-right:7px;margin-bottom:7px;">@tag</div>
 		        }
@@ -131,9 +197,13 @@
     </div>
 
     <!-- Start Content-->
-    <div class="m-3">
-         @RenderBody()
+    @*<div id="blockGallery">
+        <div class="m-3">
+             @RenderBody()
+        </div>
     </div>
+*@
+     @RenderBody()
 
     <div class="add-image-container">
         <a onclick="RegiterUserMediaFile();">
@@ -201,5 +271,10 @@
             $('#SearchKey').val(searchKey);
         }
     </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip-utils/0.0.2/jszip-utils.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
+    <script src="~/js/multi_select_by_mouse.js" asp-append-version="true"></script>
 </body>
 </html>

@@ -3,7 +3,7 @@
     background-color: #000;
 }
 
-.navbar-header {
+/*.navbar-header {
     position: relative;
     height: 30px;
     background: #5a5e64;
@@ -13,7 +13,7 @@
         position: absolute;
         right: 20px;
         top: 30%;
-    }
+    }*/
 
 .page-header {
     background-color: #343a40;

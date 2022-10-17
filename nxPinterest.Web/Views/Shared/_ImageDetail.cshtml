@@ -4,7 +4,7 @@
     ViewData["Title"] = "画像選択";
     Layout = "~/Views/Shared/_ImageLayout.cshtml";
 
-	UserMedia primary_image_detail = Model.UserMediaDetail;
+	UserMedia userMedia = Model.UserMediaDetail;
 }
 
 <script src="~/lib/bootstrap-fileinput/js/fileinput.min.js" asp-append-version="true"></script>
@@ -25,24 +25,25 @@
 								<div class="row">
 									<div class="image-uploader-wrapper">
 										<figure>
-											<img src="@primary_image_detail.MediaSmallUrl" alt="@primary_image_detail.MediaFileName" class="main" id="main-image" style="max-height:initial!important"/>
+											<img src="@userMedia.MediaSmallUrl" alt="@userMedia.MediaFileName" class="main" id="main-image" style="max-height:initial!important"/>
 										</figure>
 									</div>
 								</div>
 								<div class="row">
 									<div class="slider">
-										<h6 style="color:#111111;margin-left: 0%;">Other images registered in &quot; @primary_image_detail.MediaTitle &quot;</h6>
-										<input type="radio" name="slide_switch" checked="checked" id="@primary_image_detail.MediaId" value="@primary_image_detail.MediaId"/>
-									    <label for="@primary_image_detail.MediaId" style="background-image:url('@primary_image_detail.MediaThumbnailUrl');">
+										@*<h6 style="color:#111111;margin-left: 0%;">Other images registered in &quot; @userMedia.MediaTitle &quot;</h6>*@
+										<h6 style="color:#111111;margin-left: 0%;">&quot; @userMedia.MediaTitle &quot; で登録されている他の画像 </h6>
+										<input type="radio" name="slide_switch" checked="checked" id="@userMedia.MediaId" value="@userMedia.MediaId"/>
+									    <label for="@userMedia.MediaId" style="background-image:url('@userMedia.MediaThumbnailUrl');">
 									        
 									    </label>
 									    @for (int i = 0; i < Model.SameTitleUserMediaList.Count(); i++)
 									    {
 											var userMediaThumbnail = Model.SameTitleUserMediaList[i];
-									        string activeClass = userMediaThumbnail.MediaFileName.Equals(primary_image_detail.MediaFileName) ? "active" : "";
+									        string activeClass = userMediaThumbnail.MediaFileName.Equals(userMedia.MediaFileName) ? "active" : "";
 											string hide_lable = i > 13 ? "hide-lable" : "";
 
-											@if(userMediaThumbnail.MediaId != primary_image_detail.MediaId)
+											@if(userMediaThumbnail.MediaId != userMedia.MediaId)
 											{
 												<input type="radio" name="slide_switch" id="@userMediaThumbnail.MediaId" value="@userMediaThumbnail.MediaId"/>
 												<label class="@hide_lable" for="@userMediaThumbnail.MediaId"  style="background-image:url('@userMediaThumbnail.MediaThumbnailUrl');">
@@ -62,14 +63,14 @@
 							<div class="">
 								<div class="content">
 									<div class="dots-image-container">
-										<a href="@Url.Action("GetUserMediaViewer", "Home", new { media_id = @primary_image_detail.MediaId })">
+										<a href="@Url.Action("GetUserMediaViewer", "Home", new { media_id = @userMedia.MediaId })">
 											<i class="fas fa-ellipsis-h fa-2x" style="color:black"></i>
 										</a>
 									</div>
-									<h5 style="color:black; text-align: left;">@primary_image_detail.MediaTitle</h5>
+									<h5 style="color:black; text-align: left;">@userMedia.MediaTitle</h5>
 									<br />
 									<p class="media_desc" style="color:black;margin-left: 0%;">
-										@primary_image_detail.MediaDescription
+										@userMedia.MediaDescription
 									</p>
 									<br />
 									<p class="text-black tag-text">Tag</p>
@@ -80,7 +81,7 @@
 										}
 									</div>
 
-									<input hidden asp-for="@primary_image_detail.MediaId" name="MediaId" />
+									<input hidden asp-for="@userMedia.MediaId" name="MediaId" />
 								</div>
 							</div>
 						</div>
@@ -91,7 +92,7 @@
 			
 	<div class="content gallery">
 		<br />
-		<h5>Similar images</h5>
+		@*<h5>Similar images</h5>*@<h5>似ている画像</h5>
 		<br/><br />
 		<div class="thumbnail-container" id="thumbnail-container">
 		</div>
@@ -173,8 +174,9 @@
     function appendData(value) {
         var newImgEl = document.createElement('img');
         newImgEl.addEventListener('load', function() {
-            shortest = findShortestCol();
-            shortest.append('<figure id="'+value.MediaId+'"><a href="/Home/Details?Media_id='+value.MediaId+'"><figcaption><p class="title">'+value.MediaTitle+'</p><p class="description">'+value.MediaDescription+'</p></figcaption></a></figure>');$('#'+value.MediaId+' a').append(newImgEl);
+			shortest = findShortestCol();
+            shortest.append('<figure id="'+value.mediaId+'"><figcaption><p class="title">'+value.mediaTitle+'</p><p class="description">'+value.mediaDescription+'</p></figcaption></figure>');
+            $('#'+value.mediaId).append(newImgEl);
         });
         newImgEl.setAttribute('src', value.MediaThumbnailUrl);
         newImgEl.setAttribute('alt', value.MediaFileName);

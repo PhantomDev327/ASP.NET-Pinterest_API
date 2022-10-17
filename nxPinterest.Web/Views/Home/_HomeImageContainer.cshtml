@@ -1,7 +1,11 @@
 ﻿@model IList<nxPinterest.Data.Models.UserMedia>
 
-<div class="content gallery" id="contentGallery">
-    <div class="thumbnail-container" id="thumbnail-container">        
+<div id="blockGallery">
+    <div class="m-3">
+        <div class="content gallery" id="contentGallery">
+            <div class="thumbnail-container" id="thumbnail-container">
+            </div>
+        </div>
     </div>
 </div>
 
@@ -65,11 +69,12 @@
         var newImgEl = document.createElement('img');
         newImgEl.addEventListener('load', function() {
             shortest = findShortestCol();
-            shortest.append('<figure id="'+value.mediaId+'"><a href="/Home/Details?media_id='+value.mediaId+'"><figcaption><p class="title">'+value.mediaTitle+'</p><p class="description">'+value.mediaDescription+'</p></figcaption></a></figure>');
-            $('#'+value.mediaId+' a').append(newImgEl);
+            shortest.append('<figure id="'+value.mediaId+'"><figcaption><p class="title">'+value.mediaTitle+'</p><p class="description">'+value.mediaDescription+'</p></figcaption></figure>');
+            $('#'+value.mediaId).append(newImgEl);
         });
         newImgEl.setAttribute('src', value.mediaThumbnailUrl);
         newImgEl.setAttribute('alt', value.mediaFileName);
+        newImgEl.setAttribute('data-media-url', value.mediaUrl);
     }
     function findShortestCol() {
         var count = $("#thumbnail-container").children().length;

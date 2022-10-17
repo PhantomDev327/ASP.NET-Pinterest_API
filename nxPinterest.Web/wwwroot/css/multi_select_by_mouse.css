@@ -1,0 +1,54 @@
+.multiImageSelect-noselect { 
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+#multiImageSelect-area {
+    position: absolute;
+    z-index: 9999;
+    border: 2px solid #f1f1f1;
+    background-color: #e5e5e5;
+    opacity: 0.5;
+}
+
+#blockGallery {
+    width: 100%;
+    position: absolute;
+    overflow: auto;
+    min-height: 100% !important;
+    height: auto;
+}
+
+#blockGallery::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+figure.selection-border {
+    outline: 3px solid #2679fb;
+    transition: outline-offset 1ms ease;
+}
+
+.disabled-link {
+    pointer-events: none;
+    cursor: default;
+    text-decoration: none;
+    color: #c3c3c3;
+}
+
+.active-link {
+    color: white;
+}
+
+.thumbnail-container figure:hover .title {
+    z-index: 1;
+}
+
+.thumbnail-container figure .description {
+    z-index: 1;
+}
