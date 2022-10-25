@@ -22,7 +22,7 @@ namespace nxPinterest.Web.Models
         public IList<string> project_tags_list {
             get
             {
-                return UserMediaDetail.ProjectTags.Split(",");
+                return UserMediaDetail.ProjectTags != null ? UserMediaDetail.ProjectTags.Split(",") : new List<string>();
             }
         }
     }

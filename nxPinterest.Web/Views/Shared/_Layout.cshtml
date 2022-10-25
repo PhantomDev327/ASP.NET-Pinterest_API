@@ -1,7 +1,7 @@
 ﻿@model HomeViewModel
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,9 +10,14 @@
     <!-- App favicon -->
     <link rel="shortcut icon" href="~/images/favicon.png">
 
+@*    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>*@
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+@*
     <!-- App css -->
     <link href="~/lib/Hyper_v4.4/Bootstrap_5x/hyper/dist/modern/assets/css/icons.min.css" rel="stylesheet" />
-    <link href="~/lib/Hyper_v4.4/Bootstrap_5x/hyper/dist/modern/assets/css/app-modern.min.css" rel="stylesheet" />
+    <link href="~/lib/Hyper_v4.4/Bootstrap_5x/hyper/dist/modern/assets/css/app-modern.min.css" rel="stylesheet" />*@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.min.css" crossorigin="anonymous">
     <link href="~/lib/font-awesome-5/css/all.css" rel="stylesheet" />
@@ -30,13 +35,15 @@
     <link href="~/lib/dropzone/css/basic.css" rel="stylesheet" type="text/css" />
     <link href="~/lib/dropzone/css/dropzone.css" rel="stylesheet" type="text/css" />
 
-    <!-- bundle -->
+    @*<!-- bundle -->
     <script src="~/lib/Hyper_v4.4/Bootstrap_5x/hyper/dist/modern/assets/js/vendor.min.js"></script>
-    <script src="~/lib/Hyper_v4.4/Bootstrap_5x/hyper/dist/modern/assets/js/app.min.js"></script>
+    <script src="~/lib/Hyper_v4.4/Bootstrap_5x/hyper/dist/modern/assets/js/app.min.js"></script>*@
 
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     <link rel="stylesheet" href="~/css/multi_select_by_mouse.css" />
+    
+    <script src="https://cdn.jsdelivr.net/clipboard.js/1.5.3/clipboard.min.js"></script>
 
     <style>
         .dropdown {
@@ -63,218 +70,160 @@
     </style>
 </head>
 <body class="loading" data-layout="detached" data-layout-config='{"leftSidebarCondensed":false,"darkMode":false, "showRightSidebarOnStart": true}'>
-    
-    <!-- Topbar Start -->
-    <div class="navbar navbar-header d-flex justify-content-end">
+    <div class="navbar navbar-header d-flex justify-content-end fixed-top bg-dark">
         <div class="container-fluid">
-            <div class="row">
-                <a class="col navbar-brand" href="@Url.Action("Index", "Home")">
-                    <img id="logo" src="/images/banner.png">
+            <div class="d-flex align-items-center w-50">
+
+                <a class="navbar-brand mx-2" href="@Url.Action("Index", "Home")">
+                    @*<img id="logo" src="/images/banner.png">*@
+                    <img id="logo" src="/images/banner-mobile.png">
                     <img id="logo-mobile" src="/images/banner-mobile.png">
                 </a>
-                <input class="custom-range w-25 col" type="range">
 
-                <div class="input-group col w-auto">
-                    <div class="input-group-append position-relative">
+                <nav class="navbar navbar-dark bg-dark">
+                    <div class="container-fluid">
+                        <button
+                            type="button"
+                            class="btn btn-dark py-0"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#navbarSearchAndTag"
+                            aria-controls="navbarSearchAndTag"
+                            aria-expanded="false"
+                            aria-label="Toggle navigation">
+                        <i class="bi bi-layout-sidebar fa-lg"></i>
+                        </button>
+                    </div>
+                </nav>
+
+                <div class="form-inline mx-2">
+                    <div class="col range-area">
+                        <span onclick="changeZoomOut();">
+                            <i class="bi bi-dash fa-lg"></i>
+                        </span>
+                        <input class="form-range range-custom w-50 h-50" id="changeZoomRange" type="range" min="0" max="6" step="1" onchange="changeZoom()">
+                        @*<input class="form-range w-50" id="changeZoomRange" type="range" min="0" max="6" step="1" onchange="changeZoom()">*@
+                        <span onclick="changeZoomIn();">
+                            <i class="bi bi-plus fa-lg"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="form-inline mx-2 w-50">
+    @*                    <div class="input-group-append position-relative">
                         <button type="button" class="btn btn-search position-absolute" autofocus>
                             <i class="fas fa-search icon-search"></i>
                         </button>
-                    </div>
-                    <input type="text" id="SearchKey" class="form-control m-0 px-4 rounded" placeholder="検索" asp-for="SearchKey" autocomplete="off"/>
+                    </div>*@
+                    <input type="text" id="SearchKey" class="form-control m-0 px-2 rounded" placeholder="検索" asp-for="SearchKey" autocomplete="off"/>
                 </div>
-            </div>
 
+            </div>
             <div class="my-1">
                 <span id="selectedImageNumberShow"></span>
-                <a onclick="RegiterUserMediaFile();" id="uploadMedia" title="アップロード">
+                <span onclick="RegiterUserMediaFile();" id="uploadMedia" title="アップロード">
                     <i class="bi bi-cloud-upload fa-lg px-2"></i>
-                </a>
-                <a onclick="createUserMediaFolder();" id="createMediaFolder" title="アルバムに追加" class="disabled-link">
+                </span>
+                <span onclick="createUserMediaFolder();" id="createMediaFolder" title="アルバムに追加" class="disabled-link">
                     <i class="bi bi-folder-plus fa-lg px-2"></i>
-                </a>
-                <a onclick="shareUserMediaFile();" id="shareMedia" title="共有" class="disabled-link">
+                </span>
+                <span onclick="shareUserMediaFile();" id="shareMedia" title="共有" class="disabled-link">
                     <i class="bi bi-box-arrow-up fa-lg px-2"></i>
-                </a>
-                <a onclick="downloadUserMediaFile();" id="downloadMedia" title="ダウンロード" class="disabled-link">
+                </span>
+                <span onclick="downloadUserMediaFile();" id="downloadMedia" title="ダウンロード" class="disabled-link">
                     <i class="bi bi-cloud-download fa-lg px-2"></i>
-                </a>
-                <a onclick="deleteUserMediaFile();" id="deleteMedia" title="ゴミ箱" class="disabled-link">
+                </span>
+                <span onclick="showDeleteConfirmDialog();" id="deleteMedia" title="ゴミ箱" class="disabled-link">
                     <i class="bi bi-trash fa-lg px-2"></i>
-                </a>
+                </span>
+
                 @{
+                if (@Model.Discriminator == "SysAdmin")
+                    {
+                        <a href="@Url.Action("UserContainerList", "account")" style="color:#fff">
+                            <i class="bi bi-bag-check px-2" data-toggle="tooltip" data-placement="bottom" title="コンテナを登録" style=""></i>/*&nbsp;&nbsp;コンテナ一覧*/
+                        </a>
+                    }
                 if (@Model.Discriminator == "ContainerAdmin")
                     {
                         <a href="@Url.Action("NormalUserList", "account")" style="color:#fff">
-                            <i class="bi bi-card-checklist px-2" data-toggle="tooltip" data-placement="bottom" title="ユーザ一覧" style=""></i>&nbsp;&nbsp;ユーザ一覧
+                            <i class="bi bi-card-checklist px-2" data-toggle="tooltip" data-placement="bottom" title="ユーザ一を登録" style=""></i>/*&nbsp;&nbsp;ユーザ一覧*/
                         </a>
                     }
                 }
                 <div class="dropdown px-2">
-                    <i class="bi bi-person-circle"></i>
+                    <div data-toggle="dropdown" aria-expanded="false">
+@*                        <i class="bi bi-person-circle"></i>*@
                         @{
-                            if(@ViewBag.UserDispName == null)
-                            {
-                                <span class="px-1"></span>
-                            }
-                            else
-                            {
-                                <span class="px-1">@ViewBag.UserDispName</span>
-                            }
+                            <span class="px-1">@ViewBag.UserDispName</span>
+                            //if(@ViewBag.UserDispName == null)
+                            //{
+                            //    <span class="px-1"></span>
+                            //}
+                            //else
+                            //{
+                            //    <span class="px-1">@ViewBag.UserDispName</span>
+                            //}
                         }
-                    <i class="bi bi-chevron-down"></i>
-                    <div class="dropdown-content">
-                        <a href="@Url.Action("ChangePassword", "account")">パスワード変更</a>
-                        <a href="@Url.Action("LogOut", "account")">ログアウト</a>
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="@Url.Action("ChangePassword", "account")">パスワード変更</a>
+                        <a class="dropdown-item" href="@Url.Action("LogOut", "account")">ログアウト</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-@*    <div class="navbar navbar-header d-flex justify-content-end">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="@Url.Action("Index", "Home")">
-                <img id="logo" src="~/images/banner.png" />
-                <img id="logo-mobile" src="~/images/banner-mobile.png" />
-            </a>
-            @{
-            if (@Model.Discriminator == "ContainerAdmin")
-                {
-                    <div style="margin-right:30px">
-                        <a href="@Url.Action("NormalUserList", "account")" style="color:#fff">
-                            <i class="bi bi-card-checklist" data-toggle="tooltip" data-placement="bottom" title="ユーザ一覧" style=""></i>&nbsp;&nbsp;ユーザ一覧
-                        </a>
-                    </div>
-                }
-            }
-            <div class="dropdown">
-                <i class="bi bi-person-circle"></i>
-                    @{
-                        if(@ViewBag.UserDispName == null || @ViewBag.UserDispName.Trim() == "")
-                        {
-                            <span style="padding-left:5px;padding-right:60px"></span>
-                        }
-                        else
-                        {
-                            <span style="padding-left:5px;padding-right:10px">@ViewBag.UserDispName</span>
-                        }
-                    }
-                <i class="bi bi-chevron-down"></i>
-                <div class="dropdown-content">
-                    <a href="@Url.Action("ChangePassword", "account")">パスワード変更</a>
-                    <a href="@Url.Action("LogOut", "account")">ログアウト</a>
-                </div>
-            </div>
-        </div>
-    </div>
-*@
+	<!--    <div class="collapse" id="navbarToggleExternalContent">-->
+    <!--        <div class="bg-dark p-4">-->
+    <!--            <h5 class="text-white h4">Collapsed content</h5>-->
+    <!--            <span class="text-muted">Toggleable via the navbar brand.</span>-->
+    <!--        </div>-->
+    <!--    </div>-->
 
-    <div id="navbarSearchAndTag" class="navbar-custom topnav-navbar topnav-navbar-dark d-flex align-items-center" style="z-index:5">
-        <div class="mx-3 m-0 w-100">
-            @*<div class="page-header px-0" id="logo-search">
-                <div id="search-bar">
-                    <div class="input-group">
-                        <div class="input-group-append position-relative">
-                            <button type="button" class="btn btn-search position-absolute" autofocus>
-                                <i class="fas fa-search icon-search"></i>
-                            </button>
-                        </div>
-                        <input type="text" id="SearchKey" class="form-control m-0 px-4 rounded" placeholder="検索" asp-for="SearchKey" autocomplete="off"/>
-                    </div>
-                </div>
-            </div>*@
-   	        <div class="project_tags m-1">
-                @*<p>Often use tags</p>*@<p>よく使うタグ</p>
-		        @foreach (var tag in @Model.TagsList){
-			        <div onclick=addTags("@tag") style="display:inline-block;color:#4d4d4d;background-color: #F7F7F7;padding:10px 20px 10px 20px;border-radius:3px;margin-right:7px;margin-bottom:7px;">@tag</div>
-		        }
-	        </div>
-        </div>
-    </div>
-    <!-- end Topbar -->
-
-    <div class="spinner-border text-info indicator-loader" role="status">
+    <div class="spinner-border text-info indicator-loader" role="status" style="display: none;">
         <span class="sr-only">Loading...</span>
     </div>
 
-    <!-- Start Content-->
-    @*<div id="blockGallery">
-        <div class="m-3">
-             @RenderBody()
-        </div>
-    </div>
-*@
-     @RenderBody()
 
-    <div class="add-image-container">
-        <a onclick="RegiterUserMediaFile();">
-            <i class="fas fa-plus-circle fa-3x"></i>
-        </a>
+    @*<div id="navbarSearchAndTag" class="navbar-custom topnav-navbar topnav-navbar-dark d-flex align-items-center" style="z-index:5">
+        <div class="m-3">
+   	        <div class="project_tags">
+                <p>よく使うタグ</p>
+		        @foreach (var tag in @Model.TagsList){
+			        <div onclick=addTags("@tag") style="display:inline-block;color:#4d4d4d;background-color: #F7F7F7;padding:10px 20px;border-radius:3px;margin:5px;">@tag</div>
+		        }
+	        </div>
+        </div>
+    </div>*@
+    @*<div class="spinner-border text-info indicator-loader" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>*@
+
+    <div class="d-flex" style="margin-top: 3.7rem">
+        <div id="navbarSearchAndTag" class="collapse collapse-horizontal show ">
+            <div class="m-3" style="width:8rem;" id="tagArea">
+                <div class="project_tags">
+                    @*<p>よく使うタグ</p>*@
+                    @foreach (var tag in @Model.TagsList){
+			            @*<div onclick=addTags("@tag") style="display:inline-block;color:#4d4d4d;background-color: #F7F7F7;padding:10px 20px;border-radius:3px;margin:5px;">@tag</div>*@
+                        <div onclick=addTags("@tag") style="margin:5px;">#@tag</div>
+		            }
+                </div>
+            </div>
+        </div>
+
+        @RenderBody()
+
     </div>
 
     @RenderSection("Scripts", required: false)
 
-    <script>
-        function RegiterUserMediaFile() {
-            $('#image-viewer-modal').remove();
-            $('#image-registration-modal').modal('show');
-        }
-
-        function showLoader() {
-            $('.indicator-loader').show();
-        }
-
-        function hideLoader() {
-            $('.indicator-loader').fadeOut("slow");
-        }
-
-        $.urlParam = function (name) {
-            var results = new RegExp('[\?&]' + name + '=([^&#]*)')
-                .exec(window.location.search);
-
-            return (results !== null) ? results[1] || 0 : false;
-        }
-
-        $('.btn-search').on('click', function () {
-            var pageIndex = $.urlParam('pageIndex');
-            var searchKey = $('input[name="SearchKey"]').val();
-            showLoader();
-            if (pageIndex == false)
-                pageIndex = 1;
-
-            var url = '@Url.Action("Index","Home")' + "?pageIndex=" + pageIndex + "&searchKey=" + searchKey;
-            window.location = url;
-        });
-
-        $('#SearchKey').keypress(function(event){
-            if(event.keyCode == 13){
-                var pageIndex = $.urlParam('pageIndex');
-                var searchKey = $('input[name="SearchKey"]').val();
-                showLoader();
-                if (pageIndex == false)
-                    pageIndex = 1;
-
-                var url = '@Url.Action("Index","Home")' + "?pageIndex=" + pageIndex + "&searchKey=" + searchKey;
-                window.location = url;
-            }
-        });
-
-        $(document).ready(function () {
-            hideLoader();
-        });
-        function addTags(value) {
-            var searchKey = $('#SearchKey').val();
-            if (searchKey) {
-                searchKey = searchKey.concat(" " + value); 
-            } else {
-                searchKey = value;
-            }
-            $('#SearchKey').val(searchKey);
-        }
-    </script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip-utils/0.0.2/jszip-utils.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
+@*
+    <script src="~/js/gallery_resize.js"></script>*@
     <script src="~/js/multi_select_by_mouse.js" asp-append-version="true"></script>
 </body>
 </html>

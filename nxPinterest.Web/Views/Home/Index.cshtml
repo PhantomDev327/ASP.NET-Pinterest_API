@@ -8,8 +8,83 @@
     var prevDisabled = !hasPreviousPage ? "disabled" : "";
     var nextDisabled = !hasNextPage ? "disabled" : "";
     string searchKey = Model.SearchKey;
-    bool hasPagination = Model.TotalRecords > nxPinterest.Services.dev_Settings.pageSize_regist;
+    //bool hasPagination = Model.TotalRecords > nxPinterest.Services.dev_Settings.pageSize_regist;
 }
+
+    <!-- Start Content-->
+    @*<div id="blockGallery">
+        <div class="m-3">
+             @RenderBody()
+        </div>
+    </div>
+*@
+
+@*    <div class="add-image-container">
+        <a onclick="RegiterUserMediaFile();">
+            <i class="fas fa-plus-circle fa-3x"></i>
+        </a>
+    </div>*@
+
+    <script>
+        function RegiterUserMediaFile() {
+            $('#image-viewer-modal').remove();
+            $('#image-registration-modal').modal('show');
+        }
+
+        function showLoader() {
+            $('.indicator-loader').show();
+        }
+
+        function hideLoader() {
+            $('.indicator-loader').fadeOut("slow");
+        }
+
+        $.urlParam = function (name) {
+            var results = new RegExp('[\?&]' + name + '=([^&#]*)')
+                .exec(window.location.search);
+
+            return (results !== null) ? results[1] || 0 : false;
+        }
+
+        $('.btn-search').on('click', function () {
+            var pageIndex = $.urlParam('pageIndex');
+            var searchKey = $('input[name="SearchKey"]').val();
+            showLoader();
+            if (pageIndex == false)
+                pageIndex = 1;
+
+            var url = '@Url.Action("Index","Home")' + "?pageIndex=" + pageIndex + "&searchKey=" + searchKey;
+            window.location = url;
+        });
+
+        $('#SearchKey').keypress(function(event){
+            if(event.keyCode == 13){
+                var pageIndex = $.urlParam('pageIndex');
+                var searchKey = $('input[name="SearchKey"]').val();
+                showLoader();
+                if (pageIndex == false)
+                    pageIndex = 1;
+
+                var url = '@Url.Action("Index","Home")' + "?pageIndex=" + pageIndex + "&searchKey=" + searchKey;
+                window.location = url;
+            }
+        });
+
+        $(document).ready(function () {
+            hideLoader();
+        });
+        function addTags(value) {
+            var searchKey = $('#SearchKey').val();
+            if (searchKey) {
+                searchKey = searchKey.concat(" " + value); 
+            } else {
+                searchKey = value;
+            }
+            $('#SearchKey').val(searchKey);
+            var url = '@Url.Action("Index","Home")' + "?searchKey=" + searchKey;
+            window.location = url;
+        }
+    </script>
 
 @*@{
     await Html.RenderPartialAsync("/Views/Shared/_ImageRegistration.cshtml", Model.ImageRegistrationVM);
@@ -22,3 +97,53 @@
 @{
     await Html.RenderPartialAsync("/Views/Shared/_ImageRegistration.cshtml", Model.ImageRegistrationVM);
 }
+
+    <div class="modal fade text-black" id="createUserMediaFolderModal" tabindex="-1" role="dialog" aria-labelledby="createUserMediaFolderModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+            <h3 class="text-center" style="font-weight: normal;">アルバム登録</h3>
+            <input type="email" class="form-control" id="createUserMediaFolderName" value="サンプルアルバム">
+            </div>
+            <div class="modal-footer pt-0">
+                <button type="button" class="btn" data-bs-dismiss="modal">閉じる</button>
+                <button type="button" class="btn btn-primary" id="createUserMediaFolderButton">登録</button>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <div class="modal fade text-black" id="shareUserMediaFileModal" tabindex="-1" role="dialog" aria-labelledby="shareUserMediaFileModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                <h3 class="text-center" style="font-weight: normal;">共通写真へのリンクはこちらです。</h3>
+                <input type="email" class="form-control" id="shareUserMediaFileLink" value="hogetest.com/sample_folder/123">
+                </div>
+                <div class="modal-footer pt-0">
+                    <button type="button" class="btn" data-bs-dismiss="modal">閉じる</button>
+                    <button type="button" class="btn" id="shareUserMediaFileCopyLink" data-clipboard-target="#shareUserMediaFileLink">リンクをコピー</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade text-black" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <h3 class="text-center" style="font-weight: normal;">削除してよろしいですか</h3>
+            </div>
+            <div class="modal-footer pt-0">
+                <button type="button" class="btn" data-bs-dismiss="modal">いいえ</button>
+                <button type="button" class="btn btn-primary" onclick="deleteUserMediaFile();">はい</button>
+            </div>
+        </div>
+        </div>
+    </div>
+    <iframe id="iframeDownload1" style="display: none"></iframe>
+
+
+    <iframe id="iframeDownload1" style="display: none"></iframe>
+    <iframe id="iframeDownload2" style="display: none"></iframe>
+    <iframe id="iframeDownload3" style="display: none"></iframe>

@@ -70,7 +70,7 @@
 										<div class="dropdown_body">
 											<ul class="dropdown_list">
 												<li class="dropdown_item"><a href="/Home/EditUserMedia?media_id=@userMedia.MediaId" class="dropdown_item-link" id="dropdown_item-edit">編集</a></li>
-												<li class="dropdown_item"><a href="deleteUserMedia(@userMedia.MediaId)" class="dropdown_item-link" id="dropdown_item-del">削除</a></li>
+												<li class="dropdown_item"><a href="javascript:deleteUserMedia(@userMedia.MediaId)" class="dropdown_item-link" id="dropdown_item-del">削除</a></li>
 												<li class="dropdown_item"><a href="@userMedia.MediaUrl" class="dropdown_item-link" id="dropdown_item-down">ダウンロード</a></li>
 												<li class="dropdown_item"><a href="" class="dropdown_item-link" id="dropdown_item-editg">×一括編集</a></li>
 												<li class="dropdown_item"><a href="" class="dropdown_item-link" id="dropdown_item-editg">×共有</a></li>
@@ -135,11 +135,11 @@
         });			
     });
 
-	function deleteUserMedia(media_id) {
+	function deleteUserMedia(mediaId) {
 		$.ajax({
 			url: "@Url.Action("DeleteUserMedia", "Home", new { media_id = Model.UserMediaDetail.MediaId })",
             method: "Post",
-            data: { media_id },
+            //data: { media_id : mediaId },
 			processData: false,
 			contentType: false,
 			success: function (sResponse) {

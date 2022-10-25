@@ -1,6 +1,6 @@
 ﻿@model IList<nxPinterest.Data.Models.UserMedia>
 
-<div id="blockGallery">
+<div id="blockGallery" class="multiImageSelect-noselect">
     <div class="m-3">
         <div class="content gallery" id="contentGallery">
             <div class="thumbnail-container" id="thumbnail-container">
@@ -10,11 +10,11 @@
 </div>
 
 <script>
-    window.page = 1;
-    window.images= new Array();
-    
+	window.page = 1;
+    window.images = new Array();
+    window.itemWidth = 300;
     $(document).ready(function() {
-        $(window).css('min-width',500);
+        $(window).css('min-width', 500);
         initCol();
         loadImg();
         $(window).scroll(function() {
@@ -24,23 +24,38 @@
         });
         var timer = null;
         $(window).on('resize', function(){
-            clearTimeout(timer); 
+            clearTimeout(timer);
             timer = setTimeout(function() {
                 reloadImage();
-            },500);
+            },300);
         });
     });
-    function getColNum() {
-        var col_num = Math.floor($(window).width() / 264);
+    function getColNum(itemWidth) {
+        var col_num = Math.floor($(window).width() / itemWidth);
         return col_num;
     }
     function initCol() {
+        var itemWidth = window.itemWidth;
         $("#thumbnail-container").empty();
-        var col_num = getColNum();
-        var space = Math.floor(($(window).width() % 264)/2);
+        var col_num = getColNum(itemWidth);
+        var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+        var space = Math.floor(($(window).width() % itemWidth)/2);
         for (var i = 1; i <= col_num; i++) {
-            $('#thumbnail-container').append('<div id="column-'+i+'" class="image-col" style="position:absolute; width:264px; padding:8px;left:'+ (260 * (i - 1) + space) +'px;"></div>');
+            var paddingItem = 4;
+            var padding = paddingItem * 2;
+            var leftSize = ((itemWidth - paddingItem) * (i - 1) + space);
+            $('#thumbnail-container').append('<div id="column-'+i+'" class="image-col" style="position:absolute; width:' + itemWidth +'px; padding:' + padding + 'px;left:'+ leftSize +'px;"></div>');
         }
+        $('#tagArea').height($('#column-1').height());
+    }
+    function reloadImage() {
+        initCol();
+        window.images.forEach(function (data) {
+            data.forEach(function (value) {
+                appendData(value);
+            });
+        });
+    
     }
     function loadImg() {
         $.ajax({
@@ -53,18 +68,18 @@
                     appendData(value);
                 });
                 window.page = window.page + 1;
+            },
+            error: function () {
+                window.images.forEach(function (data) {
+                    data.forEach(function (value) {
+                        appendData(value);
+                    });
+                });
+                window.page = window.page + 1;
             }
         });
     }
-    function reloadImage() {
-        initCol();
-        window.images.forEach(function (data) {
-            data.forEach(function (value) {
-                appendData(value);
-            });
-        });
-        
-    }
+
     function appendData(value) {
         var newImgEl = document.createElement('img');
         newImgEl.addEventListener('load', function() {
@@ -93,7 +108,7 @@
             $("#contentGallery").hide();
             $("#sectionPagination").hide();
             $(".add-image-container").hide();
-            
+
             $("#imagePreview").append(html);
             $("#imagePreview").show();
         });
@@ -122,4 +137,38 @@
         $("#contentGallery").show();
     }
 
+    function getCurrentZoomRange() {
+        var changeZoomRange = document.getElementById("changeZoomRange");
+        return Number(changeZoomRange.value);
+    }
+
+    function changeZoom() {
+        var zoomSize = getCurrentZoomRange();
+        var rangeWidth = 50;
+        window.itemWidth = 100 + rangeWidth * zoomSize;
+
+        var timer = null;
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+            reloadImage();
+        }, 300);
+    }
+
+    function changeZoomOut() {
+        var zoomSize = getCurrentZoomRange();
+        if (zoomSize <= 0) {
+            return;
+        }
+        document.getElementById("changeZoomRange").value = zoomSize - 1;
+        changeZoom();
+    }
+
+    function changeZoomIn() {
+        var zoomSize = getCurrentZoomRange();
+        if (zoomSize >= 6) {
+            return;
+        }
+        document.getElementById("changeZoomRange").value = zoomSize + 1;
+        changeZoom();
+    }
 </script>

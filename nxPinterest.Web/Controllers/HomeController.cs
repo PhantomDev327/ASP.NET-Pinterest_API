@@ -22,7 +22,7 @@ namespace nxPinterest.Web.Controllers
     public class HomeController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
-        public const int pageSize = nxPinterest.Services.dev_Settings.pageSize_regist;
+        public const int pageSize = nxPinterest.Services.dev_Settings.displayMaxItems_search;
         private readonly Services.Interfaces.IUserMediaManagementService userMediaManagementService;
         private readonly ApplicationDbContext _context;
         //private CosmosDbService _cosmosDbService;
@@ -53,10 +53,11 @@ namespace nxPinterest.Web.Controllers
             List<ApplicationUser> user = this._context.Users.Where(c => c.Id.Equals(this.UserId)).ToList();
             if (user == null || user.Count == 0) return RedirectToAction("LogOut", "Account");
 
+            int skip = (pageIndex - 1) * pageSize;
+
             vm.UserMediaList = await this.userMediaManagementService.SearchUserMediaAsync(searchKey, user[0].container_id);
 
             int totalPages = (int)System.Math.Ceiling((decimal)(vm.UserMediaList.Count / (decimal)pageSize));
-            int skip = (pageIndex - 1) * pageSize;
             int totalRecordCount = vm.UserMediaList.Count;
 
             ViewBag.ItemCount = vm.UserMediaList.Count;
@@ -71,7 +72,7 @@ namespace nxPinterest.Web.Controllers
             vm.Discriminator = user[0].Discriminator;
 
             //ホーム検索画面よく使用されているタグ候補
-            vm.TagsList = await this.userMediaManagementService.GetOftenUseTagsAsyc(user[0].container_id);
+            vm.TagsList = await this.userMediaManagementService.GetOftenUseTagsAsyc(user[0].container_id, searchKey, 30);
 
             //登録画面で使用されているタグ候補
             vm.ImageRegistrationVM.SuggestTagsList = vm.TagsList;
@@ -85,16 +86,19 @@ namespace nxPinterest.Web.Controllers
             HomeViewModel vm = new HomeViewModel();
 
             List<ApplicationUser> user = this._context.Users.Where(c => c.Id.Equals(this.UserId)).ToList();
-            vm.UserMediaList = await this.userMediaManagementService.SearchUserMediaAsync(searchKey, user[0].container_id);
+            if (user == null || user.Count == 0) return RedirectToAction("LogOut", "Account");
+
+            int skip = (pageIndex - 1) * pageSize;
+
+            vm.UserMediaList = await this.userMediaManagementService.SearchUserMediaAsync(searchKey, user[0].container_id, skip);
 
             int totalPages = (int)System.Math.Ceiling((decimal)(vm.UserMediaList.Count / (decimal)pageSize));
-            int skip = (pageIndex - 1) * pageSize;
             int totalRecordCount = vm.UserMediaList.Count;
 
             ViewBag.ItemCount = vm.UserMediaList.Count;
             ViewBag.UserDispName = user[0].UserDispName;
 
-            vm.UserMediaList = vm.UserMediaList.Skip(skip).Take(pageSize).ToList();
+            //vm.UserMediaList = vm.UserMediaList.Skip(skip).Take(pageSize).ToList();
 
             vm.PageIndex = pageIndex;
             vm.TotalPages = totalPages;
@@ -119,32 +123,32 @@ namespace nxPinterest.Web.Controllers
                     vm.UserMediaDetail = result.UserMediaDetail;
                     vm.SameTitleUserMediaList = result.SameTitleUserMediaList;
                     vm.RelatedUserMediaList = result.RelatedUserMediaList;
-                    string[] tags = vm.UserMediaDetail.Tags.Split('|');
+                    //string[] tags = vm.UserMediaDetail.Tags.Split('|');
 
-                    IList<string> photo_tags_list = new List<string>();
+                    //IList<string> photo_tags_list = new List<string>();
                     IList<string> project_tags_list = new List<string>();
 
-                    foreach (var tag in tags)
-                    {
-                        string[] current_tags = tag.Split(':');
-                        string current_tag_name = current_tags[0].Trim();
-                        if (!string.IsNullOrEmpty(current_tag_name))
-                        {
-                            decimal current_score = decimal.Parse(current_tags[1]);
-                            if (current_score < 1)
-                                photo_tags_list.Add(current_tag_name);
-                            else
-                                project_tags_list.Add(current_tag_name);
-                        }
-                    }
-                    string[] projectTags = result.UserMediaDetail.ProjectTags?.Split('|');
-                    if (projectTags != null)
-                    {
-                        foreach (var tag in projectTags)
-                        {
-                            project_tags_list.Add(tag);
-                        }
-                    }
+                    //foreach (var tag in tags)
+                    //{
+                    //    string[] current_tags = tag.Split(':');
+                    //    string current_tag_name = current_tags[0].Trim();
+                    //    if (!string.IsNullOrEmpty(current_tag_name))
+                    //    {
+                    //        decimal current_score = decimal.Parse(current_tags[1]);
+                    //        if (current_score < 1)
+                    //            photo_tags_list.Add(current_tag_name);
+                    //        else
+                    //            project_tags_list.Add(current_tag_name);
+                    //    }
+                    //}
+                    string[] projectTags = result.UserMediaDetail.ProjectTags?.Split(',');
+                    //if (projectTags != null)
+                    //{
+                    //    foreach (var tag in projectTags)
+                    //    {
+                    //        project_tags_list.Add(tag);
+                    //    }
+                    //}
                 }
 
                 return Json(vm);
@@ -174,29 +178,29 @@ namespace nxPinterest.Web.Controllers
                     vm.UserMediaDetail = result.UserMediaDetail;
                     vm.SameTitleUserMediaList = result.SameTitleUserMediaList;
                     vm.RelatedUserMediaList = result.RelatedUserMediaList;
-                    string[] tags = vm.UserMediaDetail.Tags.Split('|');
+                    //string[] tags = vm.UserMediaDetail.ProjectTags.Split(',');
 
-                    IList<string> photo_tags_list = new List<string>();
-                    IList<string> project_tags_list = new List<string>();
+                    //IList<string> photo_tags_list = new List<string>();
+                    //IList<string> project_tags_list = new List<string>();
 
-                    //TODO　tagsにphotoタグもprojectタグも一か所に格納されている前提の作り
-                    foreach (var tag in tags)
-                    {
-                        string[] current_tags = tag.Split(':');
-                        if (current_tags != null && current_tags.Length == 3)
-                        {
-                            string current_tag_name = current_tags[0].Trim();
-                            if (!string.IsNullOrEmpty(current_tag_name))
-                            {
-                                decimal current_score = decimal.Parse(current_tags[1]);
-                                if (current_score < 1)
-                                    photo_tags_list.Add(current_tag_name);
-                                else
-                                    project_tags_list.Add(current_tag_name);
-                            }
-                        }
-                    }
-                    string[] projectTags = vm.UserMediaDetail.ProjectTags?.Split('|');
+                    ////TODO　tagsにphotoタグもprojectタグも一か所に格納されている前提の作り
+                    //foreach (var tag in tags)
+                    //{
+                    //    string[] current_tags = tag.Split(':');
+                    //    if (current_tags != null && current_tags.Length == 3)
+                    //    {
+                    //        string current_tag_name = current_tags[0].Trim();
+                    //        if (!string.IsNullOrEmpty(current_tag_name))
+                    //        {
+                    //            decimal current_score = decimal.Parse(current_tags[1]);
+                    //            if (current_score < 1)
+                    //                photo_tags_list.Add(current_tag_name);
+                    //            else
+                    //                project_tags_list.Add(current_tag_name);
+                    //        }
+                    //    }
+                    //}
+                    string[] projectTags = vm.UserMediaDetail.ProjectTags?.Split(',');
 
                     //上限
                     int totalPages = (int)System.Math.Ceiling((decimal)(vm.RelatedUserMediaList.Count / (decimal)pageSize));
@@ -214,8 +218,8 @@ namespace nxPinterest.Web.Controllers
                     vm.Discriminator = user[0].Discriminator;
 
                     ViewBag.MediaID = media_id;
-                    ViewBag.PorjectTags = (projectTags != null) ? string.Join(',', projectTags?.ToArray()) : null;
-                    ViewBag.PhotoTags = string.Join(',', photo_tags_list.ToArray());
+                    ViewBag.PorjectTags = projectTags ?? null;
+                    //ViewBag.PhotoTags = string.Join(',', photo_tags_list.ToArray());
                     ViewBag.RelatedUserMediaList = JsonConvert.SerializeObject(vm.RelatedUserMediaList);
 
                     return PartialView("/Views/Home/Details.cshtml", vm);
@@ -332,6 +336,7 @@ namespace nxPinterest.Web.Controllers
         {
             try
             {
+                //todo detailではなくusermediaの取得
                 UserMediaDetailModel result = await this.userMediaManagementService.GetUserMediaDetailsByIDAsync(media_id);
                 List<UserMedia> mediaList = new List<UserMedia> { result.UserMediaDetail };
                 await this.userMediaManagementService.DeleteFromUserMediaList(mediaList);
@@ -345,18 +350,19 @@ namespace nxPinterest.Web.Controllers
         /// <summary>
         /// Delete Images
         /// </summary>
-        /// <param name="media_id"></param>
+        /// <param name="ids"></param>
         /// <returns></returns>
         [HttpPost]
         //public async Task DeleteUserMedia(string searchKey, int media_id)
-        public async Task<IActionResult> DeleteUserMedias(int[] ids)
+//        public async Task<IActionResult> DeleteUserMedias(int[] ids)
+        public async Task<IActionResult> DeleteUserMedias(string ids)
         {
             try
             {
                 List<UserMedia> mediaList = new List<UserMedia>();
-                foreach (var mediaId in ids)
+                foreach (var mediaId in ids?.Split(","))
                 {
-                    UserMediaDetailModel result = await this.userMediaManagementService.GetUserMediaDetailsByIDAsync(mediaId);
+                    UserMediaDetailModel result = await this.userMediaManagementService.GetUserMediaDetailsByIDAsync(int.Parse(mediaId));
                     mediaList.Add(result.UserMediaDetail);
                 }
                 await this.userMediaManagementService.DeleteFromUserMediaList(mediaList);

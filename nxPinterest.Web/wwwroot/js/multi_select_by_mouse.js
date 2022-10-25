@@ -178,7 +178,7 @@ function multiSelect() {
                 var selectedMediaId;
                 var selectedMediaSrc;
                 if (el.id && !window.selectedMediaIdList.includes(el.id)) {
-                    selectedMediaId = el.id;
+                    selectedMediaId = parseInt(el.id);
                 }
                 if (el.childNodes) {
                     for (var childNode of el.childNodes) {
@@ -219,55 +219,32 @@ window.selectedMediaSrcList = [];
 multiSelect();
 
 
+function createUserMediaFolder() {
+    $('#createUserMediaFolderModal').modal('show');
+}
+
+function shareUserMediaFile() {
+    $('#shareUserMediaFileModal').modal('show'); 
+    new Clipboard('#shareUserMediaFileCopyLink');  
+}
+
 function downloadUserMediaFile() {
-    window.selectedMediaSrcList = [
-        "https://upload.wikimedia.org/wikipedia/commons/e/e4/Latte_and_dark_coffee.jpg",
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/640px-Image_created_with_a_mobile_phone.png"
-    ]
     if (!window.selectedMediaSrcList || window.selectedMediaSrcList.length === 0) {
         return;
     }
     if (window.selectedMediaSrcList.length > 3) {
         generateDownloadZip();
     } else {
+        var i = 1;
         for (var selectedMediaSrc of window.selectedMediaSrcList) {
-            downloadImage(selectedMediaSrc)
-                .then(() => {
-                    console.log('ダウンロード成功しました。');
-                })
-                .catch((error) => {
-                    console.log(`ダウンロード失敗しました。 ${error}`);
-                });
+            document.getElementById("iframeDownload" + i).setAttribute("src", selectedMediaSrc);
+            i++;
         }
     }
 }
 
 var getFilenameFromUrl = function(imageUrl) {
     return imageUrl.split('/').pop().replace(/[\/\*\|\:\<\>\?\"\\]/gi, '');
-}
-
-var downloadImage = async (imageSrc) => {
-    try {
-        // fetchで画像データを取得
-        const image = await fetch(imageSrc);
-        const imageBlob = await image.blob();
-        const imageURL = URL.createObjectURL(imageBlob);
-
-        // 拡張子取得
-        const mimeTypeArray = imageBlob.type.split('/');
-        const extension = mimeTypeArray[1];
-
-        // ダウンロード
-        const link = document.createElement('a');
-        link.href = imageURL;
-        var filename = getFilenameFromUrl(imageURL);
-        link.download = `${filename}.${extension}`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    } catch (error) {
-        throw new Error(`${error}. ダウンロード失敗しました、画像URL: ${imageSrc}`);
-    }
 }
 
 function generateDownloadZip() {
@@ -297,33 +274,23 @@ function generateDownloadZip() {
     });
 }
 
-
-function deleteUserMediaFile() {
+function deleteUserMediaFile(media_ids) {
     if (!window.selectedMediaIdList || window.selectedMediaIdList.length === 0) {
         return;
     }
-    for (var selectedMediaId of window.selectedMediaIdList) {
-        deleteImage(selectedMediaId)
-            .then(() => {
-                console.log('画像削除成功しました。');
-            })
-            .catch((error) => {
-                console.log(`画像削除失敗しました。 ${error}`);
-            });
-    }
+    var media_ids = window.selectedMediaIdList.toString();
+    var deleteUrl = "/Home/DeleteUserMedias?ids=" + media_ids;
+    $.ajax({
+        url: deleteUrl,
+        method: "POST",
+        processData: false,
+        contentType: false,
+        success: function (sResponse) {
+            window.location = '/';
+        }
+    });
 }
 
-var deleteImage = async (mediaId) => {
-    try {
-        var deleteUrl = "/Home/deleteUserMedia(" + mediaId + ")";
-        $.ajax({
-            url: deleteUrl,
-            method: "GET",
-            data: {},
-            success: function (sResult) {},
-            error: function () {}
-        });
-    } catch (error) {
-        throw new Error(`${error}. 画像削除失敗しました、画像ID: ${mediaId}`);
-    }
+function showDeleteConfirmDialog() {
+    $('#deleteConfirmModal').modal('show');
 }
