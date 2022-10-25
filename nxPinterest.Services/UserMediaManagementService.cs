@@ -42,15 +42,15 @@ namespace nxPinterest.Services
             _cosmosDbService = new CosmosDbService();
         }
 
-        public async Task<IList<Data.Models.UserMedia>> ListUserMediaAsyc(string userId = "")
-        {
-            var query = (this._context.UserMedia.AsNoTracking()
-                                     .Where(c => c.UserId.Equals(userId)));
+        //public async Task<IList<Data.Models.UserMedia>> ListUserMediaAsyc(string userId = "")
+        //{
+        //    var query = (this._context.UserMedia.AsNoTracking()
+        //                             .Where(c => c.UserId.Equals(userId)));
 
-            IList<Data.Models.UserMedia> userMediaList = await query.OrderByDescending(c => c.MediaId).ToListAsync();
+        //    IList<Data.Models.UserMedia> userMediaList = await query.OrderByDescending(c => c.MediaId).ToListAsync();
 
-            return userMediaList;
-        }
+        //    return userMediaList;
+        //}
 
         /// <summary>
         ///     Search Image by conditions
@@ -58,25 +58,26 @@ namespace nxPinterest.Services
         /// <param name="searchKey"></param>
         /// <param name="container_id"></param>
         /// <returns></returns>
-        public async Task<IList<Data.Models.UserMedia>> SearchUserMediaAsync(string searchKey, int container_id)
+        public async Task<IList<Data.Models.UserMedia>> SearchUserMediaAsync(string searchKey, int container_id, int skip, int take)
         {
             try
             {
                 var query = this._context.UserMedia.AsNoTracking()
-                                     .Where(c => c.ContainerId.Equals(container_id));
+                                     .Where(c => c.ContainerId.Equals(container_id) && c.Status == 0 && c.Deleted == null);
 
-                //todo もっといい検索方法ないかな tagテーブルで検索？
+                //todo tagテーブルで検索に変更したい
                 if (!String.IsNullOrEmpty(searchKey))
                 {
                     string[] listSearchKey = Regex.Split(searchKey.Trim(), "[ 　]+", RegexOptions.IgnoreCase);
 
                     foreach(var word in listSearchKey)
                     {
-                        query = query.Where(c => c.Tags.Contains(word));
+                        query = query.Where(c => c.SearchText.Contains(word));
                     }
                 }
 
-                IList<Data.Models.UserMedia> userMediaList = await query.OrderByDescending(c => c.MediaId).ToListAsync();
+                IList<Data.Models.UserMedia> userMediaList = await query.OrderByDescending(c => c.MediaId)
+                                                                        .Skip(skip).Take(take).ToListAsync();
                 return userMediaList;
             }
             catch (Exception)
@@ -141,7 +142,7 @@ namespace nxPinterest.Services
         }
 
         /// <summary>
-        ///     Search Similar images
+        ///     Search Similar images　似ている画像検索
         /// </summary>
         /// <param name="userMedia"></param>
         /// <param name="container_id"></param>
@@ -150,9 +151,10 @@ namespace nxPinterest.Services
         {
             try
             {
-                var searchTags = userMedia.Tags.Split("|").Where(w => w != "").Select(str => str.Substring(0, str.IndexOf(":"))).ToList();
+                var searchTags = userMedia.Tags.Split("|").Where(w => w != "").Select(str => str.Split(":")[0]).ToList();
+                //var searchTags = userMedia.Tags.Split(",").ToList(); 
                 var searchMedias = this._context.UserMediaTags.AsNoTracking()
-                                                    .Where(u => u.ContainerId.Equals(userMedia.ContainerId) && searchTags.Contains(u.Tag))
+                                                    .Where(u => u.ContainerId.Equals(userMedia.ContainerId) && u.Confidence > 0.7 && searchTags.Contains(u.Tag))
                                                     .GroupBy(g => g.UserMediaName)
                                                     .Select(s => new { UserMediaName = s.Key, Confidence = s.Sum(z => z.Confidence) })
                                                     .OrderByDescending(z => z.Confidence)
@@ -161,9 +163,10 @@ namespace nxPinterest.Services
                                                     .ToList();
 
                 var userMediaList = await this._context.UserMedia.AsNoTracking()
-                                                //.Include(u => u.TagsList)
-                                    .Where(u => u.ContainerId.Equals(container_id) && searchMedias.Contains(u.MediaFileName))
-                                    .Where(v => !v.MediaId.Equals(userMedia.MediaId)).ToListAsync();
+                                                    //.Include(i => i.MediaFileName)
+                                                    .Where(u => u.ContainerId.Equals(container_id) && searchMedias.Contains(u.MediaFileName))
+                                                    .Where(v => !v.MediaId.Equals(userMedia.MediaId))
+                                                    .ToListAsync();
 
                 return userMediaList;
             }
@@ -199,14 +202,45 @@ namespace nxPinterest.Services
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public async Task<IList<string>> GetOftenUseTagsAsyc(int containerId)
+        public async Task<IList<string>> GetOftenUseTagsAsyc(int containerId, string searchKey, int take)
         {
-            var query = await this._context.UserMediaTags.AsNoTracking()
-                                .Where(c => c.ContainerId.Equals(containerId) && c.TagsType == 2)
-                                .GroupBy(g => g.Tag)
-                                .OrderByDescending(w => w.Count())
-                                .Select(s => s.Key).ToListAsync();
-            return query;
+            if (!String.IsNullOrEmpty(searchKey))
+            {
+                string[] listSearchKey = Regex.Split(searchKey.Trim(), "[ 　]+", RegexOptions.IgnoreCase);
+
+                var subquery = await this._context.UserMedia.AsNoTracking()
+                                    .Where(c => c.ContainerId.Equals(containerId))
+                                    .Select(s => new { s.MediaFileName, s.Tags }).ToListAsync();
+
+                foreach(var word in listSearchKey)
+                {
+                    subquery = subquery.Where(s => s.Tags.Contains(word)).ToList();
+                }
+                var targetmedias = subquery.Select(s => s.MediaFileName);
+
+                var query = await this._context.UserMediaTags.AsNoTracking()
+                                    .Where(s => targetmedias.Contains(s.UserMediaName) && s.TagsType==1)
+                                    .GroupBy(g => g.Tag)
+                                    .OrderByDescending(w => w.Count())
+                                    .Select(s => s.Key).Take(take).ToListAsync();
+
+                //キーワード除外
+                foreach (var word in listSearchKey)
+                {
+                    query.RemoveAll(r => r.Equals(word));
+                }
+
+                return query;
+            }
+            else
+            {
+                var query = await this._context.UserMediaTags.AsNoTracking()
+                                    .Where(c => c.ContainerId.Equals(containerId) && c.TagsType == 1)
+                                    .GroupBy(g => g.Tag)
+                                    .OrderByDescending(w => w.Count())
+                                    .Select(s => s.Key).Take(take).ToListAsync();
+                return query;
+            }
         }
 
         /// <summary>
@@ -372,29 +406,36 @@ namespace nxPinterest.Services
                     userMediaTags.TagsType = 0;
                     userMediaTags.Tag = userMedia.MediaTitle;
                     userMediaTags.Confidence = 1.0;
+                    userMediaTags.Created = DateTime.Now;
                     _context.UserMediaTags.Add(userMediaTags);
                     //cv解析のtagと独自tag
-                    foreach (var tag in tagsString.Split("|"))
+                    foreach (var tag in tagsString.Split("|")
+                                                .Where(x => x != "")
+                                                .Select(x => x.Split(":"))
+                                                .GroupBy(x => x[0])
+                                                .Select(x => new { Name = x.Key, Score = x.Max(m => m[1]) }))
                     {
-                        if (tag == "") break;
-                        var tagstr = tag.Split(":");
-                        userMediaTags = new UserMediaTags();
-                        userMediaTags.UserMediaName = orgFileName;
-                        userMediaTags.ContainerId = userMedia.ContainerId;
-                        userMediaTags.TagsType = 1;
-                        userMediaTags.Tag = tagstr[0];
-                        userMediaTags.Confidence = double.Parse(tagstr[1]);
-                        _context.UserMediaTags.Add(userMediaTags);
-                    }
-                    foreach (var tag in projectTags.Split(","))
-                    {
-                        if (tag == "") break;
+                        //if (tag == "") break;
+                        //var tagstr = tag.Split(":");
                         userMediaTags = new UserMediaTags();
                         userMediaTags.UserMediaName = orgFileName;
                         userMediaTags.ContainerId = userMedia.ContainerId;
                         userMediaTags.TagsType = 2;
+                        userMediaTags.Tag = tag.Name;
+                        userMediaTags.Confidence = double.Parse(tag.Score);
+                        userMediaTags.Created = DateTime.Now;
+                        _context.UserMediaTags.Add(userMediaTags);
+                    }
+                    foreach (var tag in projectTags?.Split(","))
+                    {
+                        if (tag == "") break;
+                        userMediaTags = new UserMediaTags();
+                        userMediaTags.UserMediaName = orgFileName;
+                        userMediaTags.ContainerId = userMedia.ContainerId;
+                        userMediaTags.TagsType = 1;
                         userMediaTags.Tag = tag;
                         userMediaTags.Confidence = 1.0;
+                        userMediaTags.Created = DateTime.Now;
                         _context.UserMediaTags.Add(userMediaTags);
                     }
                     // save

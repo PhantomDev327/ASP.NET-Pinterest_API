@@ -39,6 +39,12 @@ namespace nxPinterest.Services
             return ImageAnalysisUtility.AddTypeToTag_str(str);
         }
 
+        public string GetImageTag_list(string ImageUrl)
+        {
+            var str = AnalyzeImageUrl_Tags_str(client, ImageUrl).Result;
+            return ImageAnalysisUtility.AddTypeToTag_str(str);
+        }
+
         private static async Task<string> AnalyzeImageUrl_Tags_json(ComputerVisionClient client, string imageUrl)
         {
             Microsoft.Rest.HttpOperationResponse<TagResult> results
