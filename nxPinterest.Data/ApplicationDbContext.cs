@@ -37,7 +37,7 @@ namespace nxPinterest.Data
                     .HasColumnName("media_id");
 
                 entity.Property(e => e.MediaTitle)
-                    .HasColumnType("nvarchar(max)")
+                    .HasColumnType("nvarchar(100)")
                     .IsUnicode(true)
                     .HasColumnName("media_title");
 
@@ -72,11 +72,14 @@ namespace nxPinterest.Data
                     .HasColumnName("media_file_type");
 
                 entity.Property(e => e.Created)
-                    .HasDefaultValueSql("getdate()")
                     .HasColumnName("media_created");
 
-                entity.Property(e => e.Updated)
-                    .HasColumnName("media_updated");
+                entity.Property(e => e.Uploaded)
+                    .HasDefaultValueSql("getdate()")
+                    .HasColumnName("media_uploaded");
+
+                entity.Property(e => e.Modified)
+                    .HasColumnName("media_modified");
 
                 entity.Property(e => e.Deleted)
                     .HasColumnName("media_deleted");
@@ -84,8 +87,20 @@ namespace nxPinterest.Data
                 entity.Property(e => e.Status)
                     .HasColumnName("media_status");
 
-                entity.Property(e => e.DateTimeUploaded)
-                    .HasDefaultValueSql("getdate()");
+                entity.Property(e => e.SearchText)
+                    .HasColumnName("media_searchtext");
+
+                //entity.Property(e => e.Tags)
+                //    .HasColumnName("media_tags");
+
+                entity.Property(e => e.OriginalTags)
+                    .HasColumnName("media_originaltags");
+
+                entity.Property(e => e.AITags)
+                    .HasColumnName("media_aitags");
+
+                //entity.Property(e => e.DateTimeUploaded)
+                //    .HasDefaultValueSql("getdate()");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.UserMedia)
