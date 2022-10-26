@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using nxPinterest.Data;
 using nxPinterest.Data.Models;
-using nxPinterest.Services.Models.Response;
+//using nxPinterest.Services.Models.Response;
 using nxPinterest.Web.Models;
 using System;
 using System.Collections.Generic;
@@ -117,38 +117,14 @@ namespace nxPinterest.Web.Controllers
                 DetailsViewModel vm = new DetailsViewModel();
 
                 List<ApplicationUser> user = this._context.Users.Where(c => c.Id.Equals(this.UserId)).ToList();
-                UserMediaDetailModel result = await this.userMediaManagementService.GetUserMediaDetailsByIDAsync(media_id);
-                if(result != null)
+                var media = await this.userMediaManagementService.GetUserMediaAsync(media_id);
+                if(media != null)
                 {
-                    vm.UserMediaDetail = result.UserMediaDetail;
-                    vm.SameTitleUserMediaList = result.SameTitleUserMediaList;
-                    vm.RelatedUserMediaList = result.RelatedUserMediaList;
-                    //string[] tags = vm.UserMediaDetail.Tags.Split('|');
+                    vm.UserMediaDetail = media;
+                    vm.SameTitleUserMediaList = await this.userMediaManagementService.GetUserMediaSameTitleMediasAsync(media);
+                    vm.RelatedUserMediaList = await this.userMediaManagementService.GetUserMediaRelatedMediasAsync(media);
 
-                    //IList<string> photo_tags_list = new List<string>();
-                    IList<string> project_tags_list = new List<string>();
-
-                    //foreach (var tag in tags)
-                    //{
-                    //    string[] current_tags = tag.Split(':');
-                    //    string current_tag_name = current_tags[0].Trim();
-                    //    if (!string.IsNullOrEmpty(current_tag_name))
-                    //    {
-                    //        decimal current_score = decimal.Parse(current_tags[1]);
-                    //        if (current_score < 1)
-                    //            photo_tags_list.Add(current_tag_name);
-                    //        else
-                    //            project_tags_list.Add(current_tag_name);
-                    //    }
-                    //}
-                    string[] projectTags = result.UserMediaDetail.ProjectTags?.Split(',');
-                    //if (projectTags != null)
-                    //{
-                    //    foreach (var tag in projectTags)
-                    //    {
-                    //        project_tags_list.Add(tag);
-                    //    }
-                    //}
+                    string[] projectTags = vm.UserMediaDetail.ProjectTags?.Split(',');
                 }
 
                 return Json(vm);
@@ -172,34 +148,13 @@ namespace nxPinterest.Web.Controllers
                 DetailsViewModel vm = new DetailsViewModel();
 
                 List<ApplicationUser> user = this._context.Users.Where(c => c.Id.Equals(this.UserId)).ToList();
-                UserMediaDetailModel result = await this.userMediaManagementService.GetUserMediaDetailsByIDAsync(media_id);
-                if (result != null)
+                var media = await this.userMediaManagementService.GetUserMediaAsync(media_id);
+                if (media != null)
                 {
-                    vm.UserMediaDetail = result.UserMediaDetail;
-                    vm.SameTitleUserMediaList = result.SameTitleUserMediaList;
-                    vm.RelatedUserMediaList = result.RelatedUserMediaList;
-                    //string[] tags = vm.UserMediaDetail.ProjectTags.Split(',');
+                    vm.UserMediaDetail = media;
+                    vm.SameTitleUserMediaList = await this.userMediaManagementService.GetUserMediaSameTitleMediasAsync(media);
+                    vm.RelatedUserMediaList = await this.userMediaManagementService.GetUserMediaRelatedMediasAsync(media);
 
-                    //IList<string> photo_tags_list = new List<string>();
-                    //IList<string> project_tags_list = new List<string>();
-
-                    ////TODO　tagsにphotoタグもprojectタグも一か所に格納されている前提の作り
-                    //foreach (var tag in tags)
-                    //{
-                    //    string[] current_tags = tag.Split(':');
-                    //    if (current_tags != null && current_tags.Length == 3)
-                    //    {
-                    //        string current_tag_name = current_tags[0].Trim();
-                    //        if (!string.IsNullOrEmpty(current_tag_name))
-                    //        {
-                    //            decimal current_score = decimal.Parse(current_tags[1]);
-                    //            if (current_score < 1)
-                    //                photo_tags_list.Add(current_tag_name);
-                    //            else
-                    //                project_tags_list.Add(current_tag_name);
-                    //        }
-                    //    }
-                    //}
                     string[] projectTags = vm.UserMediaDetail.ProjectTags?.Split(',');
 
                     //上限
@@ -209,7 +164,7 @@ namespace nxPinterest.Web.Controllers
 
                     ViewBag.ItemCount = vm.RelatedUserMediaList.Count;
 
-                    vm.RelatedUserMediaList = vm.RelatedUserMediaList.Skip(skip).Take(pageSize).ToList();
+                    //vm.RelatedUserMediaList = vm.RelatedUserMediaList.Skip(skip).Take(pageSize).ToList();
 
                     vm.PageIndex = pageIndex;
                     vm.TotalPages = totalPages;
@@ -217,10 +172,10 @@ namespace nxPinterest.Web.Controllers
                     vm.TotalRecords = totalRecordCount;
                     vm.Discriminator = user[0].Discriminator;
 
-                    ViewBag.MediaID = media_id;
-                    ViewBag.PorjectTags = projectTags ?? null;
-                    //ViewBag.PhotoTags = string.Join(',', photo_tags_list.ToArray());
-                    ViewBag.RelatedUserMediaList = JsonConvert.SerializeObject(vm.RelatedUserMediaList);
+                    //ViewBag.MediaID = media_id;
+                    //ViewBag.PorjectTags = projectTags ?? null;
+                    ////ViewBag.PhotoTags = string.Join(',', photo_tags_list.ToArray());
+                    //ViewBag.RelatedUserMediaList = JsonConvert.SerializeObject(vm.RelatedUserMediaList);
 
                     return PartialView("/Views/Home/Details.cshtml", vm);
                 }
@@ -243,25 +198,24 @@ namespace nxPinterest.Web.Controllers
             DetailsViewModel vm = new DetailsViewModel();
 
             var media = await this.userMediaManagementService.GetUserMediaAsync(media_id);
-            var result = await this.userMediaManagementService.SearchSimilarImagesAsync(media, media.ContainerId);
-            if (result != null)
+            if (media != null)
             {
                 vm.UserMediaDetail = media;
-                //vm.SameTitleUserMediaList = result.SameTitleUserMediaList;
-                vm.RelatedUserMediaList = result;
 
-                int totalPages = (int)System.Math.Ceiling((decimal)(vm.RelatedUserMediaList.Count / (decimal)pageSize));
                 int skip = (pageIndex - 1) * pageSize;
-                int totalRecordCount = vm.RelatedUserMediaList.Count;
+                var result = await this.userMediaManagementService.GetUserMediaRelatedMediasAsync(media, skip);
+                vm.RelatedUserMediaList = result;
+                //int totalPages = (int)System.Math.Ceiling((decimal)(vm.RelatedUserMediaList.Count / (decimal)pageSize));
+                //int totalRecordCount = vm.RelatedUserMediaList.Count;
 
-                ViewBag.ItemCount = vm.RelatedUserMediaList.Count;
-                vm.RelatedUserMediaList = vm.RelatedUserMediaList.Skip(skip).Take(pageSize).ToList();
+                //ViewBag.ItemCount = vm.RelatedUserMediaList.Count;
+                //vm.RelatedUserMediaList = vm.RelatedUserMediaList.Skip(skip).Take(pageSize).ToList();
 
-                vm.PageIndex = pageIndex;
-                vm.TotalPages = totalPages;
                 vm.SearchKey = searchKey;
-                vm.TotalRecords = totalRecordCount;
-                //vm.Discriminator = user[0].Discriminator;
+                vm.PageIndex = pageIndex;
+                //vm.TotalPages = totalPages;
+                //vm.TotalRecords = totalRecordCount;
+                ////vm.Discriminator = user[0].Discriminator;
 
                 return Json(vm);
             }
@@ -281,9 +235,12 @@ namespace nxPinterest.Web.Controllers
         {
             try
             {
-                UserMediaDetailModel result = await this.userMediaManagementService.GetUserMediaDetailsByIDAsync(media_id);
+                DetailsViewModel vm = new DetailsViewModel();
 
-                string[] tags = result.UserMediaDetail.Tags.Split('|');
+                //UserMediaの取得
+                var media = await this.userMediaManagementService.GetUserMediaAsync(media_id);
+
+                string[] tags = media.Tags.Split('|');
                 IList<string> photo_tags_list = new List<string>();
                 IList<string> project_tags_list = new List<string>();
 
@@ -303,7 +260,7 @@ namespace nxPinterest.Web.Controllers
                         }
                     }
                 }
-                string[] projectTags = result.UserMediaDetail.ProjectTags?.Split('|');
+                string[] projectTags = media.ProjectTags?.Split('|');
                 if (projectTags != null)
                 {
                     foreach (var tag in projectTags)
@@ -312,11 +269,12 @@ namespace nxPinterest.Web.Controllers
                     }
                 }
 
+                vm.UserMediaDetail = media;
                 ViewBag.MediaID = media_id;
                 ViewBag.PorjectTags = (projectTags != null) ? string.Join(',', projectTags?.ToArray()) : null;
                 ViewBag.PhotoTags = string.Join(',', photo_tags_list.ToArray());
 
-                return PartialView("/Views/Shared/_ImageViewer.cshtml", result);
+                return PartialView("/Views/Shared/_ImageViewer.cshtml", vm);
             }
             catch (Exception ex)
             {
@@ -336,9 +294,9 @@ namespace nxPinterest.Web.Controllers
         {
             try
             {
-                //todo detailではなくusermediaの取得
-                UserMediaDetailModel result = await this.userMediaManagementService.GetUserMediaDetailsByIDAsync(media_id);
-                List<UserMedia> mediaList = new List<UserMedia> { result.UserMediaDetail };
+                //UserMediaの取得 1件削除
+                var media = await this.userMediaManagementService.GetUserMediaAsync(media_id);
+                List<UserMedia> mediaList = new List<UserMedia> { media };
                 await this.userMediaManagementService.DeleteFromUserMediaList(mediaList);
                 return Json(new { success = true });
             }
@@ -362,8 +320,9 @@ namespace nxPinterest.Web.Controllers
                 List<UserMedia> mediaList = new List<UserMedia>();
                 foreach (var mediaId in ids?.Split(","))
                 {
-                    UserMediaDetailModel result = await this.userMediaManagementService.GetUserMediaDetailsByIDAsync(int.Parse(mediaId));
-                    mediaList.Add(result.UserMediaDetail);
+                    //UserMediaの取得 1件ずつ
+                    var media = await this.userMediaManagementService.GetUserMediaAsync(int.Parse(mediaId));
+                    mediaList.Add(media);
                 }
                 await this.userMediaManagementService.DeleteFromUserMediaList(mediaList);
                 return Json(new { success = true });

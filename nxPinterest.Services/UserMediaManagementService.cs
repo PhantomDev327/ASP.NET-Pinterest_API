@@ -11,7 +11,7 @@ using Azure;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
 using nxPinterest.Data.Models;
-using nxPinterest.Services.Models.Response;
+//using nxPinterest.Services.Models.Response;
 using nxPinterest.Services.Extensions;
 using System.Text.RegularExpressions;
 using nxPinterest.Services.Models.Request;
@@ -96,81 +96,125 @@ namespace nxPinterest.Services
             return await (this._context.UserMedia.AsNoTracking()
                                                 .FirstOrDefaultAsync(c => c.MediaId.Equals(mediaId)));
         }
+        ///// <summary>
+        /////     GetUserMediaDetails By ID
+        ///// </summary>
+        ///// <param name="media_id"></param>
+        ///// <returns></returns>
+        //public async Task<UserMediaDetailModel> GetUserMediaDetailsByIDAsync(int mediaId)
+        //{
+
+        //    Data.Models.UserMedia userMedia = await (this._context.UserMedia.AsNoTracking()
+        //                                        .FirstOrDefaultAsync(c => c.MediaId.Equals(mediaId)));
+
+        //    UserMediaDetailModel result = new UserMediaDetailModel();
+
+        //    IList<UserMedia> mediaList = new List<UserMedia>();
+
+        //    if (userMedia != null)
+        //    {
+        //        mediaList = this._context.UserMedia.AsNoTracking()
+        //                             .Where(c => c.ContainerId.Equals(userMedia.ContainerId) && c.MediaTitle.Equals(userMedia.MediaTitle.TrimExtraSpaces())).ToList();
+
+        //        //Todo trimは登録時に行おうよ
+        //        //mediaList = query.Select(c => new UserMedia()
+        //        //{
+        //        //    MediaId = c.MediaId,
+        //        //    UserId = c.UserId,
+        //        //    MediaTitle = c.MediaTitle?.TrimExtraSpaces(),
+        //        //    MediaDescription = c.MediaDescription?.TrimExtraSpaces(),
+        //        //    MediaFileName = c.MediaFileName,
+        //        //    MediaFileType = c.MediaFileType,
+        //        //    MediaUrl = c.MediaUrl,
+        //        //    Tags = c.Tags,
+        //        //    MediaSmallUrl = c.MediaSmallUrl,
+        //        //    MediaThumbnailUrl = c.MediaThumbnailUrl
+        //        //}).ToList();
+        //    }
+
+        //    result.UserMediaDetail = userMedia;
+        //    result.SameTitleUserMediaList = mediaList;
+
+        //    // 似ている画像取得
+        //    result.RelatedUserMediaList = await SearchSimilarImagesAsync(result.UserMediaDetail, result.UserMediaDetail.ContainerId);
+
+        //    return result;
+        //}
+
         /// <summary>
-        ///     GetUserMediaDetails By ID
+        ///     GetUserMediaSameTitleMediasAsync By UserMedia
+        ///     同じタイトルの画像を取得
         /// </summary>
         /// <param name="media_id"></param>
         /// <returns></returns>
-        public async Task<UserMediaDetailModel> GetUserMediaDetailsByIDAsync(int mediaId)
+        public async Task<IList<Data.Models.UserMedia>> GetUserMediaSameTitleMediasAsync(UserMedia media)
         {
-
-            Data.Models.UserMedia userMedia = await (this._context.UserMedia.AsNoTracking()
-                                                .FirstOrDefaultAsync(c => c.MediaId.Equals(mediaId)));
-
-            UserMediaDetailModel result = new UserMediaDetailModel();
-
-            IList<UserMedia> mediaList = new List<UserMedia>();
-
-            if (userMedia != null)
-            {
-                mediaList = this._context.UserMedia.AsNoTracking()
-                                     .Where(c => c.ContainerId.Equals(userMedia.ContainerId) && c.MediaTitle.Equals(userMedia.MediaTitle.TrimExtraSpaces())).ToList();
-
-                //Todo trimは登録時に行おうよ
-                //mediaList = query.Select(c => new UserMedia()
-                //{
-                //    MediaId = c.MediaId,
-                //    UserId = c.UserId,
-                //    MediaTitle = c.MediaTitle?.TrimExtraSpaces(),
-                //    MediaDescription = c.MediaDescription?.TrimExtraSpaces(),
-                //    MediaFileName = c.MediaFileName,
-                //    MediaFileType = c.MediaFileType,
-                //    MediaUrl = c.MediaUrl,
-                //    Tags = c.Tags,
-                //    MediaSmallUrl = c.MediaSmallUrl,
-                //    MediaThumbnailUrl = c.MediaThumbnailUrl
-                //}).ToList();
-            }
-
-            result.UserMediaDetail = userMedia;
-            result.SameTitleUserMediaList = mediaList;
-
-            // 似ている画像取得
-            result.RelatedUserMediaList = await SearchSimilarImagesAsync(result.UserMediaDetail, result.UserMediaDetail.ContainerId);
-
-            return result;
+            return await this._context.UserMedia.AsNoTracking()
+                                 .Where(c => c.ContainerId.Equals(media.ContainerId) && c.MediaTitle.Equals(media.MediaTitle.TrimExtraSpaces())).ToListAsync();
         }
 
         /// <summary>
-        ///     Search Similar images　似ている画像検索
+        ///     GetUserMediaRelatedMediasAsync By UserMedia
+        ///     似ている画像を取得
         /// </summary>
-        /// <param name="userMedia"></param>
-        /// <param name="container_id"></param>
+        /// <param name="media_id"></param>
         /// <returns></returns>
-        public async Task<IList<Data.Models.UserMedia>> SearchSimilarImagesAsync(UserMedia userMedia, int container_id)
+        public async Task<IList<Data.Models.UserMedia>> GetUserMediaRelatedMediasAsync(UserMedia media, int skip, int take)
         {
             try
             {
-                var searchTags = userMedia.Tags.Split("|").Where(w => w != "").Select(str => str.Split(":")[0]).ToList();
-                //var searchTags = userMedia.Tags.Split(",").ToList(); 
-                var searchMedias = this._context.UserMediaTags.AsNoTracking()
-                                                    .Where(u => u.ContainerId.Equals(userMedia.ContainerId) && u.Confidence > 0.7 && searchTags.Contains(u.Tag))
-                                                    .GroupBy(g => g.UserMediaName)
-                                                    .Select(s => new { UserMediaName = s.Key, Confidence = s.Sum(z => z.Confidence) })
-                                                    .OrderByDescending(z => z.Confidence)
+                //新ロジック　TODO
+                //同じオリジナルタグを持っているmediaは対象
+                //AIが付けたタグのいずれかが一致するmediaも対象
+                //スコアの大きい順
 
-                                                    .Select(s => s.UserMediaName)
-                                                    .ToList();
+                //TODOロジック　0.9以上のタグが一致するMEDIA
+                var searchTags = media.Tags.Split("|").Where(w => w != "").Select(str => str.Split(":")[0]).ToList();
 
-                var userMediaList = await this._context.UserMedia.AsNoTracking()
-                                                    //.Include(i => i.MediaFileName)
-                                                    .Where(u => u.ContainerId.Equals(container_id) && searchMedias.Contains(u.MediaFileName))
-                                                    .Where(v => !v.MediaId.Equals(userMedia.MediaId))
-                                                    .ToListAsync();
+                //todo 過渡期のみ
+                if (searchTags.Count == 1) searchTags = searchTags[0].Split(",").ToList();
+
+                //var sameOrgTagMedia = from q in this._context.UserMediaTags.AsNoTracking()
+                //                      join s in searchTags
+                //                      on q.Tag equals s
+                //                      where q.Confidence > 0.9 && q.ContainerId == media.ContainerId && q.UserMediaName != media.MediaFileName
+                //                      group q by q.UserMediaName into G
+                //                      select new
+                //                      {
+                //                          UserMediaName = G.Key,
+                //                          Confidence = G.Sum(z => z.Confidence)
+                //                      };
+
+                var sameOrgTagMedia = from q in this._context.UserMediaTags.AsNoTracking()
+                                      where searchTags.Contains(q.Tag) && q.Confidence > 0.9 && q.ContainerId == media.ContainerId && q.UserMediaName != media.MediaFileName
+                                      group q by q.UserMediaName into G
+                                      select new
+                                      {
+                                          UserMediaName = G.Key,
+                                          Confidence = G.Sum(z => z.Confidence)
+                                      };
+
+                //var userMediaList = await (
+                //                        from q in this._context.UserMedia.AsNoTracking()
+                //                        join s in sameOrgTagMedia
+                //                        on q.MediaFileName equals s.UserMediaName
+                //                        orderby s.Confidence descending
+                //                        select q
+                //                        )
+                //                    .ToListAsync();
+
+                var userMediaList = await (
+                                        from q in this._context.UserMedia.AsNoTracking()
+                                        join s in sameOrgTagMedia
+                                        on q.MediaFileName equals s.UserMediaName
+                                        orderby s.Confidence descending 
+                                        select q
+                                    )
+                                    .Skip(skip).Take(take).ToListAsync();
 
                 return userMediaList;
             }
-            catch(Exception)
+            catch (Exception)
             {
                 throw;
             }

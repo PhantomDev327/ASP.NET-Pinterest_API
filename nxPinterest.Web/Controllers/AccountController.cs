@@ -591,7 +591,6 @@ namespace nxPinterest.Web.Controllers
                 TempData["Message"] = ex.Message;
                 return View("~/Views/Error/204.cshtml");
             }
-            return this.View("~/Views/Account/UserContainerIdList.cshtml", vm);
         }
 
         /*
@@ -1112,8 +1111,6 @@ namespace nxPinterest.Web.Controllers
                 TempData["Message"] = ex.Message;
                 return View("~/Views/Error/204.cshtml");
             }
-
-            return Redirect("/Account/NormalUserList");
         }
 
         /*
@@ -1196,8 +1193,6 @@ namespace nxPinterest.Web.Controllers
                 TempData["Message"] = ex.Message;
                 return View("~/Views/Error/204.cshtml");
             }
-
-            return Redirect("/Account/NormalUserList");
         }
 
         // END ------------------------ コンテナ管理者＞ユーザ一覧/登録/変更/削除 ------------------------
