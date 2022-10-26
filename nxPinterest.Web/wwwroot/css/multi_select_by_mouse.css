@@ -60,3 +60,6 @@ figure.selection-border {
 .range-custom::-webkit-slider-runnable-track {
     background-color: #c3c3c3;
 }
+.range-area > * {
+    vertical-align: middle
+}
