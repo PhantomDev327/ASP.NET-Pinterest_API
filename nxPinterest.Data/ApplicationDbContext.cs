@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using nxPinterest.Data.Configrations;
 using nxPinterest.Data.Models;
 
 namespace nxPinterest.Data
@@ -17,6 +18,10 @@ namespace nxPinterest.Data
         public virtual DbSet<SearchResultUserMedia> SearchResultUserMedia { get; set; }
         public virtual DbSet<UserContainer> UserContainer { get; set; }
         public virtual DbSet<UserMediaTags> UserMediaTags { get; set; }
+
+        public virtual DbSet<UserAlbum> UserAlbums { get; set; }
+        public virtual DbSet<UserAlbumMedia> UserAlbumMedias { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -151,6 +156,10 @@ namespace nxPinterest.Data
 
 
             base.OnModelCreating(modelBuilder);
+
+            // configuration table UserAlbum and UserAlbumMedia
+            modelBuilder.ApplyConfiguration(new UserAlbumConfiguration());
+            modelBuilder.ApplyConfiguration(new UserAlbumMediaConfiguration());
         }
     }
 }
