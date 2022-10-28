@@ -57,7 +57,7 @@
 										</figure>
 									</div>
 								</div>
-								<div class="row">
+								@*<div class="row">
 									<div class="col">
 										<div class="thumbnail-section-wrapper" style="margin-top:0!important">
 											@for (int i = 0; i < Model.SameTitleUserMediaList.Count(); i++)
@@ -73,7 +73,7 @@
 											}
 										</div>
 									</div>
-								</div>
+								</div>*@
 							</div>
 						</div>
 						<div class="col">
@@ -84,7 +84,7 @@
 
 									<div class="tag-control-container">
 										<p class="text-black tag-text">タグ</p>
-										<input class="form-control text-black" data-role="tagsinput" value="@ViewBag.PorjectTags" name="ProjectTags" />
+										<input class="form-control text-black" data-role="tagsinput" value="@Model.OriginalTags" name="OriginalTags" />
 									</div>
 
 									<input hidden asp-for="@userMedia.MediaId" name="MediaId" />

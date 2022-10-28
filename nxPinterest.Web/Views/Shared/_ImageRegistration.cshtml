@@ -15,7 +15,7 @@
                                         <input type="file" name="Images" id="upfiles" style="display: none;" multiple/>
                                         <input type="hidden" name="Title" id="title_image" />
                                         <input type="hidden" name="Description" id="description_image" />
-                                        <input type="hidden" name="ProjectTags" id="project_tags_image" />
+                                        <input type="hidden" name="OriginalTags" id="project_tags_image" />
                                         <input type="hidden" name="BtnName" id="btn_name" />
                                     </div>
                                 </form>
@@ -37,8 +37,8 @@
 
                         <div class="tag-control-container" id="style">
                             <p class="tag-text" style="color: #adb5bd; ">タグ</p>
-                            <input data-role="tagsinput" asp-for="ProjectTags" />
-                            <div class="project_tags" style="margin-top:10px;">
+                            <input data-role="tagsinput" asp-for="OriginalTags" />
+                            <div class="original_tags" style="margin-top:10px;">
 		                        @foreach (var tag in @Model.SuggestTagsList){
 			                        <div onclick=inputTags("@tag") style="display:inline-block;color:#4d4d4d;background-color: #F7F7F7;padding:10px 20px 10px 20px;border-radius:3px;margin-right:7px;margin-bottom:7px;">@tag</div>
 		                        }
@@ -93,7 +93,7 @@
 
                 $("#title_image").val($("#Title").val());
                 $("#description_image").val($("#Description").val());
-                $("#project_tags_image").val($("#ProjectTags").val());
+                $("#project_tags_image").val($("#OriginalTags").val());
                 $("#btn_name").val("upload");
                 $('#dropzoneForm').submit();
             });
@@ -116,7 +116,7 @@
 
                 $("#title_image").val($("#Title").val());
                 $("#description_image").val($("#Description").val());
-                $("#project_tags_image").val($("#ProjectTags").val());
+                $("#project_tags_image").val($("#OriginalTags").val());
                 $("#btn_name").val("kobetsu");
                 $('#dropzoneForm').submit();
             });
@@ -126,6 +126,6 @@
         }
     };
     function inputTags(value) {
-        $('#ProjectTags').tagsinput('add', value);
+        $('#OriginalTags').tagsinput('add', value);
     }
 </script>

@@ -124,7 +124,7 @@ namespace nxPinterest.Web.Controllers
                     vm.SameTitleUserMediaList = await this.userMediaManagementService.GetUserMediaSameTitleMediasAsync(media);
                     vm.RelatedUserMediaList = await this.userMediaManagementService.GetUserMediaRelatedMediasAsync(media);
 
-                    string[] projectTags = vm.UserMediaDetail.ProjectTags?.Split(',');
+                    string[] originalTags = vm.UserMediaDetail.OriginalTags?.Split(',');
                 }
 
                 return Json(vm);
@@ -155,7 +155,7 @@ namespace nxPinterest.Web.Controllers
                     vm.SameTitleUserMediaList = await this.userMediaManagementService.GetUserMediaSameTitleMediasAsync(media);
                     vm.RelatedUserMediaList = await this.userMediaManagementService.GetUserMediaRelatedMediasAsync(media);
 
-                    string[] projectTags = vm.UserMediaDetail.ProjectTags?.Split(',');
+                    string[] originalTags = vm.UserMediaDetail.OriginalTags?.Split(',');
 
                     //上限
                     int totalPages = (int)System.Math.Ceiling((decimal)(vm.RelatedUserMediaList.Count / (decimal)pageSize));
@@ -173,7 +173,7 @@ namespace nxPinterest.Web.Controllers
                     vm.Discriminator = user[0].Discriminator;
 
                     //ViewBag.MediaID = media_id;
-                    //ViewBag.PorjectTags = projectTags ?? null;
+                    //ViewBag.PorjectTags = originalTags ?? null;
                     ////ViewBag.PhotoTags = string.Join(',', photo_tags_list.ToArray());
                     //ViewBag.RelatedUserMediaList = JsonConvert.SerializeObject(vm.RelatedUserMediaList);
 
@@ -240,39 +240,39 @@ namespace nxPinterest.Web.Controllers
                 //UserMediaの取得
                 var media = await this.userMediaManagementService.GetUserMediaAsync(media_id);
 
-                string[] tags = media.Tags.Split('|');
-                IList<string> photo_tags_list = new List<string>();
-                IList<string> project_tags_list = new List<string>();
+                //string[] tags = media.Tags.Split('|');
+                //IList<string> photo_tags_list = new List<string>();
+                //IList<string> project_tags_list = new List<string>();
 
-                foreach (var tag in tags)
-                {
-                    string[] current_tags = tag.Split(':');
-                    if (current_tags != null && current_tags.Length == 3)
-                    {
-                        string current_tag_name = current_tags[0].Trim();
-                        if (!string.IsNullOrEmpty(current_tag_name))
-                        {
-                            decimal current_score = decimal.Parse(current_tags[1]);
-                            if (current_score < 1)
-                                photo_tags_list.Add(current_tag_name);
-                            else
-                                project_tags_list.Add(current_tag_name);
-                        }
-                    }
-                }
-                string[] projectTags = media.ProjectTags?.Split('|');
-                if (projectTags != null)
-                {
-                    foreach (var tag in projectTags)
-                    {
-                        project_tags_list.Add(tag);
-                    }
-                }
+                //foreach (var tag in tags)
+                //{
+                //    string[] current_tags = tag.Split(':');
+                //    if (current_tags != null && current_tags.Length == 3)
+                //    {
+                //        string current_tag_name = current_tags[0].Trim();
+                //        if (!string.IsNullOrEmpty(current_tag_name))
+                //        {
+                //            decimal current_score = decimal.Parse(current_tags[1]);
+                //            if (current_score < 1)
+                //                photo_tags_list.Add(current_tag_name);
+                //            else
+                //                project_tags_list.Add(current_tag_name);
+                //        }
+                //    }
+                //}
+                //string[] originalTags = media.OriginalTags?.Split('|');
+                //if (originalTags != null)
+                //{
+                //    foreach (var tag in originalTags)
+                //    {
+                //        project_tags_list.Add(tag);
+                //    }
+                //}
 
                 vm.UserMediaDetail = media;
-                ViewBag.MediaID = media_id;
-                ViewBag.PorjectTags = (projectTags != null) ? string.Join(',', projectTags?.ToArray()) : null;
-                ViewBag.PhotoTags = string.Join(',', photo_tags_list.ToArray());
+                //ViewBag.MediaID = media_id;
+                //ViewBag.PorjectTags = (originalTags != null) ? string.Join(',', originalTags?.ToArray()) : null;
+                //ViewBag.PhotoTags = string.Join(',', photo_tags_list.ToArray());
 
                 return PartialView("/Views/Shared/_ImageViewer.cshtml", vm);
             }

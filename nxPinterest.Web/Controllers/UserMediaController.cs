@@ -70,8 +70,8 @@ namespace nxPinterest.Web.Controllers
                     imageInfo.Images = file;
                     imageInfo.Title = request.Title;
                     imageInfo.Description = request.Description;
-                    imageInfo.ProjectTags = request.ProjectTags;
-                    imageInfo.PhotoTags = request.PhotoTags;
+                    imageInfo.OriginalTags = request.OriginalTags;
+                    imageInfo.AITags = request.AITags;
                     imageInfo.DateTimeUploaded = request.DateTimeUploaded;
                     individual.ImageInfoList.Add(imageInfo);
                     CreateImageDirectory();

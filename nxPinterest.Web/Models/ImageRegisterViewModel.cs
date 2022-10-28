@@ -23,8 +23,8 @@ namespace nxPinterest.Web.Models
         [Required]
         [MinLength(1)]
         public IList<IFormFile> Images { get; set; } = new List<IFormFile>();
-        public string ProjectTags { get; set; }
-        //public string PhotoTags { get; set; }
+        public string OriginalTags { get; set; }
+        //public string AITags { get; set; }
         //public string Created { get; set; }
         //public DateTime Uploaded { get; set; } = DateTime.Now;
 

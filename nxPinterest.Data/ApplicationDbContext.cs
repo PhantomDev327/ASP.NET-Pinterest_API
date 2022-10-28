@@ -22,12 +22,11 @@ namespace nxPinterest.Data
         public virtual DbSet<UserAlbum> UserAlbums { get; set; }
         public virtual DbSet<UserAlbumMedia> UserAlbumMedias { get; set; }
 
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP1_CI_AS");
 
-        
+
             modelBuilder.Entity<UserMedia>(entity =>
             {
                 entity.HasKey(e => e.MediaId)
@@ -95,17 +94,14 @@ namespace nxPinterest.Data
                 entity.Property(e => e.SearchText)
                     .HasColumnName("media_searchtext");
 
-                //entity.Property(e => e.Tags)
-                //    .HasColumnName("media_tags");
+                entity.Property(e => e.Tags)
+                    .HasColumnName("media_tags");
 
                 entity.Property(e => e.OriginalTags)
                     .HasColumnName("media_originaltags");
 
                 entity.Property(e => e.AITags)
                     .HasColumnName("media_aitags");
-
-                //entity.Property(e => e.DateTimeUploaded)
-                //    .HasDefaultValueSql("getdate()");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.UserMedia)
