@@ -1,9 +1,10 @@
 ﻿using nxPinterest.Data.Models;
+using System.Threading.Tasks;
 
 namespace nxPinterest.Data.Repositories.Interfaces
 {
     public interface IUserAlbumRepository : IBaseRepository<UserAlbum>
     {
-        // you can implementing another method as you like
+        Task<bool> IsUserAlbumAlreadyExists(string albumName);
     }
 }
