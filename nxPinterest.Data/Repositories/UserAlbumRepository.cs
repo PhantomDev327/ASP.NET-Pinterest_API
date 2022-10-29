@@ -27,7 +27,7 @@ namespace nxPinterest.Data.Repositories
             }
 
             DateTime? expiryDate = result.AlbumExpireDate;
-            TimeSpan diff = (TimeSpan)(expiryDate - DateTime.Now);
+            TimeSpan diff = (TimeSpan)(DateTime.UtcNow - expiryDate);
 
             // if day >30 has expired
             return diff.Days > 30;
