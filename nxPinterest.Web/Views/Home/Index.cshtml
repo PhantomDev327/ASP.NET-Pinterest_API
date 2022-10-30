@@ -103,7 +103,7 @@
         <div class="modal-content">
             <div class="modal-body">
             <h3 class="text-center" style="font-weight: normal;">アルバム登録</h3>
-            <input type="email" class="form-control" id="createUserMediaFolderName" value="サンプルアルバム">
+            <input type="text" class="form-control" id="createUserMediaFolderName" value="">
             </div>
             <div class="modal-footer pt-0">
                 <button type="button" class="btn" data-bs-dismiss="modal">閉じる</button>
@@ -147,3 +147,12 @@
     <iframe id="iframeDownload1" style="display: none"></iframe>
     <iframe id="iframeDownload2" style="display: none"></iframe>
     <iframe id="iframeDownload3" style="display: none"></iframe>
+
+@section Scripts{
+    <script src="~/js/user-album/index.js"></script>
+    <script>
+        var album = new userAlbumController();
+           album.initialize();
+    </script>
+
+    }
