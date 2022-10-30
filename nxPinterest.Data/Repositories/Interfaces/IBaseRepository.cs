@@ -5,15 +5,31 @@ using System.Threading.Tasks;
 
 namespace nxPinterest.Data.Repositories.Interfaces
 {
-    public interface IBaseRepository<Entity> where Entity : class
+    public interface IBaseRepository<T> where T : class
     {
-        Task<Entity> GetByIdAsync(int entityId, string column);
-        Task InsertAsync(Entity entity);
-        Task AddRangeAsync(IEnumerable<Entity> entities);
-        void AttachRange(IEnumerable<Entity> entities);
-        void Remove(Entity entity, string property);
-        void Update(Entity entity);
-        Task<IEnumerable<Entity>> GetAllAsync();
-        Task<IEnumerable<Entity>> FindAsync(Expression<Func<Entity, bool>> expression);
+        // Marks an entity as new
+        Task Add(T entity);
+
+        // Marks an entity as modified
+        void Update(T entity);
+
+        // Marks an entity to be removed
+        T Delete(T entity);
+
+        T Delete(int id);
+
+        //Delete multi records
+        void DeleteMulti(Expression<Func<T, bool>> where);
+
+        // Get an entity by int id
+        T GetSingleById(int id);
+
+        T GetSingleByCondition(Expression<Func<T, bool>> expression, string[] includes = null);
+
+        IEnumerable<T> GetAll(string[] includes = null);
+
+        int Count(Expression<Func<T, bool>> where);
+
+        bool CheckContains(Expression<Func<T, bool>> predicate);
     }
 }

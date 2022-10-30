@@ -8,51 +8,91 @@ using System.Threading.Tasks;
 
 namespace nxPinterest.Data.Repositories
 {
-    public abstract class BaseRepository<Entity> : IBaseRepository<Entity> where Entity : class
+    public abstract class BaseRepository<T> : IBaseRepository<T> where T : class
     {
         #region Property
         protected readonly ApplicationDbContext Context;
-        private DbSet<Entity> _entities;
+        private DbSet<T> _entities;
         #endregion
 
         #region Constructor
         public BaseRepository(ApplicationDbContext context)
         {
             this.Context = context;
-            this._entities = Context.Set<Entity>();
+            this._entities = Context.Set<T>();
+        }
+
+        public virtual async Task Add(T entity)
+        {
+            await _entities.AddAsync(entity);
+        }
+
+        public bool CheckContains(Expression<Func<T, bool>> predicate)
+        {
+            return Context.Set<T>().Count<T>(predicate) > 0;
+        }
+
+        public int Count(Expression<Func<T, bool>> where)
+        {
+            return _entities.Count(where);
+        }
+
+        public T Delete(T entity)
+        {
+            return _entities.Remove(entity).Entity;
+        }
+
+        public T Delete(int id)
+        {
+            var entity = _entities.Find(id);
+            return _entities.Remove(entity).Entity;
+        }
+
+        public void DeleteMulti(Expression<Func<T, bool>> where)
+        {
+            IEnumerable<T> objects = _entities.Where<T>(where).AsEnumerable();
+            foreach (T obj in objects)
+                _entities.Remove(obj);
+        }
+
+        public IEnumerable<T> GetAll(string[] includes = null)
+        {
+            //HANDLE INCLUDES FOR ASSOCIATED OBJECTS IF APPLICABLE
+            if (includes != null && includes.Count() > 0)
+            {
+                var query = Context.Set<T>().Include(includes.First());
+                foreach (var include in includes.Skip(1))
+                    query = query.Include(include);
+                return query.AsQueryable();
+            }
+
+            return Context.Set<T>().AsQueryable();
+        }
+
+
+        public T GetSingleByCondition(Expression<Func<T, bool>> expression, string[] includes = null)
+        {
+            if (includes != null && includes.Count() > 0)
+            {
+                var query = Context.Set<T>().Include(includes.First());
+                foreach (var include in includes.Skip(1))
+                    query = query.Include(include);
+                return query.FirstOrDefault(expression);
+            }
+            return Context.Set<T>().FirstOrDefault(expression);
+        }
+
+        public T GetSingleById(int id)
+        {
+            return _entities.Find(id);
+        }
+
+        public void Update(T entity)
+        {
+            _entities.Attach(entity);
+            Context.Entry(entity).State = EntityState.Modified;
         }
         #endregion
 
-        #region Method
-        public virtual async Task<IEnumerable<Entity>> FindAsync(Expression<Func<Entity, bool>> expression) =>
-            await _entities.Where(expression).ToListAsync();
-
-        public virtual async Task<Entity> GetByIdAsync(int entityId, string column) =>
-            await _entities.Where(entity => EF.Property<int>(entity, column).Equals(entityId)).SingleOrDefaultAsync();
-
-        public virtual async Task InsertAsync(Entity entity) =>
-            await _entities.AddAsync(entity);
-
-        public virtual async Task AddRangeAsync(IEnumerable<Entity> entities) =>
-            await _entities.AddRangeAsync(entities);
-
-        public virtual void AttachRange(IEnumerable<Entity> entities) =>
-            _entities.AttachRange(entities);
-
-        /// <summary>
-        /// Soft-delete by change value of status true -> false
-        /// </summary>
-        /// <param name="entity">Entity object</param>
-        public virtual void Remove(Entity entity, string property) =>
-            entity.GetType().GetProperty(property).SetValue(entity, true);
-
-        public virtual void Update(Entity entity) =>
-            _entities.Update(entity);
-
-        public virtual async Task<IEnumerable<Entity>> GetAllAsync() =>
-            await _entities.AsNoTracking().ToListAsync();
-
-
-        #endregion
     }
 }
