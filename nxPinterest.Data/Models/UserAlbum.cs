@@ -1,5 +1,6 @@
 ﻿using nxPinterest.Data.Enums;
 using System;
+using System.Collections.Generic;
 
 namespace nxPinterest.Data.Models;
 
@@ -8,6 +9,8 @@ public class UserAlbum
     public int AlbumId { get; set; }
 
     public string AlbumName { get; set; }
+
+    public string UserId { get; set; }
 
     public int ContainerId { get; set; }
 
@@ -24,4 +27,12 @@ public class UserAlbum
     public DateTime? AlbumUpdatedat { get; set; }
 
     public DateTime? AlbumDeletedat { get; set; }
+
+    public virtual ApplicationUser ApplicationUser { get; set; }
+
+    public  virtual UserContainer UserContainer { get; set; }
+
+    public List<UserAlbumMedia> UserAlbumMedias { get; set; } = new List<UserAlbumMedia>();
+
+
 }

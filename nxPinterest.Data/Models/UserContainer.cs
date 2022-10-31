@@ -11,5 +11,9 @@ namespace nxPinterest.Data.Models
         public int container_id { get; set; }
         public string container_name { get; set; }
         public Boolean container_visibility { get; set; }
+
+        public List<UserAlbum> UserAlbums { get; set; } = new List<UserAlbum>();
+
+        public List<UserAlbumMedia> UserAlbumMedias { get; set; } = new List<UserAlbumMedia>();
     }
 }

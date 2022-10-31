@@ -17,6 +17,8 @@ namespace nxPinterest.Data.Models
 
         public virtual ICollection<UserMedia> UserMedia { get; set; }
 
+        public List<UserAlbum> UserAlbums { get; set; } = new List<UserAlbum>();
+
         public virtual string Discriminator { get; set; }
 
         public virtual int container_id { get; set; }
