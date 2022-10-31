@@ -14,6 +14,7 @@ namespace nxPinterest.Services
         private readonly IUserRepository _userRepository;
         private readonly IUnitOfWork _unitOfWork;
 
+
         public UserAlbumService(IUserAlbumRepository userAlbumRepository, IUserAlbumMediaRepository userAlbumMediaRepository,
             IUserRepository userRepository, IUnitOfWork unitOfWork)
         {
@@ -40,6 +41,7 @@ namespace nxPinterest.Services
                 {
                     AlbumName = model.AlbumName,
                     ContainerId = containerId,
+                    UserId = userId,
                     AlbumType = Data.Enums.AlbumType.Album,
                     AlbumUrl = model.UserAlbumMedias[0].MediaUrl,
                     AlbumVisibility = true,
@@ -54,6 +56,7 @@ namespace nxPinterest.Services
                 {
                     var userAlbumMedia = new UserAlbumMedia
                     {
+                        AlbumId = userAlbum.AlbumId,
                         ContainerId = containerId,
                         UserMediaId = item.UserMediaId,
                         UserMediaName = model.AlbumName,
