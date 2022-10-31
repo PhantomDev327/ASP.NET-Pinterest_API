@@ -2,7 +2,7 @@
 
     this.initialize = function () {
         registerEvents();
-    }
+    };
 
     function registerEvents() {
 
@@ -17,7 +17,8 @@
             }
             var $albumName = $('#createUserMediaFolderName').val();
             if ($albumName === '' || $albumName == null) {
-                alert("Album Name is required !");
+                alert("アルバムは、必ず指定してください。 !");
+                return;
             }
             var $associateAlbum = $mediaid.map(function (v, k, a) {
                 return { UserMediaId: v, MediaUrl: $links[k] };
@@ -25,24 +26,22 @@
 
             $.ajax({
                 url: "/UserAlbum/Create",
-                type: 'post',
-                dataType: 'json',
+                type: "post",
+                dataType: "json",
                 data: {
                     AlbumName: $albumName,
                     UserAlbumMedias: $associateAlbum
                 },
                 cache: false,
-                success: function (data) {
+                success: function(data) {
                     alert("success");
                 },
-                error: function () {
+                error: function() {
                     alert("error");
                 }
             });
 
-
         });
     };
-
 
 }

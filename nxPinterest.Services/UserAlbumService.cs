@@ -29,7 +29,7 @@ namespace nxPinterest.Services
             try
             {
                 if (string.IsNullOrEmpty(model.AlbumName) || model.UserAlbumMedias.Count == 0
-                    || string.IsNullOrEmpty(userId))
+                                                          || string.IsNullOrEmpty(userId))
                 {
                     return false;
                 }
@@ -46,13 +46,22 @@ namespace nxPinterest.Services
                     AlbumUrl = model.UserAlbumMedias[0].MediaUrl,
                     AlbumVisibility = true,
                     AlbumCreatedat = DateTime.Now,
-                    AlbumExpireDate = DateTime.Now,
-
+                    AlbumExpireDate = DateTime.Now
                 };
-                await _userAlbumRepository.Add(userAlbum);
-                await _unitOfWork.CompleteAsync();
 
-                foreach (UserAlbumMediaRequest item in model.UserAlbumMedias)
+                var (albumId, albumName) = _userAlbumRepository.IsUserAlbumAlreadyExists(model.AlbumName);
+
+                if (albumName is not null)
+                {
+                    userAlbum.AlbumId = albumId;
+                }
+                else
+                {
+                    await _userAlbumRepository.Add(userAlbum);
+                    await _unitOfWork.CompleteAsync();
+                }
+
+                foreach (var item in model.UserAlbumMedias)
                 {
                     var userAlbumMedia = new UserAlbumMedia
                     {
@@ -65,14 +74,15 @@ namespace nxPinterest.Services
 
                     await _userAlbumMediaRepository.Add(userAlbumMedia);
                 }
+
                 await _unitOfWork.CompleteAsync();
                 return true;
-
             }
             catch (Exception)
             {
                 return false;
             }
         }
+
     }
 }

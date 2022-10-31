@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace nxPinterest.Services.Models.Request
 {
     public class CreateUserAlbumRequest
     {
+        [Required]
         public string AlbumName { get; set; }
 
         public List<UserAlbumMediaRequest> UserAlbumMedias { get; set; }

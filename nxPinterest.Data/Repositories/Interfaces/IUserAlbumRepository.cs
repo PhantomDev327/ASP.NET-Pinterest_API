@@ -5,7 +5,7 @@ namespace nxPinterest.Data.Repositories.Interfaces
 {
     public interface IUserAlbumRepository : IBaseRepository<UserAlbum>
     {
-        Task<bool> IsUserAlbumAlreadyExists(string albumName);
+        (int albumId, string albumName) IsUserAlbumAlreadyExists(string albumName);
 
         Task<bool> CheckExpiryDayAlbum(int albumId);
     }

@@ -2,6 +2,7 @@
 using nxPinterest.Data.Models;
 using nxPinterest.Data.Repositories.Interfaces;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace nxPinterest.Data.Repositories
@@ -33,11 +34,17 @@ namespace nxPinterest.Data.Repositories
             return diff.Days > 30;
         }
 
-        public async Task<bool> IsUserAlbumAlreadyExists(string albumName)
+        public (int albumId, string albumName) IsUserAlbumAlreadyExists(string albumName)
         {
-            if (string.IsNullOrEmpty(albumName)) return false;
+            if (string.IsNullOrEmpty(albumName)) return (0, null);
 
-            return await Context.UserAlbums.AnyAsync(n => n.AlbumName == albumName);
+            var result = Context.UserAlbums.Select(n => new
+            {
+                n.AlbumName,
+                n.AlbumId
+            }).SingleOrDefault(n => n.AlbumName == albumName);
+
+            return result.AlbumName != null ? (result.AlbumId, result.AlbumName) : (0, null);
         }
     }
 }
