@@ -1,0 +1,55 @@
+﻿<style>
+    ::-webkit-scrollbar-thumb {
+        background-color: #212529;
+    }
+
+    ::-webkit-scrollbar-track {
+        background-color: #ab9696;
+    }
+</style>
+
+<div class="modal fade text-black" id="createUserMediaFolderModal" tabindex="-1" role="dialog" aria-labelledby="createUserMediaFolderModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h3 class="text-rigth">アルバム登録</h3>
+                        <input type="email" class="form-control" id="createUserMediaFolderName" value="サンプルアルバム">
+
+                    </div>
+                </div>
+
+                <div class="row float-end">
+                    <div class="col-md-12 mt-2">
+                        <button type="button" class="btn btn-outline-secondary btn-md" id="createUserMediaFolderButton">登録</button>
+                    </div>
+                </div>
+
+                <div class="clearfix"></div>
+                <h6 class="mt-2">List album</h6>
+                <hr class="mb-5">
+
+                <div class="row mt-4" style="height: 300px !important;overflow-y: scroll">
+
+                    <ul class="list-group">
+
+                        @for (var i = 0; i < 10; i++)
+                        {
+                            <li href="javascript:void(0);" class="list-group-item list-group-item-action text-primary border-0">
+                                <img src="https://starsestorage.blob.core.windows.net/demoimg/3/thumb/20221031125447967_2a0c3363aa9848888a3198140eca235e.jpg" class="rounded" style="width:20%" /> Album @i
+                            </li>
+                        }
+
+                    </ul>
+                </div>
+            </div>
+            @*<div class="modal-footer pt-0">
+            <button type="button" class="btn" data-bs-dismiss="modal">閉じる</button>
+            </div>*@
+        </div>
+    </div>
+</div>

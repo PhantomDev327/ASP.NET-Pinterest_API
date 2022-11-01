@@ -10,16 +10,9 @@
     string searchKey = Model.SearchKey;
     //bool hasPagination = Model.TotalRecords > nxPinterest.Services.dev_Settings.pageSize_regist;
 }
-<style>
-        ::-webkit-scrollbar-thumb {
-        background-color: #212529 ;
-    }
-        ::-webkit-scrollbar-track {
-        background-color: #ab9696 ;
-    }
-</style>
-<!-- Start Content-->
-@*<div id="blockGallery">
+
+    <!-- Start Content-->
+    @*<div id="blockGallery">
         <div class="m-3">
              @RenderBody()
         </div>
@@ -32,40 +25,28 @@
         </a>
     </div>*@
 
-<script>
-    function RegiterUserMediaFile() {
-        $('#image-viewer-modal').remove();
-        $('#image-registration-modal').modal('show');
-    }
+    <script>
+        function RegiterUserMediaFile() {
+            $('#image-viewer-modal').remove();
+            $('#image-registration-modal').modal('show');
+        }
 
-    function showLoader() {
-        $('.indicator-loader').show();
-    }
+        function showLoader() {
+            $('.indicator-loader').show();
+        }
 
-    function hideLoader() {
-        $('.indicator-loader').fadeOut("slow");
-    }
+        function hideLoader() {
+            $('.indicator-loader').fadeOut("slow");
+        }
 
-    $.urlParam = function (name) {
-        var results = new RegExp('[\?&]' + name + '=([^&#]*)')
-            .exec(window.location.search);
+        $.urlParam = function (name) {
+            var results = new RegExp('[\?&]' + name + '=([^&#]*)')
+                .exec(window.location.search);
 
-        return (results !== null) ? results[1] || 0 : false;
-    }
+            return (results !== null) ? results[1] || 0 : false;
+        }
 
-    $('.btn-search').on('click', function () {
-        var pageIndex = $.urlParam('pageIndex');
-        var searchKey = $('input[name="SearchKey"]').val();
-        showLoader();
-        if (pageIndex == false)
-            pageIndex = 1;
-
-        var url = '@Url.Action("Index","Home")' + "?pageIndex=" + pageIndex + "&searchKey=" + searchKey;
-        window.location = url;
-    });
-
-    $('#SearchKey').keypress(function (event) {
-        if (event.keyCode == 13) {
+        $('.btn-search').on('click', function () {
             var pageIndex = $.urlParam('pageIndex');
             var searchKey = $('input[name="SearchKey"]').val();
             showLoader();
@@ -74,24 +55,36 @@
 
             var url = '@Url.Action("Index","Home")' + "?pageIndex=" + pageIndex + "&searchKey=" + searchKey;
             window.location = url;
-        }
-    });
+        });
 
-    $(document).ready(function () {
-        hideLoader();
-    });
-    function addTags(value) {
-        var searchKey = $('#SearchKey').val();
-        if (searchKey) {
-            searchKey = searchKey.concat(" " + value);
-        } else {
-            searchKey = value;
+        $('#SearchKey').keypress(function(event){
+            if(event.keyCode == 13){
+                var pageIndex = $.urlParam('pageIndex');
+                var searchKey = $('input[name="SearchKey"]').val();
+                showLoader();
+                if (pageIndex == false)
+                    pageIndex = 1;
+
+                var url = '@Url.Action("Index","Home")' + "?pageIndex=" + pageIndex + "&searchKey=" + searchKey;
+                window.location = url;
+            }
+        });
+
+        $(document).ready(function () {
+            hideLoader();
+        });
+        function addTags(value) {
+            var searchKey = $('#SearchKey').val();
+            if (searchKey) {
+                searchKey = searchKey.concat(" " + value); 
+            } else {
+                searchKey = value;
+            }
+            $('#SearchKey').val(searchKey);
+            var url = '@Url.Action("Index","Home")' + "?searchKey=" + searchKey;
+            window.location = url;
         }
-        $('#SearchKey').val(searchKey);
-        var url = '@Url.Action("Index","Home")' + "?searchKey=" + searchKey;
-        window.location = url;
-    }
-</script>
+    </script>
 
 @*@{
     await Html.RenderPartialAsync("/Views/Shared/_ImageRegistration.cshtml", Model.ImageRegistrationVM);
@@ -105,69 +98,25 @@
     await Html.RenderPartialAsync("/Views/Shared/_ImageRegistration.cshtml", Model.ImageRegistrationVM);
 }
 
-<div class="modal fade text-black" id="createUserMediaFolderModal" tabindex="-1" role="dialog" aria-labelledby="createUserMediaFolderModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header border-0">
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-12">
-                        <h3 class="text-rigth">アルバム登録</h3>
-                        <input type="email" class="form-control" id="createUserMediaFolderName" value="サンプルアルバム">
+    <partial name="_ShowAlbum" />
 
-                    </div>
-                </div>
-
-                <div class="row float-end">
-                    <div class="col-md-12 mt-2">
-                        <button type="button" class="btn btn-outline-secondary btn-md" id="createUserMediaFolderButton">登録</button>
-                    </div>
-                </div>
-
-                <div class="clearfix"></div>
-                <h6 class="mt-2">List album</h6>
-                <hr class="mb-5">
-
-                <div class="row mt-4" style="height: 300px !important;overflow-y: scroll">
-
-                    <ul class="list-group">
-
-                        @for (var i = 0; i < 10; i++)
-                        {
-                            <li href="javascript:void(0);" class="list-group-item list-group-item-action text-primary border-0">
-                                <img src="https://starsestorage.blob.core.windows.net/demoimg/3/thumb/20221031125447967_2a0c3363aa9848888a3198140eca235e.jpg" class="rounded" style="width:20%" /> Album @i
-                            </li>
-                        }
-
-                    </ul>
-                </div>
-            </div>
-            @*<div class="modal-footer pt-0">
-                <button type="button" class="btn" data-bs-dismiss="modal">閉じる</button>
-            </div>*@
-        </div>
-    </div>
-</div>
-
-<div class="modal fade text-black" id="shareUserMediaFileModal" tabindex="-1" role="dialog" aria-labelledby="shareUserMediaFileModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-body">
+    <div class="modal fade text-black" id="shareUserMediaFileModal" tabindex="-1" role="dialog" aria-labelledby="shareUserMediaFileModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
                 <h3 class="text-center" style="font-weight: normal;">共通写真へのリンクはこちらです。</h3>
                 <input type="email" class="form-control" id="shareUserMediaFileLink" value="hogetest.com/sample_folder/123">
-            </div>
-            <div class="modal-footer pt-0">
-                <button type="button" class="btn" data-bs-dismiss="modal">閉じる</button>
-                <button type="button" class="btn" id="shareUserMediaFileCopyLink" data-clipboard-target="#shareUserMediaFileLink">リンクをコピー</button>
+                </div>
+                <div class="modal-footer pt-0">
+                    <button type="button" class="btn" data-bs-dismiss="modal">閉じる</button>
+                    <button type="button" class="btn" id="shareUserMediaFileCopyLink" data-clipboard-target="#shareUserMediaFileLink">リンクをコピー</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="modal fade text-black" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal fade text-black" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-body">
                 <h3 class="text-center" style="font-weight: normal;">削除してよろしいですか</h3>
@@ -177,20 +126,20 @@
                 <button type="button" class="btn btn-primary" onclick="deleteUserMediaFile();">はい</button>
             </div>
         </div>
+        </div>
     </div>
-</div>
-<iframe id="iframeDownload1" style="display: none"></iframe>
+    <iframe id="iframeDownload1" style="display: none"></iframe>
 
 
-<iframe id="iframeDownload1" style="display: none"></iframe>
-<iframe id="iframeDownload2" style="display: none"></iframe>
-<iframe id="iframeDownload3" style="display: none"></iframe>
+    <iframe id="iframeDownload1" style="display: none"></iframe>
+    <iframe id="iframeDownload2" style="display: none"></iframe>
+    <iframe id="iframeDownload3" style="display: none"></iframe>
 
 @section Scripts{
     <script src="~/js/user-album/index.js"></script>
     <script>
         var album = new userAlbumController();
-        album.initialize();
+           album.initialize();
     </script>
 
     }
