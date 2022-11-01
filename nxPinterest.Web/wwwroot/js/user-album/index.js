@@ -33,15 +33,43 @@
                     UserAlbumMedias: $associateAlbum
                 },
                 cache: false,
-                success: function(data) {
+                success: function (data) {
                     alert("success");
+                    LoadAlbums();
                 },
-                error: function() {
+                error: function () {
                     alert("error");
                 }
             });
 
         });
+
+        $('body').on('click', '#createMediaFolder', function (e) {
+            e.preventDefault();
+            LoadAlbums();
+
+        });
     };
+
+    function LoadAlbums() {
+        $.ajax({
+            url: "/UserAlbum/GetAlbums",
+            type: "GET",
+            cache: !0,
+            datatype: "html",
+            success: function (response) {
+                $("#mediaFolderContent").html(response);
+                console.info(response);
+                $('#createUserMediaFolderModal').modal('show');
+          
+            },
+            failure: function (response) {
+                alert(response.responseText);
+            },
+            error: function (response) {
+                alert(response.responseText);
+            }
+        });
+    }
 
 }
