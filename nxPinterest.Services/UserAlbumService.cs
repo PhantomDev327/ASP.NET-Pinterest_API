@@ -3,6 +3,7 @@ using nxPinterest.Data.Repositories.Interfaces;
 using nxPinterest.Services.Interfaces;
 using nxPinterest.Services.Models.Request;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace nxPinterest.Services
@@ -84,5 +85,9 @@ namespace nxPinterest.Services
             }
         }
 
+        public async Task<IEnumerable<UserAlbum>> GetAlbumByUser(string userId)
+        {
+            return await _userAlbumRepository.GetAlbumByUser(userId);
+        }
     }
 }

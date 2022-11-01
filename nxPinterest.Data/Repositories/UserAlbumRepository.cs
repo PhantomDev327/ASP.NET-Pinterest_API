@@ -2,6 +2,7 @@
 using nxPinterest.Data.Models;
 using nxPinterest.Data.Repositories.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -32,6 +33,22 @@ namespace nxPinterest.Data.Repositories
 
             // if day >30 has expired
             return diff.Days > 30;
+        }
+
+        public async Task<IEnumerable<UserAlbum>> GetAlbumByUser(string userId)
+        {
+            if (string.IsNullOrEmpty(userId)) return new List<UserAlbum>();
+
+            var result = await Context.UserAlbums.Select(n => new UserAlbum
+            {
+                UserId = n.UserId,
+                AlbumName = n.AlbumName,
+                AlbumId = n.AlbumId,
+                AlbumCreatedat = n.AlbumCreatedat,
+                AlbumUrl = n.AlbumUrl
+            }).Where(n => n.UserId == userId).OrderByDescending(n => n.AlbumCreatedat).ToListAsync();
+
+            return result != null ? result : new List<UserAlbum>();
         }
 
         public (int albumId, string albumName) IsUserAlbumAlreadyExists(string albumName)
