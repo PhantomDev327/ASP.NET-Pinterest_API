@@ -44,7 +44,7 @@ namespace nxPinterest.Data.Repositories
                 n.AlbumId
             }).SingleOrDefault(n => n.AlbumName == albumName);
 
-            return result.AlbumName != null ? (result.AlbumId, result.AlbumName) : (0, null);
+            return result != null ? (result.AlbumId, result.AlbumName) : (0, null);
         }
     }
 }
