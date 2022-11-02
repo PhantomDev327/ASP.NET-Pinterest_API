@@ -33,15 +33,42 @@
                     UserAlbumMedias: $associateAlbum
                 },
                 cache: false,
-                success: function(data) {
-                    alert("success");
+                success: function (data) {
+                    alert("保存しました。");
+                    LoadAlbums();
                 },
-                error: function() {
-                    alert("error");
+                error: function () {
+                    alert("保存できない.");
                 }
             });
 
         });
+
+        $('body').on('click', '#createMediaFolder', function (e) {
+            e.preventDefault();
+            LoadAlbums();
+
+        });
     };
+
+    function LoadAlbums() {
+        $.ajax({
+            url: "/UserAlbum/GetAlbums",
+            type: "GET",
+            cache: !0,
+            datatype: "html",
+            success: function (response) {
+                $("#mediaFolderContent").html(response);
+                $('#createUserMediaFolderModal').modal('show');
+          
+            },
+            failure: function (response) {
+                alert(response.responseText);
+            },
+            error: function (response) {
+                alert(response.responseText);
+            }
+        });
+    }
 
 }

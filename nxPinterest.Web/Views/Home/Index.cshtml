@@ -24,6 +24,9 @@
             <i class="fas fa-plus-circle fa-3x"></i>
         </a>
     </div>*@
+@section Styles {
+    <link href="~/css/list-album.css" rel="stylesheet" />
+}
 
     <script>
         function RegiterUserMediaFile() {
@@ -100,16 +103,16 @@
 
     <div class="modal fade text-black" id="createUserMediaFolderModal" tabindex="-1" role="dialog" aria-labelledby="createUserMediaFolderModalTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-body">
-            <h3 class="text-center" style="font-weight: normal;">アルバム登録</h3>
-            <input type="text" class="form-control" id="createUserMediaFolderName" value="">
-            </div>
-            <div class="modal-footer pt-0">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
+                </div>
+                <div class="modal-body" id="mediaFolderContent">
+                </div>
+                @*<div class="modal-footer pt-0">
                 <button type="button" class="btn" data-bs-dismiss="modal">閉じる</button>
-                <button type="button" class="btn btn-primary" id="createUserMediaFolderButton">登録</button>
+                </div>*@
             </div>
-        </div>
         </div>
     </div>
 
