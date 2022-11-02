@@ -7,12 +7,16 @@
 
   <ItemGroup>
 	  <Compile Remove="Areas\**" />
+	  <Compile Remove="Views\UserAlbum\**" />
 	  <Compile Remove="wwwroot\lib\Hyper_v4.4\Bootstrap_4x\**" />
 	  <Content Remove="Areas\**" />
+	  <Content Remove="Views\UserAlbum\**" />
 	  <Content Remove="wwwroot\lib\Hyper_v4.4\Bootstrap_4x\**" />
 	  <EmbeddedResource Remove="Areas\**" />
+	  <EmbeddedResource Remove="Views\UserAlbum\**" />
 	  <EmbeddedResource Remove="wwwroot\lib\Hyper_v4.4\Bootstrap_4x\**" />
 	  <None Remove="Areas\**" />
+	  <None Remove="Views\UserAlbum\**" />
 	  <None Remove="wwwroot\lib\Hyper_v4.4\Bootstrap_4x\**" />
   </ItemGroup>
 
@@ -271,10 +275,6 @@
     <ProjectReference Include="..\nxPinterest.Data\nxPinterest.Data.csproj" />
     <ProjectReference Include="..\nxPinterest.Services\nxPinterest.Services.csproj" />
     <ProjectReference Include="..\nxPinterest.Utils\nxPinterest.Utils.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Views\UserAlbum\" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties bower_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>

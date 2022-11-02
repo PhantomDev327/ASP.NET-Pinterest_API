@@ -34,11 +34,11 @@
                 },
                 cache: false,
                 success: function (data) {
-                    alert("success");
+                    alert("保存しました。");
                     LoadAlbums();
                 },
                 error: function () {
-                    alert("error");
+                    alert("保存できない.");
                 }
             });
 
@@ -59,7 +59,6 @@
             datatype: "html",
             success: function (response) {
                 $("#mediaFolderContent").html(response);
-                console.info(response);
                 $('#createUserMediaFolderModal').modal('show');
           
             },
