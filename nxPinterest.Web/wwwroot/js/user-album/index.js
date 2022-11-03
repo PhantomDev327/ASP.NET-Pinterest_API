@@ -33,9 +33,10 @@
                     UserAlbumMedias: $associateAlbum
                 },
                 cache: false,
-                success: function (data) {
-                    alert("保存しました。");
-                    LoadAlbums();
+                success: function (result) {
+                    if (result) {
+                        $('#createUserMediaFolderModal').modal('hide');
+                    }
                 },
                 error: function () {
                     alert("保存できない.");

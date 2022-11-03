@@ -47,7 +47,7 @@ namespace nxPinterest.Services
                     AlbumUrl = model.UserAlbumMedias[0].MediaUrl,
                     AlbumVisibility = true,
                     AlbumCreatedat = DateTime.Now,
-                    AlbumExpireDate = DateTime.Now
+                    AlbumExpireDate = new DateTime(2999,12,31)
                 };
 
                 var (albumId, albumName) = _userAlbumRepository.IsUserAlbumAlreadyExists(model.AlbumName);
