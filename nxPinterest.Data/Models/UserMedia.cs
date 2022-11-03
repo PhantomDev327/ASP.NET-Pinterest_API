@@ -35,5 +35,7 @@ namespace nxPinterest.Data.Models
 
         public DateTime DateTimeUploaded { get; set; }
         public virtual ApplicationUser User { get; set; }
+
+        public List<UserAlbumMedia> UserAlbumMedias { get; set; } = new List<UserAlbumMedia>();
     }
 }

@@ -219,9 +219,7 @@ window.selectedMediaSrcList = [];
 multiSelect();
 
 
-function createUserMediaFolder() {
-    $('#createUserMediaFolderModal').modal('show');
-}
+
 
 function shareUserMediaFile() {
     $('#shareUserMediaFileModal').modal('show'); 

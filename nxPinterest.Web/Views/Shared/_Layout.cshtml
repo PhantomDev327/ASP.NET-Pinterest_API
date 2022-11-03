@@ -47,27 +47,28 @@
 
     <style>
         .dropdown {
-          position: relative;
-          display: inline-block;
+            position: relative;
+            display: inline-block;
         }
         .dropdown-content {
-          display: none;
-          position: absolute;
-          background-color: #f1f1f1;
-          min-width: 160px;
-          box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-          z-index: 7;
-          margin-right:0;
+            display: none;
+            position: absolute;
+            background-color: #f1f1f1;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 7;
+            margin-right:0;
         }
         .dropdown-content a {
-          color: black;
-          padding: 12px 16px;
-          text-decoration: none;
-          display: block;
-          z-index:6;
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            z-index:6;
         }
         .dropdown:hover .dropdown-content {display: block;}
     </style>
+    @RenderSection("Styles", required: false)
 </head>
 <body class="loading" data-layout="detached" data-layout-config='{"leftSidebarCondensed":false,"darkMode":false, "showRightSidebarOnStart": true}'>
     <div class="navbar navbar-header d-flex justify-content-end fixed-top bg-dark">
@@ -123,7 +124,7 @@
                 <span onclick="RegiterUserMediaFile();" id="uploadMedia" title="アップロード">
                     <i class="bi bi-cloud-upload fa-lg px-2"></i>
                 </span>
-                <span onclick="createUserMediaFolder();" id="createMediaFolder" title="アルバムに追加" class="disabled-link">
+                <span id="createMediaFolder" title="アルバムに追加" class="disabled-link">
                     <i class="bi bi-folder-plus fa-lg px-2"></i>
                 </span>
                 <span onclick="shareUserMediaFile();" id="shareMedia" title="共有" class="disabled-link">
@@ -219,7 +220,7 @@
 
     </div>
 
-    @RenderSection("Scripts", required: false)
+
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip-utils/0.0.2/jszip-utils.min.js"></script>
@@ -227,5 +228,6 @@
 @*
     <script src="~/js/gallery_resize.js"></script>*@
     <script src="~/js/multi_select_by_mouse.js" asp-append-version="true"></script>
+    @RenderSection("Scripts", required: false)
 </body>
 </html>
