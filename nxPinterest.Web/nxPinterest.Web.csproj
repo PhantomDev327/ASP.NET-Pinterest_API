@@ -33,6 +33,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="wwwroot\lib\bootstrap-datepicker\js\bootstrap-datepicker.min.js" />
+    <None Include="wwwroot\lib\bootstrap-datepicker\locales\bootstrap-datepicker.ja.min.js" />
     <None Include="wwwroot\lib\Hyper_v4.4\Bootstrap_5x\docs\js\core.c464bbd1982b6f37ac4e.js" />
     <None Include="wwwroot\lib\Hyper_v4.4\Bootstrap_5x\docs\js\icons.c464bbd1982b6f37ac4e.js" />
     <None Include="wwwroot\lib\Hyper_v4.4\Bootstrap_5x\docs\js\pagesshared.c464bbd1982b6f37ac4e.js" />

@@ -25,6 +25,7 @@
         </a>
     </div>*@
 @section Styles {
+    <link href="~/lib/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" />
     <link href="~/css/list-album.css" rel="stylesheet" />
 }
 
@@ -120,6 +121,13 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-body">
+                     <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div id="datetimepicker1"></div>
+                        </div>
+                    </div>
+                    </div>
                 <h3 class="text-center" style="font-weight: normal;">共通写真へのリンクはこちらです。</h3>
                 <input type="email" class="form-control" id="shareUserMediaFileLink" value="hogetest.com/sample_folder/123">
                 </div>
@@ -152,10 +160,26 @@
     <iframe id="iframeDownload3" style="display: none"></iframe>
 
 @section Scripts{
+<script src="~/lib/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
+<script src="~/lib/bootstrap-datepicker/locales/bootstrap-datepicker.ja.min.js"></script>
     <script src="~/js/user-album/index.js"></script>
     <script>
         var album = new userAlbumController();
            album.initialize();
     </script>
-
+    <script>
+       $(document).ready(function(){
+            if ($.fn.datepicker) {
+                $("#datetimepicker1").datepicker({ language: "ja", format: "YYYY-MM-DD HH:mm:ss", inline: true, sideBySide: true, todayHighlight: true, clearBtn: true });
+                $('#datetimepicker1').on('changeDate', function (event) {
+                    //console.log(moment(event.date).format('MM/DD/YYYY h:mm a'));
+                    //console.log(event.date.format('MM/DD/YYYY h:mm a'));
+                   // $('#selected-date').text(event.date);
+                    var formatted_date = event.date;
+                    console.info(formatted_date);
+                    
+                });
+            }
+       });
+    </script>
     }
