@@ -201,8 +201,8 @@ namespace nxPinterest.Services
         }
         public Stream GetThumbnail(string ImageUrl)
         {
-            // Get thumbnail data
-            var thumbnailStream = client.GenerateThumbnailAsync(248, 165, ImageUrl, true).Result;
+            // Get thumbnail data 3:2
+            var thumbnailStream = client.GenerateThumbnailAsync(348, 232, ImageUrl, true).Result;
             return thumbnailStream;
         }
     }
