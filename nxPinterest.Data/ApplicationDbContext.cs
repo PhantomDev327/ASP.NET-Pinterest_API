@@ -135,7 +135,8 @@ namespace nxPinterest.Data
                     .HasColumnName("container_id");
 
                 entity.Property(e => e.TagsType)
-                    .HasColumnName("tags_type");
+                    .HasColumnName("tags_type")
+                    .HasColumnType("tinyint");
 
                 entity.Property(e => e.Tag)
                     .HasMaxLength(100)

@@ -10,7 +10,7 @@ namespace nxPinterest.Data.Models
         public int UserMediaTagsId { get; set; }
         public string UserMediaName { get; set; }
         public int ContainerId { get; set; }
-        public int TagsType { get; set; }
+        public byte TagsType { get; set; }
         public string Tag { get; set; }
         public double Confidence { get; set; }
         public DateTime Created { get; set; }
