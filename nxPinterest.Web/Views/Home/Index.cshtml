@@ -26,7 +26,6 @@
     </div>*@
 @section Styles {
     <link href="~/lib/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" />
-    <link href="~/css/list-album.css" rel="stylesheet" />
 }
 
     <script>
@@ -196,9 +195,7 @@
             if ($.fn.datepicker) {
                 $("#datetimepicker1").datepicker({ language: "ja", format: "YYYY-MM-DD HH:mm:ss", inline: true, sideBySide: true, todayHighlight: true, clearBtn: false });
                 $('#datetimepicker1').on('changeDate', function (event) {
-                    //console.log(moment(event.date).format('MM/DD/YYYY h:mm a'));
-                    //console.log(event.date.format('MM/DD/YYYY h:mm a'));
-                   // $('#selected-date').text(event.date);
+
                     var formatted_date = event.date;
                     console.info(formatted_date);
                     
