@@ -28,22 +28,20 @@
                 <div class="form-text text-danger">
                     @Html.ValidationMessageFor(c => c.Password)
                 </div>
-                @if(TempData["Message"] != "")
+                @if((string)TempData["Message"] != "")
                 {
                     <div class="form-text text-danger login-err-msg">
                         @TempData["Message"]
                     </div>
                 }
-                <a class="text-color-default" href="/account/forgot-password">
-                    @*<h5>パスワードを忘れた場合</h5>Forgot password?*@
-                    <h5>Forgot password?</h5>
-                </a>
 
-                @*<input type="submit" value="ログイン" class="btn btn-default btn-login" />*@
-                <input type="submit" value="Sign in" class="btn btn-default btn-login" />
+                <input type="submit" value="ログイン" class="btn btn-default btn-login" />
 @*                <a class="text-color-default" href="/account/register">
                     <h5>新規登録</h5>
                 </a>*@
+                <a class="text-color-default" href="/account/forgot-password">
+                    <h5>パスワードをお忘れですか？</h5>
+                </a>
             </form>
         </div>
     </div>
