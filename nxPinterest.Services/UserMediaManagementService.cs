@@ -119,45 +119,25 @@ namespace nxPinterest.Services
         {
             try
             {
-                //新ロジック　TODO
                 //同じオリジナルタグを持っているmediaは対象
                 //AIが付けたタグのいずれかが一致するmediaも対象
                 //スコアの大きい順
+                //TODO オリジナルタグとタイトルはスコア換算値を上げたい
+                var point = 5;
 
-                //TODOロジック　0.9以上のタグが一致するMEDIA
                 var searchTags = media.Tags.Split("|").Where(w => w != "").Select(str => str.Split(":")[0]).ToList();
 
                 //todo 過渡期のみ
                 if (searchTags.Count == 1) searchTags = searchTags[0].Split(",").ToList();
 
-                //var sameOrgTagMedia = from q in this._context.UserMediaTags.AsNoTracking()
-                //                      join s in searchTags
-                //                      on q.Tag equals s
-                //                      where q.Confidence > 0.9 && q.ContainerId == media.ContainerId && q.UserMediaName != media.MediaFileName
-                //                      group q by q.UserMediaName into G
-                //                      select new
-                //                      {
-                //                          UserMediaName = G.Key,
-                //                          Confidence = G.Sum(z => z.Confidence)
-                //                      };
-
                 var sameOrgTagMedia = from q in this._context.UserMediaTags.AsNoTracking()
-                                      where searchTags.Contains(q.Tag) && q.Confidence > 0.9 && q.ContainerId == media.ContainerId && q.UserMediaName != media.MediaFileName
+                                      where searchTags.Contains(q.Tag) && q.ContainerId == media.ContainerId && q.UserMediaName != media.MediaFileName
                                       group q by q.UserMediaName into G
                                       select new
                                       {
                                           UserMediaName = G.Key,
-                                          Confidence = G.Sum(z => z.Confidence)
+                                          Confidence = G.Sum(z => (z.TagsType != 2 ? z.Confidence * point : z.Confidence))
                                       };
-
-                //var userMediaList = await (
-                //                        from q in this._context.UserMedia.AsNoTracking()
-                //                        join s in sameOrgTagMedia
-                //                        on q.MediaFileName equals s.UserMediaName
-                //                        orderby s.Confidence descending
-                //                        select q
-                //                        )
-                //                    .ToListAsync();
 
                 var userMediaList = await (
                                         from q in this._context.UserMedia.AsNoTracking()
@@ -210,11 +190,11 @@ namespace nxPinterest.Services
 
                 var subquery = await this._context.UserMedia.AsNoTracking()
                                     .Where(c => c.ContainerId.Equals(containerId))
-                                    .Select(s => new { s.MediaFileName, s.Tags }).ToListAsync();
+                                    .Select(s => new { s.MediaFileName, s.SearchText }).ToListAsync();
 
-                foreach(var word in listSearchKey)
+                foreach (var word in listSearchKey)
                 {
-                    subquery = subquery.Where(s => s.Tags.Contains(word)).ToList();
+                    subquery = subquery.Where(s => s.SearchText.Contains(word)).ToList();
                 }
                 var targetmedias = subquery.Select(s => s.MediaFileName);
 
@@ -331,9 +311,9 @@ namespace nxPinterest.Services
 
 
                 // Get tags by ProjectTags
-                string originalTagsWithScore = null;
-                string originalTags = null;
-                if (request.OriginalTags != null)
+                string originalTagsWithScore = "";
+                string originalTags = "";
+                if (!string.IsNullOrEmpty(request.OriginalTags))
                 {
                     originalTags = request.OriginalTags.Trim().Replace("|",",");
                     originalTagsWithScore = request.OriginalTags.Trim().Replace(",", ":1.0:1|");
@@ -394,7 +374,7 @@ namespace nxPinterest.Services
                     userMedia.Tags = "";
                     userMedia.AITags = string.Join(",", aitagsString.Split("|").Where(s => s!="").Select(s => s.Substring(0, s.IndexOf(":"))));
 
-                    if (originalTags != null)
+                    if (!string.IsNullOrEmpty(originalTags))
                     {
                         userMedia.OriginalTags = originalTags;
                         userMedia.Tags += originalTagsWithScore;
@@ -414,7 +394,7 @@ namespace nxPinterest.Services
                     userMediaTags.Created = DateTime.Now;
                     _context.UserMediaTags.Add(userMediaTags);
                     //cv解析のtagと独自tag
-                    foreach (var tag in originalTags?.Split(","))
+                    foreach (var tag in originalTags.Split(","))
                     {
                         //オリジナルはtype=1
                         if (tag == "") break;
@@ -523,7 +503,8 @@ namespace nxPinterest.Services
                         // 画像の操作をMutateメソッドで行う
                         imgSharp.Mutate(x =>
                         {
-                            var option = new ResizeOptions { Mode = ResizeMode.Max, Size = new Size(860, 573) };
+                            //3:2
+                            var option = new ResizeOptions { Mode = ResizeMode.Max, Size = new Size(1140, 760) };
                             x.Resize(option);
                         });
                         imgSharp.Save(smallimageStream, format);
@@ -653,6 +634,85 @@ namespace nxPinterest.Services
                 {
                     throw new Exception("SQL database への登録に失敗しました");
                 }
+            }
+        }
+        public bool UpdateUserMedia(UserMedia userMedia)
+        {
+            try
+            {
+                //var userMedia = _context.UserMedia.Find(userMedia.MediaId);
+
+                // Update Model data
+                userMedia.Modified = DateTime.Now;
+
+                // OriginalとAIを分割する
+                var AITagsList = userMedia.Tags.Split("|").Where(w => w != "")
+                            .Select(str => str.Split(":"))
+                            .Where(t => double.Parse(t[1]) < 1.0)
+                            .ToList();
+
+                userMedia.Tags = "";
+
+                // Get tags by ProjectTags
+                string originalTagsWithScore = "";
+                string originalTags = "";
+                if (!string.IsNullOrEmpty(userMedia.OriginalTags))
+                {
+                    originalTags = userMedia.OriginalTags.Trim().Replace("|", ",");
+                    originalTagsWithScore = userMedia.OriginalTags.Trim().Replace(",", ":1.0:1|");
+                    originalTagsWithScore += ":1.0:1|";
+                }
+                if (originalTags != null)
+                {
+                    userMedia.OriginalTags = originalTags;
+                    userMedia.Tags += originalTagsWithScore;
+                }
+                foreach (var tag in AITagsList)
+                {
+                    userMedia.Tags += string.Concat(tag[0], ":", tag[1], ":", tag[2], "|");
+                }
+
+                _context.Update(userMedia);
+
+
+                // tagテーブルの(type=0,1)は削除新規
+                var query = from q in _context.UserMediaTags
+                            where q.UserMediaName == userMedia.MediaFileName 
+                            && new byte[] {0,1}.Contains(q.TagsType)
+                            select q;
+                _context.UserMediaTags.RemoveRange(query);
+
+                //タイトルtag(type=0)
+                UserMediaTags userMediaTags = new UserMediaTags();
+                userMediaTags.UserMediaName = userMedia.MediaFileName;
+                userMediaTags.ContainerId = userMedia.ContainerId;
+                userMediaTags.TagsType = 0;
+                userMediaTags.Tag = userMedia.MediaTitle;
+                userMediaTags.Confidence = 1.0;
+                userMediaTags.Created = DateTime.Now;
+                _context.UserMediaTags.Add(userMediaTags);
+                //独自tag(type=1)
+                foreach (var tag in userMedia.OriginalTags.Split(","))
+                {
+                    //オリジナルはtype=1
+                    if (tag == "") break;
+                    userMediaTags = new UserMediaTags();
+                    userMediaTags.UserMediaName = userMedia.MediaFileName;
+                    userMediaTags.ContainerId = userMedia.ContainerId;
+                    userMediaTags.TagsType = 1;
+                    userMediaTags.Tag = tag;
+                    userMediaTags.Confidence = 1.0;
+                    userMediaTags.Created = DateTime.Now;
+                    _context.UserMediaTags.Add(userMediaTags);
+                }
+
+                // save
+                _context.SaveChanges();
+                return true;
+            }
+            catch (Exception)
+            {
+                throw new Exception("SQL database への登録に失敗しました");
             }
         }
     }

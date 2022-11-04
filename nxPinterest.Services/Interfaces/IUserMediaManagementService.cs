@@ -24,5 +24,6 @@ namespace nxPinterest.Services.Interfaces
         Task<IList<string>> GetOftenUseTagsAsyc(int containerId, string searchKey = "", int take = 100);
         public void UploadMediaFile(ImageRegistrationRequests request, string UserId);
         public void UploadIndividualMediaFile(IndividualImageRegistrationRequests request, string UserId);
+        public bool UpdateUserMedia(UserMedia userMedia);
     }
 }
