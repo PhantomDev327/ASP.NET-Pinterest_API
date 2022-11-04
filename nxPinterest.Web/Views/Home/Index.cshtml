@@ -11,7 +11,23 @@
     //bool hasPagination = Model.TotalRecords > nxPinterest.Services.dev_Settings.pageSize_regist;
 }
 
-    <link href="~/css/list-album.css" rel="stylesheet" />
+    <!-- Start Content-->
+    @*<div id="blockGallery">
+        <div class="m-3">
+             @RenderBody()
+        </div>
+    </div>
+*@
+
+@*    <div class="add-image-container">
+        <a onclick="RegiterUserMediaFile();">
+            <i class="fas fa-plus-circle fa-3x"></i>
+        </a>
+    </div>*@
+@section Styles {
+    <link href="~/lib/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+}
+
     <script>
         function RegiterUserMediaFile() {
             $('#image-viewer-modal').remove();
@@ -96,13 +112,44 @@
     <div class="modal fade text-black" id="shareUserMediaFileModal" tabindex="-1" role="dialog" aria-labelledby="shareUserMediaFileModalTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
+            <div class="modal-header border-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
+            </div>
                 <div class="modal-body">
-                <h3 class="text-center" style="font-weight: normal;">共通写真へのリンクはこちらです。</h3>
-                <input type="email" class="form-control" id="shareUserMediaFileLink" value="hogetest.com/sample_folder/123">
+                <div class="row g-3 align-items-center">
+                    <div class="col-auto">
+                        <label for="lblDate" class="col-form-label">
+                            共有期限
+                        </label>
+                    </div>
+                    <div class="col-auto mx-auto">
+                        <div id="datetimepicker1"></div>
+                    </div>
                 </div>
-                <div class="modal-footer pt-0">
-                    <button type="button" class="btn" data-bs-dismiss="modal">閉じる</button>
-                    <button type="button" class="btn" id="shareUserMediaFileCopyLink" data-clipboard-target="#shareUserMediaFileLink">リンクをコピー</button>
+                <div class="d-flex justify-content-center mt-3">
+                    <div class="btn-group mr-4" style="margin-right:60px">
+                        <button type="button" class="btn btn-outline-secondary btn-md text-center">
+                            共有する
+                        </button>
+                    </div>
+                    
+                </div>
+                <div class="clearfix"></div>
+                <hr class="mb-5">
+                <div class="d-flex justify-content-center mt-3">
+                    <input type="email" class="form-control" id="shareUserMediaFileLink">
+               </div>
+                <div class="d-flex justify-content-center mt-3">
+                    <div class="btn-group mr-4" style="margin-right:60px">
+                        <button type="button" class="btn btn-outline-secondary btn-md text-center">
+                            コピーする <i class="fa fa-copy" aria-hidden="true"></i>
+
+                        </button>
+                    </div>
+
+                </div>
+                </div>
+            <div class="modal-footer border-0">
                 </div>
             </div>
         </div>
@@ -137,10 +184,24 @@
     <iframe id="iframeDownload3" style="display: none"></iframe>
 
 @section Scripts{
+<script src="~/lib/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
+<script src="~/lib/bootstrap-datepicker/locales/bootstrap-datepicker.ja.min.js"></script>
     <script src="~/js/user-album/index.js"></script>
     <script>
         var album = new userAlbumController();
            album.initialize();
     </script>
+    <script>
+       $(document).ready(function(){
+            if ($.fn.datepicker) {
+                $("#datetimepicker1").datepicker({ language: "ja", format: "YYYY-MM-DD HH:mm:ss", inline: true, sideBySide: true, todayHighlight: true, clearBtn: false });
+                $('#datetimepicker1').on('changeDate', function (event) {
 
+                    var formatted_date = event.date;
+                    console.info(formatted_date);
+                    
+                });
+            }
+       });
+    </script>
     }
