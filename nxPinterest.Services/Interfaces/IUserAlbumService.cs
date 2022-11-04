@@ -9,6 +9,8 @@ namespace nxPinterest.Services.Interfaces
     {
         Task<bool> Create(CreateUserAlbumRequest model, string userId);
 
+        Task<int> CreateAlbumShare(CreateUserAlbumSharedRequest model, string userId);
+
         Task<IEnumerable<UserAlbum>> GetAlbumByUser(string userId);
     }
 }

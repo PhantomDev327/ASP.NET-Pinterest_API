@@ -85,6 +85,56 @@ namespace nxPinterest.Services
             }
         }
 
+        public async Task<int> CreateAlbumShare(CreateUserAlbumSharedRequest model, string userId)
+        {
+            try
+            {
+                if (model.UserAlbumMedias.Count == 0 || string.IsNullOrEmpty(userId))
+                {
+                    return 0;
+                }
+
+                var user = _userRepository.GetSingleByCondition(n => n.Id == userId);
+                var containerId = user.container_id;
+
+                var userAlbum = new UserAlbum
+                {
+                    AlbumName = model.AlbumName,
+                    ContainerId = containerId,
+                    UserId = userId,
+                    AlbumType = Data.Enums.AlbumType.AlbumShare,
+                    AlbumUrl = model.UserAlbumMedias[0].MediaUrl,
+                    AlbumVisibility = true,
+                    AlbumCreatedat = DateTime.Now,
+                    AlbumExpireDate = model.AlbumExpireDate
+                };
+
+                await _userAlbumRepository.Add(userAlbum);
+                await _unitOfWork.CompleteAsync();
+
+                foreach (var item in model.UserAlbumMedias)
+                {
+                    var userAlbumMedia = new UserAlbumMedia
+                    {
+                        AlbumId = userAlbum.AlbumId,
+                        ContainerId = containerId,
+                        UserMediaId = item.UserMediaId,
+                        UserMediaName = model.AlbumName,
+                        AlbumMediaCreatedat = DateTime.Now
+                    };
+
+                    await _userAlbumMediaRepository.Add(userAlbumMedia);
+                }
+
+                await _unitOfWork.CompleteAsync();
+                return userAlbum.AlbumId;
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+        }
+
         public async Task<IEnumerable<UserAlbum>> GetAlbumByUser(string userId)
         {
             return await _userAlbumRepository.GetAlbumByUser(userId);
