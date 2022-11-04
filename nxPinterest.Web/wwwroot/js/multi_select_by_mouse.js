@@ -7,9 +7,10 @@ function MultiImageSelectByMouse(opts) {
         elements: "img",
         selectedClass: "is-selected",
         holdKey: "ctrlKey",
-        onItemSelect: null,           
+        onItemSelect: null,
         onItemDeselect: null,
-        onMultiSelectDone: null
+        onMultiSelectDone: null,
+        onImageOneClick: null
     };
     if (opts) {
         for (var key in opts) {
@@ -34,21 +35,32 @@ function MultiImageSelectByMouse(opts) {
     };
     var self = this;
 
-    var removeAllSelectedClass = function(self, e) {
+    var removeAllSelectedClass = function (self, e) {
         for (var el of targetItems(self.itemElements)) {
             if (!e[self.options.holdKey]) {
                 el.classList.remove(self.options.selectedClass);
             }
         }
     }
-    
+
+    var isClickPointPreviewEl = function (e) {
+        if (!e.target || !e.target.nodeName) {
+            return;
+        }
+        var is_preview_span_el = e.target.nodeName.toLowerCase() === "span" && e.target.className === "previewButton";
+        var is_preview_i_el = e.target.nodeName.toLowerCase() === "i" && e.target.parentElement.nodeName.toLowerCase() === "span" && e.target.parentElement.className === "previewButton";
+        return is_preview_span_el || is_preview_i_el
+    }
+
     // mouseイベントをリスナー
     this.areaOpen = function (e) {
         if (e.detail != 1) {
             // ワンクリック以外の場合
             return;
         }
-        // document.body.classList.add("multiImageSelect-noselect");
+        if (isClickPointPreviewEl(e)) {
+            return;
+        }
         removeAllSelectedClass(self, e);
         self.ipos = [e.pageX, e.pageY];
         if (!selectArea()) {
@@ -63,8 +75,8 @@ function MultiImageSelectByMouse(opts) {
     };
     this.targetArea.addEventListener("mousedown", self.areaOpen, false);
 
-    var isClickPointImgEl = function(e) {
-        return e.target 
+    var isClickPointImgEl = function (e) {
+        return e.target
             && e.target.nodeName
             && e.target.nodeName.toLowerCase() === "img"
             && e.target.parentElement
@@ -79,15 +91,15 @@ function MultiImageSelectByMouse(opts) {
     //     }
     // });
 
-    document.querySelector("#navbarSearchAndTag").addEventListener("click", function(e) {
+    document.querySelector("#navbarSearchAndTag").addEventListener("click", function (e) {
         removeAllSelectedClass(self, e);
     })
 
     // Wクリックで詳細画面へ遷移する
-    this.targetArea.addEventListener("dblclick", function(e) {
+    this.targetArea.addEventListener("dblclick", function (e) {
         if (isClickPointImgEl(e)) {
             var mediaId = e.target.parentElement.id;
-            window.location.href = "/Home/Details?media_id=" + mediaId;
+            window.location.href = "/UserMedia/Details?media_id=" + mediaId;
         }
     });
 
@@ -125,9 +137,9 @@ function MultiImageSelectByMouse(opts) {
             aLeft = offset(a).left,
             bTop = offset(b).top,
             bLeft = offset(b).left;
-        return !(((aTop + a.offsetHeight) < (bTop)) 
-            || (aTop > (bTop + b.offsetHeight)) 
-            || ((aLeft + a.offsetWidth) < bLeft) 
+        return !(((aTop + a.offsetHeight) < (bTop))
+            || (aTop > (bTop + b.offsetHeight))
+            || ((aLeft + a.offsetWidth) < bLeft)
             || (aLeft > (bLeft + b.offsetWidth)));
     };
     this.select = function (e) {
@@ -135,7 +147,7 @@ function MultiImageSelectByMouse(opts) {
         if (!a) {
             return;
         }
-        delete(self.ipos);
+        delete (self.ipos);
         // document.body.classList.remove("multiImageSelect-noselect");
         document.body.removeEventListener("mousemove", self.areaDraw);
         window.removeEventListener("mouseup", self.select);
@@ -169,6 +181,21 @@ function multiSelect() {
         targetArea: multiSelectParams.targetArea,
         elements: multiSelectParams.elements,
         selectedClass: multiSelectParams.selectedClass,
+        onImageOneClick: function (e) {
+            var src = e.target.getAttribute("data-smallmedia-url");
+            if (!src) {
+                return;
+            }
+            $('#showPreviewImageModal').modal('show');
+            var imgEl = document.createElement('img');
+            imgEl.setAttribute('id', 'previewImage');
+            imgEl.setAttribute('src', src);
+            imgEl.setAttribute('width', '100%');
+            imgEl.setAttribute('height', '100%');
+            var previewImageEle = $('#showPreviewImageModal #previewImageArea');
+            previewImageEle.empty();
+            previewImageEle.append(imgEl);
+        },
         onMultiSelectDone: function () {
             var multiSelectedClass = multiSelectParams.targetArea + " " + multiSelectParams.elements + "." + multiSelectParams.selectedClass;
             var multiSelectedImages = document.querySelectorAll(multiSelectedClass);
@@ -182,12 +209,12 @@ function multiSelect() {
                 }
                 if (el.childNodes) {
                     for (var childNode of el.childNodes) {
-                        if (childNode.nodeName 
+                        if (childNode.nodeName
                             && childNode.nodeName.toLowerCase() === "img"
-                            && childNode.getAttribute("data-media-url")
-                            ) {
-                                selectedMediaSrc = childNode.getAttribute("data-media-url");
-                                break;
+                            && childNode.getAttribute("data-smallmedia-url")
+                        ) {
+                            selectedMediaSrc = childNode.getAttribute("data-smallmedia-url");
+                            break;
                         }
                     }
                 }
@@ -219,11 +246,13 @@ window.selectedMediaSrcList = [];
 multiSelect();
 
 
-
+function createUserMediaFolder() {
+    $('#createUserMediaFolderModal').modal('show');
+}
 
 function shareUserMediaFile() {
-    $('#shareUserMediaFileModal').modal('show'); 
-    new Clipboard('#shareUserMediaFileCopyLink');  
+    $('#shareUserMediaFileModal').modal('show');
+    new Clipboard('#shareUserMediaFileCopyLink');
 }
 
 function downloadUserMediaFile() {
@@ -241,16 +270,16 @@ function downloadUserMediaFile() {
     }
 }
 
-var getFilenameFromUrl = function(imageUrl) {
+var getFilenameFromUrl = function (imageUrl) {
     return imageUrl.split('/').pop().replace(/[\/\*\|\:\<\>\?\"\\]/gi, '');
 }
 
 function generateDownloadZip() {
     var links = window.selectedMediaSrcList;
     var zip = new JSZip();
-    
+
     var zipFilenameUnique = (Math.random() + 1).toString(36).substring(7);
-    var zipFilenameDate = `${(new Date().toJSON().slice(0,10).replace(/-/g,""))}`;
+    var zipFilenameDate = `${(new Date().toJSON().slice(0, 10).replace(/-/g, ""))}`;
     var zipFilename = "download_" + zipFilenameDate + "_" + zipFilenameUnique + ".zip";
 
     var count = 0;
@@ -258,16 +287,16 @@ function generateDownloadZip() {
         var filename = links[i];
         filename = getFilenameFromUrl(filename);
         JSZipUtils.getBinaryContent(url, function (err, data) {
-        if (err) {
-            throw err;
-        }
-        zip.file(filename, data, { binary: true });
-        count ++;
-        if (count == links.length) {
-            zip.generateAsync({ type: 'blob' }).then(function (content) {
-                saveAs(content, zipFilename);
-            });
-        }
+            if (err) {
+                throw err;
+            }
+            zip.file(filename, data, { binary: true });
+            count++;
+            if (count == links.length) {
+                zip.generateAsync({ type: 'blob' }).then(function (content) {
+                    saveAs(content, zipFilename);
+                });
+            }
         });
     });
 }
@@ -277,7 +306,7 @@ function deleteUserMediaFile(media_ids) {
         return;
     }
     var media_ids = window.selectedMediaIdList.toString();
-    var deleteUrl = "/Home/DeleteUserMedias?ids=" + media_ids;
+    var deleteUrl = "/UserMedia/DeleteByIds?ids=" + media_ids;
     $.ajax({
         url: deleteUrl,
         method: "POST",
@@ -291,4 +320,12 @@ function deleteUserMediaFile(media_ids) {
 
 function showDeleteConfirmDialog() {
     $('#deleteConfirmModal').modal('show');
+}
+
+function showPreviewImage(mediaUrl) {
+    if (!mediaUrl) {
+        return;
+    }
+    $('#showPreviewImageModal').modal('show');
+    $('#previewImage').attr('src', mediaUrl);
 }

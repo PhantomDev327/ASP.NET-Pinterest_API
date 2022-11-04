@@ -1,6 +1,6 @@
 ﻿@model nxPinterest.Web.Models.HomeViewModel
 @{
-    ViewData["Title"] = "ホーム";
+    ViewData["Title"] = "TOP";
 
     bool hasNextPage = (Model.PageIndex < Model.TotalPages);
     bool hasPreviousPage = (Model.PageIndex > 1);
@@ -11,23 +11,7 @@
     //bool hasPagination = Model.TotalRecords > nxPinterest.Services.dev_Settings.pageSize_regist;
 }
 
-    <!-- Start Content-->
-    @*<div id="blockGallery">
-        <div class="m-3">
-             @RenderBody()
-        </div>
-    </div>
-*@
-
-@*    <div class="add-image-container">
-        <a onclick="RegiterUserMediaFile();">
-            <i class="fas fa-plus-circle fa-3x"></i>
-        </a>
-    </div>*@
-@section Styles {
     <link href="~/css/list-album.css" rel="stylesheet" />
-}
-
     <script>
         function RegiterUserMediaFile() {
             $('#image-viewer-modal').remove();
@@ -89,10 +73,6 @@
         }
     </script>
 
-@*@{
-    await Html.RenderPartialAsync("/Views/Shared/_ImageRegistration.cshtml", Model.ImageRegistrationVM);
-}*@
-
 @{
     await Html.RenderPartialAsync("/Views/Home/_HomeImageContainer.cshtml", Model.UserMediaList);
 }
@@ -109,9 +89,6 @@
                 </div>
                 <div class="modal-body" id="mediaFolderContent">
                 </div>
-                @*<div class="modal-footer pt-0">
-                <button type="button" class="btn" data-bs-dismiss="modal">閉じる</button>
-                </div>*@
             </div>
         </div>
     </div>
@@ -144,8 +121,16 @@
         </div>
         </div>
     </div>
-    <iframe id="iframeDownload1" style="display: none"></iframe>
-
+    
+    <div class="modal fade text-black" id="showPreviewImageModal" tabindex="-1" role="dialog" aria-labelledby="showPreviewImageModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-body" id="previewImageArea">
+                    <img id="previewImage" style="width:100%; height:100%">
+                </div>
+            </div>
+        </div>
+    </div>
 
     <iframe id="iframeDownload1" style="display: none"></iframe>
     <iframe id="iframeDownload2" style="display: none"></iframe>

@@ -2,22 +2,15 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using nxPinterest.Data;
 using nxPinterest.Data.Models;
-using nxPinterest.Services;
 using nxPinterest.Services.Models.Request;
-using nxPinterest.Utils;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using System.Text;
+using System.Diagnostics;
 using nxPinterest.Web.Models;
 using nxPinterest.Services.Interfaces;
 
@@ -26,17 +19,312 @@ namespace nxPinterest.Web.Controllers
     [Authorize]
     public class UserMediaController : BaseController
     {
-        #region Field
-        private IUserMediaManagementService _mediaManagementService;
+        private readonly ILogger<HomeController> _logger;
+        public const int pageSize = nxPinterest.Services.dev_Settings.displayMaxItems_search;
+        private readonly IUserMediaManagementService userMediaManagementService;
         private readonly ApplicationDbContext _context;
-        #endregion
+        //private CosmosDbService _cosmosDbService;
 
         public UserMediaController(ApplicationDbContext context,
                                          IUserMediaManagementService mediaManagementService)
         {
             this._context = context;
-            _mediaManagementService = mediaManagementService;
+            userMediaManagementService = mediaManagementService;
         }
+
+
+        [HttpPost]
+        public async Task<object> getMedia(int pageIndex = 1, string searchKey = "")
+        {
+            HomeViewModel vm = new HomeViewModel();
+
+            List<ApplicationUser> user = this._context.Users.Where(c => c.Id.Equals(this.UserId)).ToList();
+            if (user == null || user.Count == 0) return RedirectToAction("LogOut", "Account");
+
+            int skip = (pageIndex - 1) * pageSize;
+
+            vm.UserMediaList = await this.userMediaManagementService.SearchUserMediaAsync(searchKey, user[0].container_id, skip);
+
+            int totalPages = (int)System.Math.Ceiling((decimal)(vm.UserMediaList.Count / (decimal)pageSize));
+            int totalRecordCount = vm.UserMediaList.Count;
+
+            ViewBag.ItemCount = vm.UserMediaList.Count;
+            ViewBag.UserDispName = user[0].UserDispName;
+
+            //vm.UserMediaList = vm.UserMediaList.Skip(skip).Take(pageSize).ToList();
+
+            vm.PageIndex = pageIndex;
+            vm.TotalPages = totalPages;
+            vm.SearchKey = searchKey;
+            vm.TotalRecords = totalRecordCount;
+            vm.Discriminator = user[0].Discriminator;
+
+            return Json(vm);
+        }
+
+        [HttpPost]
+        public async Task<object> DetailsAjax(int media_id)
+        {
+            try
+            {
+                DetailsViewModel vm = new DetailsViewModel();
+
+                List<ApplicationUser> user = this._context.Users.Where(c => c.Id.Equals(this.UserId)).ToList();
+                var media = await this.userMediaManagementService.GetUserMediaAsync(media_id);
+                if (media != null)
+                {
+                    vm.UserMediaDetail = media;
+                    vm.SameTitleUserMediaList = await this.userMediaManagementService.GetUserMediaSameTitleMediasAsync(media);
+                    //画面のajaxで取得している
+                    //vm.RelatedUserMediaList = await this.userMediaManagementService.GetUserMediaRelatedMediasAsync(media);
+
+                    string[] originalTags = vm.UserMediaDetail.OriginalTags?.Split(',');
+                }
+
+                return Json(vm);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Get View Image Detail
+        /// </summary>
+        /// <param name="searchKey"></param>
+        /// <param name="media_id"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> Details(string searchKey, int media_id, int pageIndex = 1)
+        {
+            try
+            {
+                DetailsViewModel vm = new DetailsViewModel();
+
+                List<ApplicationUser> user = this._context.Users.Where(c => c.Id.Equals(this.UserId)).ToList();
+                var media = await this.userMediaManagementService.GetUserMediaAsync(media_id);
+                if (media != null)
+                {
+                    vm.UserMediaDetail = media;
+                    vm.SameTitleUserMediaList = await this.userMediaManagementService.GetUserMediaSameTitleMediasAsync(media);
+                    //画面のajaxで取得している
+                    //vm.RelatedUserMediaList = await this.userMediaManagementService.GetUserMediaRelatedMediasAsync(media);
+
+                    //string[] originalTags = vm.UserMediaDetail.OriginalTags.Split(',');
+
+                    ////上限
+                    //int totalPages = (int)System.Math.Ceiling((decimal)(vm.RelatedUserMediaList.Count / (decimal)pageSize));
+                    //int skip = (pageIndex - 1) * pageSize;
+                    //int totalRecordCount = vm.RelatedUserMediaList.Count;
+
+                    //ViewBag.ItemCount = vm.RelatedUserMediaList.Count;
+
+                    ////vm.RelatedUserMediaList = vm.RelatedUserMediaList.Skip(skip).Take(pageSize).ToList();
+
+                    vm.PageIndex = pageIndex;
+                    //vm.TotalPages = totalPages;
+                    vm.SearchKey = searchKey;
+                    //vm.TotalRecords = totalRecordCount;
+                    vm.Discriminator = user[0].Discriminator;
+
+                    ////ViewBag.MediaID = media_id;
+                    ////ViewBag.PorjectTags = originalTags ?? null;
+                    //////ViewBag.PhotoTags = string.Join(',', photo_tags_list.ToArray());
+                    ////ViewBag.RelatedUserMediaList = JsonConvert.SerializeObject(vm.RelatedUserMediaList);
+
+                    //return PartialView("/Views/Home/Details.cshtml", vm);
+                    return View("/Views/UserMedia/Details.cshtml", vm);
+                }
+                else
+                {
+                    TempData["Message"] = "該当するイメージが見つかりませんでした。最初からやり直してください。";
+                    return View("~/Views/Error/204.cshtml");
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Message"] = ex.Message;
+                return View("~/Views/Error/204.cshtml");
+            }
+        }
+
+        [HttpPost]
+        public async Task<object> getSimilarMedia(string searchKey, int media_id, int pageIndex = 1)
+        {
+            DetailsViewModel vm = new DetailsViewModel();
+
+            var media = await this.userMediaManagementService.GetUserMediaAsync(media_id);
+            if (media != null)
+            {
+                vm.UserMediaDetail = media;
+
+                int skip = (pageIndex - 1) * pageSize;
+                var result = await this.userMediaManagementService.GetUserMediaRelatedMediasAsync(media, skip);
+                vm.RelatedUserMediaList = result;
+                //int totalPages = (int)System.Math.Ceiling((decimal)(vm.RelatedUserMediaList.Count / (decimal)pageSize));
+                //int totalRecordCount = vm.RelatedUserMediaList.Count;
+
+                //ViewBag.ItemCount = vm.RelatedUserMediaList.Count;
+                //vm.RelatedUserMediaList = vm.RelatedUserMediaList.Skip(skip).Take(pageSize).ToList();
+
+                vm.SearchKey = searchKey;
+                vm.PageIndex = pageIndex;
+                //vm.TotalPages = totalPages;
+                //vm.TotalRecords = totalRecordCount;
+                ////vm.Discriminator = user[0].Discriminator;
+
+                return Json(vm);
+            }
+            else
+            {
+                return null;
+
+            }
+        }
+
+        /// <summary>
+        /// Image View For Edit Or Delete
+        /// </summary>
+        /// <param name="media_id"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> Edit(int media_id)
+        {
+            try
+            {
+                EditViewModel vm = new EditViewModel();
+
+                //UserMediaの取得
+                var media = await this.userMediaManagementService.GetUserMediaAsync(media_id);
+                vm.MediaId = media.MediaId;
+                vm.MediaFileName = media.MediaFileName;
+                vm.MediaFileType = media.MediaFileType;
+                vm.MediaTitle = media.MediaTitle;
+                vm.MediaDescription = media.MediaDescription;
+                vm.Tags = media.Tags;
+                vm.AITags = media.AITags;
+                vm.OriginalTags = media.OriginalTags;
+                vm.Created = media.Created;
+                vm.Uploaded = media.Uploaded;
+                vm.Modified = media.Modified;
+                vm.Deleted = media.Deleted;
+                vm.MediaUrl = media.MediaUrl;
+                vm.MediaSmallUrl = media.MediaSmallUrl;
+                vm.MediaThumbnailUrl = media.MediaThumbnailUrl;
+                vm.Status = media.Status;
+                vm.UserId = media.UserId;
+                vm.ContainerId = media.ContainerId;
+
+                return View(vm);
+            }
+            catch (Exception ex)
+            {
+                TempData["Message"] = ex.Message;
+                return View("~/Views/Error/204.cshtml");
+            }
+        }
+        /// <summary>
+        /// Image View For Edit Or Delete
+        /// </summary>
+        /// <param name="media_id"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> Edit(EditViewModel vm)
+        {
+            try
+            {
+                //UserMedia userMedia = new UserMedia();
+
+                //UserMediaの設定 todo 画面にない項目を取得しなおし
+                var userMedia = await this.userMediaManagementService.GetUserMediaAsync(vm.MediaId);
+                //userMedia.MediaId = vm.MediaId;
+                //userMedia.MediaFileName = vm.MediaFileName;
+                //userMedia.MediaFileType = vm.MediaFileType;
+                userMedia.MediaTitle = vm.MediaTitle;
+                userMedia.MediaDescription = vm.MediaDescription;
+                //userMedia.Tags = vm.Tags;
+                //userMedia.AITags = vm.AITags;
+                userMedia.OriginalTags = vm.OriginalTags;
+                //userMedia.Created = vm.Created;
+                //userMedia.Uploaded = vm.Uploaded;
+                //userMedia.Modified = vm.Modified;
+                //userMedia.Deleted = vm.Deleted;
+                //userMedia.MediaUrl = vm.MediaUrl;
+                //userMedia.MediaSmallUrl = vm.MediaSmallUrl;
+                //userMedia.MediaThumbnailUrl = vm.MediaThumbnailUrl;
+                //userMedia.Status = vm.Status;
+                //userMedia.UserId = vm.UserId;
+                //userMedia.ContainerId = vm.ContainerId;
+
+                var ret = this.userMediaManagementService.UpdateUserMedia(userMedia);
+                return Json(new { success = ret });
+            }
+            catch (Exception ex)
+            {
+                TempData["Message"] = ex.Message;
+                return Json(new { success = false, errMsg = ex.Message });
+            }
+        }
+        /// <summary>
+        /// Delete Image
+        /// </summary>
+        /// <param name="media_id"></param>
+        /// <returns></returns>
+        [HttpPost]
+        //public async Task DeleteUserMedia(string searchKey, int media_id)
+        public async Task<IActionResult> DeleteById(int media_id)
+        {
+            try
+            {
+                //UserMediaの取得 1件削除
+                var media = await this.userMediaManagementService.GetUserMediaAsync(media_id);
+                List<UserMedia> mediaList = new List<UserMedia> { media };
+                await this.userMediaManagementService.DeleteFromUserMediaList(mediaList);
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, errMsg = ex.Message });
+            }
+        }
+        /// <summary>
+        /// Delete Images
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <returns></returns>
+        [HttpPost]
+        //public async Task DeleteUserMedia(string searchKey, int media_id)
+        //        public async Task<IActionResult> DeleteUserMedias(int[] ids)
+        public async Task<IActionResult> DeleteByIds(string ids)
+        {
+            try
+            {
+                List<UserMedia> mediaList = new List<UserMedia>();
+                foreach (var mediaId in ids?.Split(","))
+                {
+                    //UserMediaの取得 1件ずつ
+                    var media = await this.userMediaManagementService.GetUserMediaAsync(int.Parse(mediaId));
+                    mediaList.Add(media);
+                }
+                await this.userMediaManagementService.DeleteFromUserMediaList(mediaList);
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, errMsg = ex.Message });
+            }
+        }
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new Data.Models.ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+
 
         /// <summary>
         /// Create Media File
@@ -82,7 +370,7 @@ namespace nxPinterest.Web.Controllers
             // Store
             try
             {
-                _mediaManagementService.UploadMediaFile(request, UserId);
+                userMediaManagementService.UploadMediaFile(request, UserId);
             }
             catch (Exception ex)
             {
@@ -137,7 +425,7 @@ namespace nxPinterest.Web.Controllers
                     request.ImageInfoList[i].Images = f;
                     file.Close();
                 }
-                _mediaManagementService.UploadIndividualMediaFile(request, UserId);
+                userMediaManagementService.UploadIndividualMediaFile(request, UserId);
                 if (Directory.Exists(path))
                 {
                     foreach (string filename in Directory.GetFiles(path))

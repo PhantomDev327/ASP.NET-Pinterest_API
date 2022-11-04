@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace nxPinterest.Web.Models
 {
@@ -19,11 +20,42 @@ namespace nxPinterest.Web.Models
         public int TotalRecords { get; set; }
         public virtual string Discriminator { get; set; }
 
-        public IList<string> project_tags_list {
+        public IList<string> OriginalTagsList
+        {
             get
             {
-                return UserMediaDetail.ProjectTags != null ? UserMediaDetail.ProjectTags.Split(",") : new List<string>();
+                return UserMediaDetail.OriginalTags.Split(",").Where(w => w != "").ToList();
             }
         }
+        //public string AITags
+        //{
+        //    get
+        //    {
+        //        //TODOロジック　0.9以上のタグが一致するMEDIA
+        //        var tag = UserMediaDetail.OriginalTags.Split("|").Where(w => w != "").Select(str => str.Split(":")[0]).ToList();
+
+        //        //todo 過渡期のみ
+        //        if (tag.Count == 1) tag = tag[0].Split(",").ToList();
+
+        //        return (tag != null) ? string.Join(',', tag.ToArray()) : null; 
+        //    }
+        //}
+        //public IList<string> project_tags_list {
+        //    get
+        //    {
+        //        return UserMediaDetail.OriginalTags != null ? UserMediaDetail.OriginalTags.Split(",") : new List<string>();
+        //    }
+        //}
+        //public IList<string> tags_split(string str)
+        //{
+        //    //todo
+        //    var tag = str.Split("|").Where(w => w != "").Select(str => str.Split(":")[0]).ToList();
+
+        //    //todo 過渡期のみ
+        //    if (tag.Count == 1) tag = tag[0].Split(",").ToList(); 
+
+        //    return tag;
+        //}
+
     }
 }

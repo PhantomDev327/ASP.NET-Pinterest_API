@@ -28,6 +28,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Remove="Views\Home\Details.cshtml" />
+    <Content Remove="Views\Home\_HomeImageDetail.cshtml" />
+    <Content Remove="Views\Shared\_ImageViewer.cshtml" />
+    <Content Remove="wwwroot\css\site.css" />
+    <Content Remove="wwwroot\css\styles.css" />
     <Content Remove="wwwroot\images\logo-mobile.jpg" />
     <Content Remove="wwwroot\js\gallery_resize.js" />
   </ItemGroup>

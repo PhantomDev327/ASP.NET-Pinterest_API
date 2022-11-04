@@ -11,10 +11,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
-using nxPinterest.Services;
-using Microsoft.Azure.Cosmos;
+//using Microsoft.Azure.Cosmos;
 
 namespace nxPinterest.Web.Controllers
 {
@@ -57,18 +54,18 @@ namespace nxPinterest.Web.Controllers
 
             vm.UserMediaList = await this.userMediaManagementService.SearchUserMediaAsync(searchKey, user[0].container_id);
 
-            int totalPages = (int)System.Math.Ceiling((decimal)(vm.UserMediaList.Count / (decimal)pageSize));
-            int totalRecordCount = vm.UserMediaList.Count;
+            //int totalPages = (int)System.Math.Ceiling((decimal)(vm.UserMediaList.Count / (decimal)pageSize));
+            //int totalRecordCount = vm.UserMediaList.Count;
 
-            ViewBag.ItemCount = vm.UserMediaList.Count;
+            //ViewBag.ItemCount = vm.UserMediaList.Count;
             ViewBag.UserDispName = user[0].UserDispName;
 
-            vm.UserMediaList = vm.UserMediaList.Skip(skip).Take(pageSize).ToList();
+            //vm.UserMediaList = vm.UserMediaList.Skip(skip).Take(pageSize).ToList();
 
             vm.PageIndex = pageIndex;
-            vm.TotalPages = totalPages;
+            //vm.TotalPages = totalPages;
             vm.SearchKey = searchKey;
-            vm.TotalRecords = totalRecordCount;
+            //vm.TotalRecords = totalRecordCount;
             vm.Discriminator = user[0].Discriminator;
 
             //ホーム検索画面よく使用されているタグ候補
@@ -177,7 +174,8 @@ namespace nxPinterest.Web.Controllers
                     ////ViewBag.PhotoTags = string.Join(',', photo_tags_list.ToArray());
                     //ViewBag.RelatedUserMediaList = JsonConvert.SerializeObject(vm.RelatedUserMediaList);
 
-                    return PartialView("/Views/Home/Details.cshtml", vm);
+                    //return PartialView("/Views/Home/Details.cshtml", vm);
+                    return View("/Views/UserMedia/Details.cshtml", vm);
                 }
                 else
                 {

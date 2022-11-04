@@ -63,7 +63,7 @@
 							<div class="">
 								<div class="content">
 									<div class="dots-image-container">
-										<a href="@Url.Action("GetUserMediaViewer", "Home", new { media_id = @userMedia.MediaId })">
+										<a href="@Url.Action("GetUserMediaViewer", "UserMedia", new { media_id = @userMedia.MediaId })">
 											<i class="fas fa-ellipsis-h fa-2x" style="color:black"></i>
 										</a>
 									</div>
@@ -75,7 +75,7 @@
 									<br />
 									<p class="text-black tag-text">Tag</p>
 									<div class="project_tags">
-										@foreach (var tag in @Model.project_tags_list){
+										@foreach (var tag in @userMedia.OriginalTags){
 											var url = "/?searchKey=" + tag;
 											<a href="@url"><div style="display:inline-block;color:#fff;background-color: #343a40;padding:10px 20px 10px 20px;border-radius:3px;margin-right:7px;margin-bottom:7px;">@tag</div></a>
 										}
@@ -103,7 +103,7 @@
 <script>
 	function filedelete(media_id) {
 		$.ajax({
-			url: "@Url.Action("DeleteUserMedia", "Home", new { media_id = Model.UserMediaDetail.MediaId })",
+			url: "@Url.Action("DeleteUserMedia", "UserMedia", new { media_id = Model.UserMediaDetail.MediaId })",
             method: "Post",
             data: { media_id },
 			processData: false,
@@ -120,13 +120,13 @@
 	$('.slider input').on('click', function() {
 	    var media_id = $(this).val();
 		$.ajax({
-	            url: "@Url.Action("DetailsAjax", "Home")",
+	            url: "@Url.Action("DetailsAjax", "UserMedia")",
 	            method: "Post",
 	            data: { media_id: media_id},
 	            success: function (sResult) {
 	                console.log(sResult);
 					$('#main-image').attr('src', sResult.userMediaDetail.mediaSmallUrl);
-	                $('.dots-image-container a').attr('href',"/Home/GetUserMediaViewer?media_id=" + sResult.userMediaDetail.mediaId);
+	                $('.dots-image-container a').attr('href',"/UserMedia/GetUserMediaViewer?media_id=" + sResult.userMediaDetail.mediaId);
 	                $('.image-detail-col h5').html(sResult.userMediaDetail.mediaTitle);
 					$('.image-detail-col .media_desc').html(sResult.userMediaDetail.mediaDescription);
 	                $('.project_tags').empty();
