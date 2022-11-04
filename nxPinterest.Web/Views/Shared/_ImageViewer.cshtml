@@ -44,7 +44,7 @@
 		</a>
 	</div>
 	<div class="modal-dialog modal-xl modal-image-viewer" role="document">
-		<form method="post" id="update-user-media-form" enctype="multipart/form-data" asp-action="DeleteUserMedia" asp-controller="Home">
+		<form method="post" id="update-user-media-form" enctype="multipart/form-data" asp-action="DeleteUserMedia" asp-controller="UserMedia">
 			<div class="modal-content">
 				<div class="modal-body bg-white">
 					<div class="row">
@@ -57,7 +57,7 @@
 										</figure>
 									</div>
 								</div>
-								<div class="row">
+								@*<div class="row">
 									<div class="col">
 										<div class="thumbnail-section-wrapper" style="margin-top:0!important">
 											@for (int i = 0; i < Model.SameTitleUserMediaList.Count(); i++)
@@ -66,14 +66,14 @@
 												string activeClass = userMediaThumbnail.MediaFileName.Equals(userMedia.MediaFileName) ? "active" : "";
 
 												<div class="thumbnail-wrapper @activeClass" style="margin-left:4.5px!important">
-													<a href="@Url.Action("EditUserMedia", "Home", new { media_id = @userMediaThumbnail.MediaId })">
+													<a href="@Url.Action("Edit", "UserMedia", new { media_id = @userMediaThumbnail.MediaId })">
 														<img src="@userMediaThumbnail.MediaThumbnailUrl" class="thumbnail" />
 													</a>
 												</div>
 											}
 										</div>
 									</div>
-								</div>
+								</div>*@
 							</div>
 						</div>
 						<div class="col">
@@ -84,7 +84,7 @@
 
 									<div class="tag-control-container">
 										<p class="text-black tag-text">タグ</p>
-										<input class="form-control text-black" data-role="tagsinput" value="@ViewBag.PorjectTags" name="ProjectTags" />
+										<input class="form-control text-black" data-role="tagsinput" value="@userMedia.OriginalTags" name="OriginalTags" />
 									</div>
 
 									<input hidden asp-for="@userMedia.MediaId" name="MediaId" />
@@ -122,8 +122,8 @@
 
 			//	$(this).fileinput({
 			//		allowedFileTypes: ['image'],
-			////		deleteUrl: '@@Url.Action("DeleteUserMedia", "Home", new { media_id = Model.UserMediaDetailCosmos.MediaId })',
-			//		deleteUrl: '@Url.Action("DeleteUserMedia", "Home", new { media_id = Model.UserMediaDetail.MediaId })',
+			////		deleteUrl: '@@Url.Action("DeleteUserMedia", "UserMedia", new { media_id = Model.UserMediaDetailCosmos.MediaId })',
+			//		deleteUrl: '@Url.Action("DeleteUserMedia", "UserMedia", new { media_id = Model.UserMediaDetail.MediaId })',
 			//		initialPreviewAsData: true,
 			//		overwriteInitial: true,
 			//		browseOnZoneClick: true,
@@ -141,7 +141,7 @@
 
 		function filedelete(media_id) {
 			$.ajax({
-				url: '@Url.Action("DeleteUserMedia", "Home", new { media_id = Model.UserMediaDetail.MediaId })',
+				url: '@Url.Action("DeleteUserMedia", "UserMedia", new { media_id = Model.UserMediaDetail.MediaId })',
                 method: "Post",
                 data: { media_id },
 				processData: false,

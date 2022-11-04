@@ -58,7 +58,10 @@ namespace nxPinterest.Services
             TagResult results = await client.TagImageAsync(imageUrl, language: dev_Settings.computervision_language);
 
             string tag_str = "";
-            foreach (var tag in results.Tags) { tag_str += tag.Name + ":" + tag.Confidence + "|"; }
+            foreach (var tag in results.Tags) {
+                //tag_str += tag.Name + ":" + tag.Confidence + "|";
+                tag_str += tag.Name + ":" + string.Format("{0:f4}", tag.Confidence) + "|";
+            }
 
             return tag_str;
         }
@@ -198,8 +201,8 @@ namespace nxPinterest.Services
         }
         public Stream GetThumbnail(string ImageUrl)
         {
-            // Get thumbnail data
-            var thumbnailStream = client.GenerateThumbnailAsync(248, 165, ImageUrl, true).Result;
+            // Get thumbnail data 3:2
+            var thumbnailStream = client.GenerateThumbnailAsync(348, 232, ImageUrl, true).Result;
             return thumbnailStream;
         }
     }

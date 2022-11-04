@@ -63,3 +63,18 @@ figure.selection-border {
 .range-area > * {
     vertical-align: middle
 }
+#previewImageArea {
+    padding: 5px;
+    background-color: black;
+}
+.previewButton {
+    position: absolute;
+    cursor: pointer;
+    bottom: 5px;
+    right: 5px;
+    display: none;
+}
+
+.thumbnail-container figure:hover .previewButton {
+    display: -webkit-box
+}

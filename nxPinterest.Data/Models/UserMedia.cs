@@ -14,7 +14,7 @@ namespace nxPinterest.Data.Models
         public string MediaFileType { get; set; }
         public string MediaUrl { get; set; }
         public string Tags { get; set; }
-        public string ProjectTags { get; set; } = "";
+        //public string ProjectTags { get; set; } = "";
         public string OriginalTags { get; set; } = "";
         public string AITags { get; set; }
         public string MediaSmallUrl { get; set; }

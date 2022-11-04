@@ -1,7 +1,7 @@
 ﻿@model nxPinterest.Data.Models.UserMedia;
 
 <figure>
-    <a href="@Url.Action("Details", "Home", new { media_id = @Model.MediaId })">
+    <a href="@Url.Action("Details", "UserMedia", new { media_id = @Model.MediaId })">
         <img src="@Model.MediaThumbnailUrl" alt="@Model.MediaFileName"/>
         <figcaption>
             <p class="title">@Html.DisplayFor(title => Model.MediaTitle)</p>
@@ -9,9 +9,3 @@
         </figcaption>
     </a>
 </figure>
-@*<a href="@Url.Action("Details", "Home", new { media_id = @Model.MediaId })">
-    <option data-img-src="@Model.MediaThumbnailUrl" value="@Model.MediaId">
-        <p class="title">@Html.DisplayFor(title => Model.MediaTitle)</p>
-        <p class="description">@Html.DisplayFor(description => Model.MediaDescription)</p>
-    </option>
-</a>*@

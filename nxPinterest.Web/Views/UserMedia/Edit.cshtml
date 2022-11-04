@@ -1,0 +1,127 @@
+﻿@model nxPinterest.Web.Models.EditViewModel
+@{
+    ViewData["Title"] = "編集";
+    Layout = "~/Views/Shared/_ImageLayout.cshtml";
+}
+
+<style>
+
+    .btn-create{
+        margin-left: 0;
+        color: #eef2f7;
+        font-size: .9rem;
+        display: inline-block;
+        font-weight: 400;
+        line-height: 1.5;
+        /* color: #6c757d; */
+        text-align: center;
+        vertical-align: middle;
+        width: 100px;
+        height: 50px;
+    }
+
+    .btn-default {
+        background-color: #343a40;
+        border: none;
+        border-radius: 20px;
+        position: relative;
+        color: #eef2f7;
+        }
+     
+</style>
+
+<script src="~/lib/bootstrap-fileinput/js/fileinput.min.js" asp-append-version="true"></script>
+<script src="~/lib/bootstrap-tagsinput/bootstrap-tagsinput.min.js" asp-append-version="true"></script>
+<script src="~/lib/bootstrap-fileinput/js/locales/LANG.js" asp-append-version="true"></script>
+
+<div id="image-viewer-modal" tabindex="-1">
+	<div class="left-arrow-container arrow-key">
+		<a href="@Url.Action("Index", "Home", new { pageIndex = 1})">
+			<i class="fas fa-arrow-circle-left fa-3x"></i>
+		</a>
+	</div>
+	<div class="modal-dialog modal-xl modal-image-viewer" role="document">
+		<form method="post" id="update-user-media-form" enctype="multipart/form-data" asp-action="Edit" asp-controller="UserMedia">
+			<div class="modal-content">
+				<div class="modal-body bg-white">
+					<div class="row">
+						<div class="col">
+							<div class="content h-100">
+								<div class="row" style = "margin-left: 0px;">
+									<div class="image-uploader-wrapper">
+										<figure>
+											<img src="@Model.MediaSmallUrl" alt="@Model.MediaFileName" class="main" style="max-height:initial!important"/>
+										</figure>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col">
+							<div class="mb-2">
+								<div class="content">
+									<input type="text" class="form-control input-control input-title px-0" placeholder="タイトル" asp-for="@Model.MediaTitle" />
+									<textarea rows="3" class="form-control input-control input-explanation px-0" placeholder="説明" asp-for="@Model.MediaDescription" ></textarea>
+
+									<div class="tag-control-container">
+										<p class="text-black tag-text">タグ</p>
+										<input class="form-control text-black" data-role="tagsinput" asp-for="@Model.OriginalTags" name="OriginalTags" />
+									</div>
+
+									<input hidden asp-for="@Model.MediaId" />
+
+									<div class="row">
+										<input type="submit" value="保存" class="btn btn-default btn-save" style="margin-right: 5px;" id="btn-save">
+										<a class="btn btn-lg btn-danger btn-delete" onclick="deleteUserMedia('@Model.MediaId');" style="border-radius: 1.3rem;font-size: 0.9rem;flex-direction: column;justify-content: center;display: flex;">
+											削除
+										</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>			
+			</div>
+		</form>
+	</div>
+</div>
+
+<script>
+    function findShortestCol() {
+        var count = $("#thumbnail-container").children().length;
+        var shortest = $("#column-1");
+        for (var i = 1; i <= count; i++) {
+            if (Math.floor(shortest.height()) > Math.floor($("#column-"+ i +"").height())) {
+                shortest = $("#column-" + i + "");
+            }
+        }
+        return shortest;
+    }
+
+	function deleteUserMedia(media_id) {
+		$.ajax({
+			url: '@Url.Action("DeleteById", "UserMedia", new { media_id = Model.MediaId })',
+            method: "Post",
+            data: { media_id },
+			processData: false,
+			contentType: false,
+			success: function (sResponse) {
+				window.location = '@Url.Action("Index","Home")';
+			}
+		});
+	}
+
+	//$('input.btn-save').on('click', function () {
+	//	var formData = new FormData(document.querySelector('#update-user-media-form'))
+
+	//	$.ajax({
+	//		url: '@Url.Action("Edit", "UserMedia")',
+	//		method: 'POST',
+	//		data: formData,
+	//		processData: false,
+	//		contentType: false,
+	//		success: function (sResponse) {
+	//			window.location = '@Url.Action("Index","Home")';
+	//		}
+	//	});
+	//});
+</script>

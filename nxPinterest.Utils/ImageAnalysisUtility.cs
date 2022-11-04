@@ -10,7 +10,7 @@ namespace nxPinterest.Utils
         {
             try
             {
-                var type = type_manual ? 1 : 0;
+                var type = type_manual ? 1 : 2;
                 var tags = tags_str.Split("|");
                 var tags_str_type = "";
 

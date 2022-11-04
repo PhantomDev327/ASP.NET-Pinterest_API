@@ -11,6 +11,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Models\Response\Tag.cs" />
+    <Compile Remove="Models\Response\TagList.cs" />
+    <Compile Remove="Models\Response\UserMediaDetailModel.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Magick.NET.Core" Version="12.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.10" />
@@ -23,6 +29,10 @@
   <ItemGroup>
     <ProjectReference Include="..\nxPinterest.Data\nxPinterest.Data.csproj" />
     <ProjectReference Include="..\nxPinterest.Utils\nxPinterest.Utils.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Models\Response\" />
   </ItemGroup>
 
 </Project>

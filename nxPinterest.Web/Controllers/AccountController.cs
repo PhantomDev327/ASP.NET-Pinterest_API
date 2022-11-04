@@ -273,7 +273,7 @@ namespace nxPinterest.Web.Controllers
                     // メール送信
 
                     var encryptionKey = "770A8A65DA156D24";
-                    var Email = user.ToString();
+                    var Email = user.Email;
                     var value = EncryptRijndael(Email, encryptionKey);
                     var activationCode = value.Replace('/', '-').Replace('+', '_').PadRight(4 * ((value.Length + 3) / 4), '=');
                     //added by ssa 20220531

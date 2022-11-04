@@ -21,8 +21,8 @@ namespace nxPinterest.Services.Models.Request
         public string Description { get; set; }
 
         public IFormFile Images { get; set; }
-        public string ProjectTags { get; set; }
-        public string PhotoTags { get; set; }
+        public string OriginalTags { get; set; }
+        public string AITags { get; set; }
         public string url { get; set; }
         public string imgName { get; set; }
         public string UserCreated { get; set; }

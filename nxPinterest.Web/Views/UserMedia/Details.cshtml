@@ -55,7 +55,7 @@
 										
 								</div>
 								@if (Model.SameTitleUserMediaList.Count() > 14) {
-										<input type="button" value="Show all" class="btn btn-default btn-save" id="show-all-btn">
+										<input type="button" value="すべて表示" class="btn btn-default btn-save" id="show-all-btn">
 									}
 							</div>
 						</div>
@@ -106,7 +106,7 @@
 			
 	<div class="content gallery">
 		<br />
-		@*<h5>Similar images</h5>*@<h5>似ている画像</h5>
+		<h5>似ている画像</h5>
 		<br/>
 		<div class="thumbnail-container" id="thumbnail-container">
 		</div>
@@ -181,19 +181,6 @@
             },300);
         });
     });
-
-    //function getColNum() {
-    //    var col_num = Math.floor($(window).width() / 264);
-    //    return col_num;
-    //}
-    //function initCol() {
-    //    $("#thumbnail-container").empty();
-    //    var col_num = getColNum();
-    //    var space = Math.floor(($(window).width() % 264)/2);
-    //    for (var i = 1; i <= col_num; i++) {
-    //        $('#thumbnail-container').append('<div id="column-'+i+'" class="image-col" style="position:absolute; width:264px; padding:8px;left:'+ (260 * (i - 1) + space) +'px;"></div>');
-    //    }
-    //}
 	function getColNum(itemWidth) {	
         var col_num = Math.floor($(window).width() / itemWidth);	
         return col_num;	
@@ -247,6 +234,7 @@
         newImgEl.setAttribute('src', value.mediaThumbnailUrl);
         newImgEl.setAttribute('alt', value.mediaFileName);
 		newImgEl.setAttribute('data-media-url', value.mediaUrl);
+        newImgEl.setAttribute('data-smallmedia-url', value.mediaSmallUrl);
     }
     function findShortestCol() {
         var count = $("#thumbnail-container").children().length;

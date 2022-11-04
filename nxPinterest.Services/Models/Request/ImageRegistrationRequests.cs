@@ -15,8 +15,8 @@ namespace nxPinterest.Services.Models.Request
         [Required]
         [MinLength(1)]
         public IList<IFormFile> Images { get; set; } = new List<IFormFile>();
-        public string ProjectTags { get; set; }
-        public string PhotoTags { get; set; }
+        public string OriginalTags { get; set; }
+        public string AITags { get; set; }
         public string UserCreated { get; set; }
         public DateTime DateTimeUploaded { get; set; } = DateTime.Now;
         public string BtnName { get; set; }

@@ -12,7 +12,7 @@
 <script>
 	window.page = 1;
     window.images = new Array();
-    window.itemWidth = 300;
+    window.itemWidth = 250;
     $(document).ready(function() {
         $(window).css('min-width', 500);
         initCol();
@@ -39,14 +39,13 @@
         $("#thumbnail-container").empty();
         var col_num = getColNum(itemWidth);
         var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-        var space = Math.floor(($(window).width() % itemWidth)/2);
+        var space = Math.floor((width % itemWidth)/2) + 8;
         for (var i = 1; i <= col_num; i++) {
             var paddingItem = 4;
             var padding = paddingItem * 2;
             var leftSize = ((itemWidth - paddingItem) * (i - 1) + space);
             $('#thumbnail-container').append('<div id="column-'+i+'" class="image-col" style="position:absolute; width:' + itemWidth +'px; padding:' + padding + 'px;left:'+ leftSize +'px;"></div>');
         }
-        $('#tagArea').height($('#column-1').height());
     }
     function reloadImage() {
         initCol();
@@ -59,7 +58,7 @@
     }
     function loadImg() {
         $.ajax({
-            url: "@Url.Action("getMedia", "Home")",
+            url: "@Url.Action("getMedia", "UserMedia")",
             method: "Post",
             data: { pageIndex: window.page, searchKey: $('#SearchKey').val() },
             success: function (sResult) {
@@ -79,17 +78,19 @@
             }
         });
     }
-
     function appendData(value) {
         var newImgEl = document.createElement('img');
+        var previewButtonEl = '<span class="previewButton" onclick="showPreviewImage(\'' + value.mediaSmallUrl  + '\')"><i class="bi bi-zoom-in fa-lg px-2"></i></span>';
         newImgEl.addEventListener('load', function() {
             shortest = findShortestCol();
             shortest.append('<figure id="'+value.mediaId+'"><figcaption><p class="title">'+value.mediaTitle+'</p><p class="description">'+value.mediaDescription+'</p></figcaption></figure>');
             $('#'+value.mediaId).append(newImgEl);
+            $('#'+value.mediaId).append(previewButtonEl);
         });
         newImgEl.setAttribute('src', value.mediaThumbnailUrl);
         newImgEl.setAttribute('alt', value.mediaFileName);
         newImgEl.setAttribute('data-media-url', value.mediaUrl);
+        newImgEl.setAttribute('data-smallmedia-url', value.mediaSmallUrl);
     }
     function findShortestCol() {
         var count = $("#thumbnail-container").children().length;
@@ -117,7 +118,7 @@
     async function OnGetUserMediaDetails(media_id) {
         var promise = await new Promise(function (resolve, reject) {
             $.ajax({
-                url: "@Url.Action("Details", "Home")",
+                url: "@Url.Action("Details", "UserMedia")",
                 method: "Post",
                 data: { media_id },
                 success: function (sResult) {
