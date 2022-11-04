@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using nxPinterest.Services.Models.Request;
 using System.Threading.Tasks;
@@ -14,10 +15,6 @@ namespace nxPinterest.Web.Controllers
         public UserAlbumController(IUserAlbumService userAlbumService)
         {
             this._userAlbumService = userAlbumService;
-        }
-        public IActionResult Index()
-        {
-            return View();
         }
 
         [HttpPost]
@@ -36,6 +33,21 @@ namespace nxPinterest.Web.Controllers
 
             return PartialView("/Views/Shared/_ShowAlbum.cshtml", model);
         }
-        
+
+        [HttpPost]
+        public async Task<IActionResult> CreateShareUserMedia(CreateUserAlbumSharedRequest model)
+        {
+            var currentDate = DateTime.Now;
+
+            TimeSpan compareDate = (TimeSpan)(model.AlbumExpireDate - currentDate);
+
+            if (compareDate.Days < 0) return BadRequest(ModelState);
+
+
+            var result = await _userAlbumService.CreateAlbumShare(model, UserId);
+
+            return result != 0 ? Ok((GenerateUrl(result))) : Ok(result);
+        }
+
     }
 }
