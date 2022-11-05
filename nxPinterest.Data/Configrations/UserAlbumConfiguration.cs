@@ -36,6 +36,10 @@ public class UserAlbumConfiguration : IEntityTypeConfiguration<UserAlbum>
 
         builder.Property(e => e.ContainerId).HasColumnName("container_id");
 
+        builder.Property(e => e.AlbumCount).HasColumnName("album_count");
+
+        builder.Property(e => e.AlbumThumbnailUrl).HasColumnName("album_thumbnail_url").HasMaxLength(1000);
+
         builder.Property(e => e.AlbumUrl).HasColumnName("album_url").HasMaxLength(1000);
 
         builder.Property(e => e.AlbumVisibility).HasColumnName("album_visibility");

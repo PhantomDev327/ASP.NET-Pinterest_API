@@ -14,6 +14,10 @@ public class UserAlbum
 
     public int ContainerId { get; set; }
 
+    public string AlbumThumbnailUrl { get; set; }
+
+    public int AlbumCount { get; set; }
+
     public string AlbumUrl { get; set; }
 
     public AlbumType AlbumType { get; set; }
@@ -30,7 +34,7 @@ public class UserAlbum
 
     public virtual ApplicationUser ApplicationUser { get; set; }
 
-    public  virtual UserContainer UserContainer { get; set; }
+    public virtual UserContainer UserContainer { get; set; }
 
     public List<UserAlbumMedia> UserAlbumMedias { get; set; } = new List<UserAlbumMedia>();
 
