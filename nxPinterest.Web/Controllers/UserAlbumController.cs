@@ -38,9 +38,9 @@ namespace nxPinterest.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateShareUserMedia(CreateUserAlbumSharedRequest model)
         {
-            var currentDate = DateTime.Now;
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var compareDate = (TimeSpan)(model.AlbumExpireDate - currentDate);
+            var compareDate = (TimeSpan)(Convert.ToDateTime(model.AlbumExpireDate.Value.ToString("yyyy-MM-dd")) - Convert.ToDateTime(DateTime.Now.ToString("yyyy-MM-dd")));
 
             if (compareDate.Days < 0) return BadRequest(ModelState);
 

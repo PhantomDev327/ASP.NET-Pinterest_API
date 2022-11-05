@@ -19,14 +19,13 @@
             }
 
             var currentDate = new Date();
-            var getExpireDate = $("#expireDate").val();
-            var chooseDate = new Date(getExpireDate);
+            var $getExpireDate = $("#expireDate").val();
+            var $chooseDate = new Date($getExpireDate);
 
-            if (chooseDate < currentDate) {
+            if (formatDate($chooseDate) < formatDate(currentDate)) {
                 alert("Cannot be selected less than current date");
                 return;
             }
-            var formattedDate = chooseDate.toLocaleString();
             var $associateAlbum = $mediaid.map(function (v, k, a) {
                 return { UserMediaId: v, MediaUrl: $links[k] };
             });
@@ -36,7 +35,7 @@
                 type: "post",
                 dataType: "json",
                 data: {
-                    AlbumExpireDate: formattedDate,
+                    AlbumExpireDate: formatDate($chooseDate.toLocaleString()),
                     UserAlbumMedias: $associateAlbum
                 },
                 cache: false,
@@ -44,7 +43,7 @@
                     if (result.success) {
                         document.getElementById("shareUserMediaFileLink").value = result.data;
                         showHiddenControlModalShare(true);
-                        document.getElementById("shareUserMediaFileLink").readOnly = true;
+                        document.getElementById("shareUserMediaFileLink").readOnly = true;                                             
                     }
                 },
                 error: function () {
@@ -87,5 +86,18 @@
       }
     }
 
+    function formatDate(date) {
+        var d = new Date(date),
+            month = '' + (d.getMonth() + 1),
+            day = '' + d.getDate(),
+            year = d.getFullYear();
+
+        if (month.length < 2)
+            month = '0' + month;
+        if (day.length < 2)
+            day = '0' + day;
+
+        return [year, month, day].join('-');
+    }
 
 }
