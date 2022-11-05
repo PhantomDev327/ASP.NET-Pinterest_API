@@ -22,6 +22,7 @@ namespace nxPinterest.Web.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
+            model.AlbumUrl = GenerateUrl();
             var result = await _userAlbumService.Create(model, UserId);
 
             return Ok(result);
@@ -39,14 +40,16 @@ namespace nxPinterest.Web.Controllers
         {
             var currentDate = DateTime.Now;
 
-            TimeSpan compareDate = (TimeSpan)(model.AlbumExpireDate - currentDate);
+            var compareDate = (TimeSpan)(model.AlbumExpireDate - currentDate);
 
             if (compareDate.Days < 0) return BadRequest(ModelState);
 
-
+            model.AlbumUrl = GenerateUrl();
             var result = await _userAlbumService.CreateAlbumShare(model, UserId);
 
-            return result != 0 ? Ok((GenerateUrl(result))) : Ok(result);
+            return !string.IsNullOrEmpty(result)
+                ? Ok(new { Success = true, Data = result })
+                : Ok(new { Success = false, Data = result });
         }
 
     }

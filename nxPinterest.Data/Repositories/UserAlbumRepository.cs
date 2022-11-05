@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using nxPinterest.Data.Models;
 using nxPinterest.Data.Repositories.Interfaces;
+using nxPinterest.Data.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,11 +36,13 @@ namespace nxPinterest.Data.Repositories
             return diff.Days > 30;
         }
 
-        public async Task<IEnumerable<UserAlbum>> GetAlbumByUser(string userId)
+        public async Task<IEnumerable<UserAlbumViewModel>> GetAlbumByUser(string userId)
         {
-            if (string.IsNullOrEmpty(userId)) return new List<UserAlbum>();
+            var listAlbum = new List<UserAlbumViewModel>();
 
-            var result = await Context.UserAlbums.Select(n => new UserAlbum
+            if (string.IsNullOrEmpty(userId)) return new List<UserAlbumViewModel>();
+
+            var result = await Context.UserAlbums.Select(n => new UserAlbumViewModel
             {
                 UserId = n.UserId,
                 AlbumName = n.AlbumName,
@@ -48,7 +51,26 @@ namespace nxPinterest.Data.Repositories
                 AlbumUrl = n.AlbumUrl
             }).Where(n => n.UserId == userId).OrderByDescending(n => n.AlbumCreatedat).ToListAsync();
 
-            return result != null ? result : new List<UserAlbum>();
+            foreach (var item in result)
+            {
+                if (item == null) continue;
+
+                var userAlbum = new UserAlbumViewModel
+                {
+                    AlbumName = item.AlbumName,
+                    UserId = item.UserId,
+                    AlbumCreatedat = item.AlbumCreatedat
+                };
+
+                var imageUrl = item.AlbumUrl.Split(';', ' ');
+
+                if (!string.IsNullOrEmpty(item.AlbumUrl) && imageUrl.Length > 1)
+                    userAlbum.FirstImageAlbum = imageUrl[1];
+
+                listAlbum.Add(userAlbum);
+            }
+
+            return listAlbum;
         }
 
         public (int albumId, string albumName) IsUserAlbumAlreadyExists(string albumName)

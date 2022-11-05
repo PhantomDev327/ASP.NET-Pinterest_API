@@ -7,6 +7,7 @@ public class CreateUserAlbumSharedRequest
 {
     public string AlbumName { get; set; } = "noname";
 
+    public string AlbumUrl { get; set; }
     public DateTime? AlbumExpireDate { get; set; }
 
     public List<UserAlbumMediaRequest> UserAlbumMedias { get; set; }

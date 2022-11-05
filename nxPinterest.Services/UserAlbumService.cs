@@ -1,5 +1,6 @@
 ﻿using nxPinterest.Data.Models;
 using nxPinterest.Data.Repositories.Interfaces;
+using nxPinterest.Data.ViewModels;
 using nxPinterest.Services.Interfaces;
 using nxPinterest.Services.Models.Request;
 using System;
@@ -44,7 +45,7 @@ namespace nxPinterest.Services
                     ContainerId = containerId,
                     UserId = userId,
                     AlbumType = Data.Enums.AlbumType.Album,
-                    AlbumUrl = model.UserAlbumMedias[0].MediaUrl,
+                    AlbumUrl = $"{model.AlbumUrl};{model.UserAlbumMedias[0].MediaUrl}",
                     AlbumVisibility = true,
                     AlbumCreatedat = DateTime.Now,
                     AlbumExpireDate = new DateTime(2999,12,31)
@@ -85,13 +86,13 @@ namespace nxPinterest.Services
             }
         }
 
-        public async Task<int> CreateAlbumShare(CreateUserAlbumSharedRequest model, string userId)
+        public async Task<string> CreateAlbumShare(CreateUserAlbumSharedRequest model, string userId)
         {
             try
             {
                 if (model.UserAlbumMedias.Count == 0 || string.IsNullOrEmpty(userId))
                 {
-                    return 0;
+                    return string.Empty;
                 }
 
                 var user = _userRepository.GetSingleByCondition(n => n.Id == userId);
@@ -103,7 +104,7 @@ namespace nxPinterest.Services
                     ContainerId = containerId,
                     UserId = userId,
                     AlbumType = Data.Enums.AlbumType.AlbumShare,
-                    AlbumUrl = model.UserAlbumMedias[0].MediaUrl,
+                    AlbumUrl = $"{model.AlbumUrl};{model.UserAlbumMedias[0].MediaUrl}",
                     AlbumVisibility = true,
                     AlbumCreatedat = DateTime.Now,
                     AlbumExpireDate = model.AlbumExpireDate
@@ -127,15 +128,18 @@ namespace nxPinterest.Services
                 }
 
                 await _unitOfWork.CompleteAsync();
-                return userAlbum.AlbumId;
+
+                var albumUrl = userAlbum.AlbumUrl.Split(';');
+
+                return !string.IsNullOrEmpty(userAlbum.AlbumUrl) && albumUrl.Length > 1 ? albumUrl[0] : string.Empty;
             }
             catch (Exception)
             {
-                return 0;
+                return string.Empty;
             }
         }
 
-        public async Task<IEnumerable<UserAlbum>> GetAlbumByUser(string userId)
+        public async Task<IEnumerable<UserAlbumViewModel>> GetAlbumByUser(string userId)
         {
             return await _userAlbumRepository.GetAlbumByUser(userId);
         }

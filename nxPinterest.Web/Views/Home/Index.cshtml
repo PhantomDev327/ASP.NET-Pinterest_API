@@ -135,8 +135,8 @@
                     </div>
                 </div>
                 <div class="d-flex justify-content-center mt-3">
-                    <div class="btn-group mr-4" style="margin-right:60px">
-                        <button type="button" class="btn btn-outline-secondary btn-md text-center">
+                    <div class="btn-group mr-4" style="margin-right:65px">
+                        <button type="button" id="sharedAlbumMedia" class="btn btn-outline-secondary btn-md text-center">
                             共有する
                         </button>
                     </div>
@@ -145,11 +145,11 @@
                 <div class="clearfix"></div>
                 <hr class="mb-5">
                 <div class="d-flex justify-content-center mt-3">
-                    <input type="email" class="form-control" id="shareUserMediaFileLink" style="display: none">
+                    <input type="text"  class="form-control" id="shareUserMediaFileLink">
                </div>
                 <div class="d-flex justify-content-center mt-3">
-                    <div class="btn-group mr-4" style="margin-right:60px">
-                        <button type="button" class="btn btn-outline-secondary btn-md text-center" style="display: none">
+                    <div class="btn-group mr-4" style="margin-right:30px">
+                        <button type="button" id="copyLinkMedia" class="btn btn-outline-secondary btn-md text-center" data-toggle="tooltip" data-placement="top" title="コピーする">
                             コピーする <i class="fa fa-copy" aria-hidden="true"></i>
 
                         </button>
@@ -194,19 +194,14 @@
 @section Scripts{
 <script src="~/lib/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
 <script src="~/lib/bootstrap-datepicker/locales/bootstrap-datepicker.ja.min.js"></script>
-    <script src="~/js/user-album/index.js"></script>
+<script src="~/js/user-album/index.js"></script>
+<script src="~/js/shared-user-album/index.js"></script>
     <script>
         var album = new userAlbumController();
+        var shareAlbum = new shareUserAlbumMediaController();
            album.initialize();
+           shareAlbum.initialize();
+
     </script>
-    <script>
-       $(document).ready(function(){
-            $.fn.datepicker.defaults.language = 'ja';
-            if ($.fn.datepicker) {
-                $("#expireDate").datepicker({ language: "ja", todayHighlight: true });
-                $("#expireDate").datepicker().datepicker("setDate", new Date());
-            }
-            
-       });
-    </script>
+ 
     }

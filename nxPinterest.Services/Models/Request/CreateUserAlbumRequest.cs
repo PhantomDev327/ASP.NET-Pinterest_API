@@ -7,8 +7,10 @@ namespace nxPinterest.Services.Models.Request
     {
         [Required]
         public string AlbumName { get; set; }
+        public string AlbumUrl { get; set; }
 
         public List<UserAlbumMediaRequest> UserAlbumMedias { get; set; }
+
     }
 
     public class UserAlbumMediaRequest
