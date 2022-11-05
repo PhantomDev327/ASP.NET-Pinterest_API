@@ -678,7 +678,7 @@ namespace nxPinterest.Services
                 // tagテーブルの(type=0,1)は削除新規
                 var query = from q in _context.UserMediaTags
                             where q.UserMediaName == userMedia.MediaFileName 
-                            && new int[] {0,1}.Contains(q.TagsType)
+                            && new byte[] {0,1}.Contains(q.TagsType)
                             select q;
                 _context.UserMediaTags.RemoveRange(query);
 
