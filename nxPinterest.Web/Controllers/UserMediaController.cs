@@ -19,7 +19,7 @@ namespace nxPinterest.Web.Controllers
     [Authorize]
     public class UserMediaController : BaseController
     {
-        private readonly ILogger<HomeController> _logger;
+        //private readonly ILogger<HomeController> _logger;
         public const int pageSize = nxPinterest.Services.dev_Settings.displayMaxItems_search;
         private readonly IUserMediaManagementService userMediaManagementService;
         private readonly ApplicationDbContext _context;
