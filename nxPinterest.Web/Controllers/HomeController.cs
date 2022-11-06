@@ -52,7 +52,8 @@ namespace nxPinterest.Web.Controllers
 
             int skip = (pageIndex - 1) * pageSize;
 
-            vm.UserMediaList = await this.userMediaManagementService.SearchUserMediaAsync(searchKey, user[0].container_id);
+            //画面のajaxで取得と表示をしている ViewModelのListを未使用のためコメント
+            //vm.UserMediaList = await this.userMediaManagementService.SearchUserMediaAsync(searchKey, user[0].container_id);
 
             //int totalPages = (int)System.Math.Ceiling((decimal)(vm.UserMediaList.Count / (decimal)pageSize));
             //int totalRecordCount = vm.UserMediaList.Count;
