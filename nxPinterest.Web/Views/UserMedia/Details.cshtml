@@ -104,13 +104,21 @@
 		</div>
 	</div>
 			
-	<div class="content gallery">
-		<br />
-		<h5>似ている画像</h5>
-		<br/>
-		<div class="thumbnail-container" id="thumbnail-container">
-		</div>
-	</div>
+	<div id="blockGallery" class="multiImageSelect-noselect">
+        <div class="m-3">
+            <div class="content gallery" id="contentGallery">
+                <br />
+                <h5>似ている画像</h5>
+                <br/>
+                <div class="thumbnail-container" id="thumbnail-container">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @{
+        await Html.RenderPartialAsync("/Views/Home/_HomeImageContainer.cshtml");
+    }
 
 </div>
 
@@ -247,3 +255,23 @@
         return shortest;
     }
 </script>
+
+@section Scripts{
+    <script>
+        function loadImg() {
+            var media_id = $('#userMedia_MediaId').val();
+            $.ajax({
+                url: "@Url.Action("getSimilarMedia", "UserMedia")",
+                method: "Post",
+                data: { pageIndex: window.page, media_id: media_id, searchKey: $('#SearchKey').val() },
+                success: function (sResult) {
+                    window.images.push( sResult.relatedUserMediaList );
+                    $.each(sResult.relatedUserMediaList, function(index, value) {
+                        appendData(value);
+                    });
+                    window.page = window.page + 1;
+                }
+            });
+        }
+    </script>
+    }
