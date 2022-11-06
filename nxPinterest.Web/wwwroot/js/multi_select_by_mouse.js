@@ -211,9 +211,9 @@ function multiSelect() {
                     for (var childNode of el.childNodes) {
                         if (childNode.nodeName
                             && childNode.nodeName.toLowerCase() === "img"
-                            && childNode.getAttribute("data-smallmedia-url")
+                            && childNode.getAttribute("data-media-url")
                         ) {
-                            selectedMediaSrc = childNode.getAttribute("data-smallmedia-url");
+                            selectedMediaSrc = childNode.getAttribute("data-media-url");
                             break;
                         }
                     }
