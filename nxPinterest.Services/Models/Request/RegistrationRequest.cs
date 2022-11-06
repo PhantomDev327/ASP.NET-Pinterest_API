@@ -9,11 +9,16 @@ namespace nxPinterest.Services.Models.Request
         public string Email { get; set; }
 
         [Required]
-        [DataType(DataType.Password)]
-        public string Password { get; set; }
+        public string UserDispName { get; set; }
 
-        [DataType(DataType.Password)]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match")]
-        public string ConfirmPassword { get; set; }
+        public int ContainerId { get; set; } = 2;
+
+        //[Required]
+        //[DataType(DataType.Password)]
+        //public string Password { get; set; }
+
+        //[DataType(DataType.Password)]
+        //[Compare("Password", ErrorMessage = "The password and confirmation password do not match")]
+        //public string ConfirmPassword { get; set; }
     }
 }

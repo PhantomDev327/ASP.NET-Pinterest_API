@@ -27,7 +27,15 @@ namespace nxPinterest.Web
             services.ConfigureOptions(Configuration);
             services.AddServices();
 
-            services.AddIdentity<ApplicationUser, IdentityRole>(options => options.User.RequireUniqueEmail = true)
+            services.AddIdentity<ApplicationUser, IdentityRole>(options => {
+                options.User.RequireUniqueEmail = true;
+                options.Password.RequiredLength = 6;
+                //options.Password.RequiredUniqueChars = 0;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireDigit = false;
+                options.Password.RequireNonAlphanumeric = false;
+            })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
