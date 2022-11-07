@@ -40,23 +40,6 @@
           position: relative;
           display: inline-block;
         }
-        .dropdown-content {
-          display: none;
-          position: absolute;
-          background-color: #f1f1f1;
-          min-width: 160px;
-          box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-          z-index: 7;
-          margin-right:0;
-        }
-        .dropdown-content a {
-          color: black;
-          padding: 12px 16px;
-          text-decoration: none;
-          display: block;
-          z-index:6;
-        }
-        .dropdown:hover .dropdown-content {display: block;}
     </style>
     @RenderSection("Styles", required: false)
 </head>
@@ -128,7 +111,7 @@
                 </span>
                 
                 <div class="dropdown px-2">
-                    <div data-toggle="dropdown" aria-expanded="false">
+                    <div data-bs-toggle="dropdown" aria-expanded="false">
 @*                        <i class="bi bi-person-circle"></i>*@
                         @{
                             <span class="px-1">@ViewBag.UserDispName</span>
@@ -143,25 +126,29 @@
                         }
                         <i class="bi bi-chevron-down"></i>
                     </div>
-                    <div class="dropdown-menu">
+                    <ul class="dropdown-menu dropdown-menu-end">
 
                         @{
                         if (@Model.Discriminator == "SysAdmin")
                             {
-                                <a class="dropdown-item" href="@Url.Action("UserContainerList", "account")">
-                                    <i class="bi bi-bag-check" data-toggle="tooltip" data-placement="bottom" title="コンテナを登録" style=""></i> コンテナ管理
-                                </a>
+                                <li>
+                                    <a class="dropdown-item" href="@Url.Action("UserContainerList", "account")">
+                                        <i class="bi bi-bag-check" data-toggle="tooltip" data-placement="bottom" title="コンテナを登録" style=""></i> コンテナ管理
+                                    </a>
+                                </li>
                             }
                         if (@Model.Discriminator == "ContainerAdmin")
                             {
-                                <a class="dropdown-item" href="@Url.Action("NormalUserList", "account")">
-                                    <i class="bi bi-card-checklist" data-toggle="tooltip" data-placement="bottom" title="ユーザ一を登録" style=""></i> ユーザ管理
-                                </a>
+                                <li>
+                                    <a class="dropdown-item" href="@Url.Action("NormalUserList", "account")">
+                                        <i class="bi bi-card-checklist" data-toggle="tooltip" data-placement="bottom" title="ユーザ一を登録" style=""></i> ユーザ管理
+                                    </a>
+                                </li>
                             }
                         }
-                        <a class="dropdown-item" href="@Url.Action("ChangePassword", "account")">パスワード変更</a>
-                        <a class="dropdown-item" href="@Url.Action("LogOut", "account")">ログアウト</a>
-                    </div>
+                        <li><a class="dropdown-item" href="@Url.Action("ChangePassword", "account")">パスワード変更</a></li>
+                        <li><a class="dropdown-item" href="@Url.Action("LogOut", "account")">ログアウト</a></li>
+                    </ul>
                 </div>
             </div>
         </div>
