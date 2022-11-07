@@ -89,99 +89,22 @@
         }
     </script>
 
+<div id="blockGallery" class="multiImageSelect-noselect">
+    <div class="m-3">
+        <div class="content gallery" id="contentGallery">
+            <div class="thumbnail-container" id="thumbnail-container">
+            </div>
+        </div>
+    </div>
+</div>
+
 @{
-    await Html.RenderPartialAsync("/Views/Home/_HomeImageContainer.cshtml", Model.UserMediaList);
+    await Html.RenderPartialAsync("/Views/Home/_HomeImageContainer.cshtml");
 }
 
 @{
     await Html.RenderPartialAsync("/Views/Shared/_ImageRegistration.cshtml", Model.ImageRegistrationVM);
 }
-
-    <div class="modal fade text-black" id="createUserMediaFolderModal" tabindex="-1" role="dialog" aria-labelledby="createUserMediaFolderModalTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header border-0">
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
-                </div>
-                <div class="modal-body" id="mediaFolderContent">
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade text-black" id="shareUserMediaFileModal" tabindex="-1" role="dialog" aria-labelledby="shareUserMediaFileModalTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-            <div class="modal-header border-0">
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
-            </div>
-                <div class="modal-body">
-                <div class="row g-3 align-items-center">
-                    <div class="col-auto">
-                        <label for="lblDate" class="col-form-label">
-                            共有期限
-                        </label>
-                    </div>
-                    <div class="col-auto mx-auto">
-                        <div id="datetimepicker1"></div>
-                    </div>
-                </div>
-                <div class="d-flex justify-content-center mt-3">
-                    <div class="btn-group mr-4" style="margin-right:60px">
-                        <button type="button" class="btn btn-outline-secondary btn-md text-center">
-                            共有する
-                        </button>
-                    </div>
-                    
-                </div>
-                <div class="clearfix"></div>
-                <hr class="mb-5">
-                <div class="d-flex justify-content-center mt-3">
-                    <input type="email" class="form-control" id="shareUserMediaFileLink">
-               </div>
-                <div class="d-flex justify-content-center mt-3">
-                    <div class="btn-group mr-4" style="margin-right:60px">
-                        <button type="button" class="btn btn-outline-secondary btn-md text-center">
-                            コピーする <i class="fa fa-copy" aria-hidden="true"></i>
-
-                        </button>
-                    </div>
-
-                </div>
-                </div>
-            <div class="modal-footer border-0">
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade text-black" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmModalTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-body">
-                <h3 class="text-center" style="font-weight: normal;">削除してよろしいですか</h3>
-            </div>
-            <div class="modal-footer pt-0">
-                <button type="button" class="btn" data-bs-dismiss="modal">いいえ</button>
-                <button type="button" class="btn btn-primary" onclick="deleteUserMediaFile();">はい</button>
-            </div>
-        </div>
-        </div>
-    </div>
-    
-    <div class="modal fade text-black" id="showPreviewImageModal" tabindex="-1" role="dialog" aria-labelledby="showPreviewImageModalTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
-            <div class="modal-content">
-                <div class="modal-body" id="previewImageArea">
-                    <img id="previewImage" style="width:100%; height:100%">
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <iframe id="iframeDownload1" style="display: none"></iframe>
-    <iframe id="iframeDownload2" style="display: none"></iframe>
-    <iframe id="iframeDownload3" style="display: none"></iframe>
 
 @section Scripts{
 <script src="~/lib/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
@@ -203,5 +126,35 @@
                 });
             }
        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            var uploadMediaButtonEle = document.getElementById("uploadMedia");
+            if (uploadMediaButtonEle) {
+                uploadMediaButtonEle.style.display = "unset";
+            }
+        });
+        function loadImg() {
+            $.ajax({
+                url: "@Url.Action("getMedia", "UserMedia")",
+                method: "Post",
+                data: { pageIndex: window.page, searchKey: $('#SearchKey').val() },
+                success: function (sResult) {
+                    window.images.push( sResult.userMediaList);
+                    $.each(sResult.userMediaList, function(index, value) {
+                        appendData(value);
+                    });
+                    window.page = window.page + 1;
+                },
+                error: function () {
+                    window.images.forEach(function (data) {
+                        data.forEach(function (value) {
+                            appendData(value);
+                        });
+                    });
+                    window.page = window.page + 1;
+                }
+            });
+        }
     </script>
     }
