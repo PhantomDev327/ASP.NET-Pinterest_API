@@ -77,13 +77,14 @@ namespace nxPinterest.Web.Controllers
                         {
                             throw new Exception("This User is Invalid");
                         }
-                        if (userinfo.Discriminator == "SysAdmin")
-                        {
-                            return RedirectToAction("UserContainerIdList", "account");
-                        }else
-                        {
-                            return RedirectToAction("Index", "Home");
-                        }
+                        //if (userinfo.Discriminator == "SysAdmin")
+                        //{
+                        //    return RedirectToAction("UserContainerIdList", "account");
+                        //}else
+                        //{
+                        //    return RedirectToAction("Index", "Home");
+                        //}
+                        return RedirectToAction("Index", "Home");
                     }
                     TempData["Message"] = "ログインIDまたはパスワードが違います";
                     return View("Certification", request);
@@ -988,7 +989,7 @@ namespace nxPinterest.Web.Controllers
         {
             // コンテナ管理者のみ利用可能な機能
             var user = await this._userManager.FindByIdAsync(this.UserId);
-            if (user.Discriminator != "ContainerAdmin")
+            if (user.Discriminator != "SysAdmin" && user.Discriminator != "ContainerAdmin")
             {
                 TempData["Message"] = "Access Denied!";
                 return View("~/Views/Error/204.cshtml");
