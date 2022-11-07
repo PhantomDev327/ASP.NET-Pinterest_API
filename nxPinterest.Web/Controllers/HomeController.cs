@@ -69,7 +69,7 @@ namespace nxPinterest.Web.Controllers
             //vm.TotalRecords = totalRecordCount;
             vm.Discriminator = user[0].Discriminator;
 
-            //ホーム検索画面よく使用されているタグ候補
+            //よく使用されているタグ候補
             vm.TagsList = await this.userMediaManagementService.GetOftenUseTagsAsyc(user[0].container_id, searchKey, 30);
 
             //登録画面で使用されているタグ候補

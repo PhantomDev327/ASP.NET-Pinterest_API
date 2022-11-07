@@ -1,4 +1,4 @@
-﻿@model HomeViewModel
+﻿@*@model HomeViewModel*@
 
 <!DOCTYPE html>
 <html lang="ja">
@@ -88,7 +88,7 @@
                             <i class="fas fa-search icon-search"></i>
                         </button>
                     </div>*@
-                    <input type="text" class="form-control m-0 px-2 rounded" placeholder="検索" asp-for="SearchKey" autocomplete="off"/>
+                    <input type="text" id="SearchKey" name="SearchKey" class="form-control m-0 px-2 rounded" placeholder="検索" value="@Model.SearchKey" autocomplete="off"/>
                 </div>
 
             </div>
@@ -137,7 +137,7 @@
                                     </a>
                                 </li>
                             }
-                        if (@Model.Discriminator == "ContainerAdmin")
+                        if (@Model.Discriminator == "SysAdmin" || @Model.Discriminator == "ContainerAdmin")
                             {
                                 <li>
                                     <a class="dropdown-item" href="@Url.Action("NormalUserList", "account")">

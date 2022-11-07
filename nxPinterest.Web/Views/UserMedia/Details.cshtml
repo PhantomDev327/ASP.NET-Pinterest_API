@@ -2,8 +2,7 @@
 @model nxPinterest.Web.Models.DetailsViewModel
 @{
     ViewData["Title"] = "画像選択";
-    Layout = "~/Views/Shared/_ImageLayout.cshtml";
-//    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 
 	UserMedia userMedia = Model.UserMediaDetail;
 }
@@ -117,7 +116,7 @@
     </div>
 
     @{
-        await Html.RenderPartialAsync("/Views/Home/_HomeImageContainer.cshtml");
+        await Html.RenderPartialAsync("/Views/Shared/_ImageContainer.cshtml");
     }
 
 </div>

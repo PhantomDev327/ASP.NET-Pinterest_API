@@ -10,6 +10,8 @@ namespace nxPinterest.Web.Models
     public class HomeViewModel
     {
         public string SearchKey { get; set; }
+        public IList<string> TagsList { get; set; }
+
         //public Services.Models.Request.ImageRegistrationRequests ImageRegistrationRequests { get; set; } = new Services.Models.Request.ImageRegistrationRequests();
         public ImageRegisterViewModel ImageRegistrationVM { get; set; } = new ImageRegisterViewModel();
         
@@ -21,7 +23,5 @@ namespace nxPinterest.Web.Models
         public int TotalPages { get; set; }
         public int TotalRecords { get; set; }
         public virtual string Discriminator { get; set; }
-
-        public IList<string> TagsList { get; set; }
     }
 }

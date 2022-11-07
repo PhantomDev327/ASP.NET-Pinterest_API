@@ -1,4 +1,4 @@
-﻿@model nxPinterest.Web.Models.HomeViewModel
+﻿@model HomeViewModel
 @{
     ViewData["Title"] = "TOP";
 
@@ -99,7 +99,7 @@
 </div>
 
 @{
-    await Html.RenderPartialAsync("/Views/Home/_HomeImageContainer.cshtml");
+    await Html.RenderPartialAsync("/Views/Shared/_ImageContainer.cshtml");
 }
 
 @{
