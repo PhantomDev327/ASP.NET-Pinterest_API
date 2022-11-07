@@ -279,7 +279,7 @@ namespace nxPinterest.Services
                         // 画像の操作をMutateメソッドで行う
                         imgSharp.Mutate(x =>
                         {
-                            var option = new ResizeOptions { Mode = ResizeMode.Max, Size = new Size(860, 573) };
+                            var option = new ResizeOptions { Mode = ResizeMode.Max, Size = new Size(1140, 760) };
                             x.Resize(option);
                         });
                         imgSharp.Save(smallimageStream, format);
