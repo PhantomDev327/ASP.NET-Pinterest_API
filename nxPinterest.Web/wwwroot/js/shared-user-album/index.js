@@ -2,7 +2,7 @@
 
     this.initialize = function() {
         registerDatepicker();
-        showHiddenControlModalShare(false);
+        showHiddenFooterModalShare(false);
         registerEvents();
     };
 
@@ -42,7 +42,7 @@
                 success: function (result) {
                     if (result.success) {
                         document.getElementById("shareUserMediaFileLink").value = result.data;
-                        showHiddenControlModalShare(true);
+                        showHiddenFooterModalShare(true);
                         document.getElementById("shareUserMediaFileLink").readOnly = true;                                             
                     }
                 },
@@ -76,13 +76,11 @@
         });
     }
 
-    function showHiddenControlModalShare(parameters) {
+    function showHiddenFooterModalShare(parameters) {
       if (parameters) {
-          document.getElementById("shareUserMediaFileLink").style.display = 'block';
-          document.getElementById("copyLinkMedia").style.display = 'block';
+          document.getElementById("footerUserMediaLink").style.display = 'block';
       } else {
-          document.getElementById("shareUserMediaFileLink").style.display = 'none';
-          document.getElementById("copyLinkMedia").style.display = 'none';
+          document.getElementById("footerUserMediaLink").style.display = 'none';
       }
     }
 
