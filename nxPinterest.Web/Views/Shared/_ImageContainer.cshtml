@@ -147,8 +147,9 @@
         newImgEl.addEventListener('load', function() {
             shortest = findShortestCol();
             shortest.append('<figure id="'+value.mediaId+'"><figcaption><p class="title">'+value.mediaTitle+'</p><p class="description">'+value.mediaDescription+'</p></figcaption></figure>');
-            $('#'+value.mediaId).append(newImgEl);
-            $('#'+value.mediaId).append(previewButtonEl);
+            var figureItemEle = $('figure[id="' + value.mediaId + '"]');
+            figureItemEle.append(newImgEl);
+            figureItemEle.append(previewButtonEl);
         });
         newImgEl.setAttribute('src', value.mediaThumbnailUrl);
         newImgEl.setAttribute('alt', value.mediaFileName);
