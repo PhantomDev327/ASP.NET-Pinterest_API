@@ -7,7 +7,7 @@
 <div class="content">
     <div class="card certification-card">
         <div class="card-body">
-            <div class="form-text text-danger">
+@*            <div class="form-text text-danger">
                 @if (TempData["custom-validation-message"] != null)
                 {
                     <span>@TempData["custom-validation-message"]</span>
@@ -18,16 +18,13 @@
                 {
                     <span>@TempData["custom-validation-success-message"]</span>
                 }
-            </div>
+            </div>*@
             <form class="certification text-color-white" method="post" asp-action="Certify" asp-controller="Account">
+                <span asp-validation-for="Email" class="text-danger"></span>
                 <input type="email" class="form-control input-control useremail" placeholder="メールアドレス" asp-for="Email" />
-                <div class="form-text text-danger">
-                    @Html.ValidationMessageFor(c => c.Email)
-                </div>
+                <span asp-validation-for="Password" class="text-danger"></span>
                 <input type="password" class="form-control input-control password" placeholder="パスワード" asp-for="Password" />
-                <div class="form-text text-danger">
-                    @Html.ValidationMessageFor(c => c.Password)
-                </div>
+
                 @if((string)TempData["Message"] != "")
                 {
                     <div class="form-text text-danger login-err-msg">
