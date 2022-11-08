@@ -6,7 +6,7 @@ namespace nxPinterest.Services.Models.Request
     {
         [Required]
         public int container_id { get; set; }
-        [Required]
+        [Required(ErrorMessage = "コンテナ名を入力してください")]
         public string container_name { get; set; }
 
         public bool container_visibility { get; set; }

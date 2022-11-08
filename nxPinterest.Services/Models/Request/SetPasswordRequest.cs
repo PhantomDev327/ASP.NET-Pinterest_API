@@ -8,13 +8,13 @@ namespace nxPinterest.Services.Models.Request
     public class SetPasswordRequest
     {
 
-        [Required]
+        [Required(ErrorMessage = "新しいパスワードを入力してください")]
         [DataType(DataType.Password)]
         public string NewPassword { get; set; }
 
         [Required]
         [DataType(DataType.Password)]
-        [Compare("NewPassword", ErrorMessage = "The password and confirmation password do not match")]
+        [Compare("NewPassword", ErrorMessage = "パスワードと確認用パスワードが一致していません")]
         public string ConfirmPassword { get; set; }
 
         public string Email { get; set; }

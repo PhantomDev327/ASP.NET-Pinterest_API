@@ -4,11 +4,11 @@ namespace nxPinterest.Services.Models.Request
 {
     public class RegistrationRequest
     {
-        [Required]
+        [Required(ErrorMessage = "Emailアドレスを入力してください")]
         [EmailAddress]
         public string Email { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "名前を入力してください")]
         public string UserDispName { get; set; }
 
         public int ContainerId { get; set; } = 2;

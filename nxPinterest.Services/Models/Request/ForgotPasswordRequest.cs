@@ -7,7 +7,7 @@ namespace nxPinterest.Services.Models.Request
 {
     public class ForgotPasswordRequest
     {
-        [Required]
+        [Required(ErrorMessage = "Emailアドレスを入力してください")]
         public string Email { get; set; }
     }
 }

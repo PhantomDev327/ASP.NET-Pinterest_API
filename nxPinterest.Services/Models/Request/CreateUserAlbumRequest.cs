@@ -5,7 +5,7 @@ namespace nxPinterest.Services.Models.Request
 {
     public class CreateUserAlbumRequest
     {
-        [Required]
+        [Required(ErrorMessage = "アルバム名を入力してください")]
         public string AlbumName { get; set; }
         public string AlbumUrl { get; set; }
 

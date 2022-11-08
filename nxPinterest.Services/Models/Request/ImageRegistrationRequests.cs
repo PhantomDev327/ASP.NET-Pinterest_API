@@ -8,11 +8,11 @@ namespace nxPinterest.Services.Models.Request
     public class ImageRegistrationRequests
     {
         public int MediaId { get; set; }
-        [Required]
+        [Required(ErrorMessage = "タイトルを入力してください")]
         public string Title { get; set; }
         public string Description { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "写真をアップロードしてください")]
         [MinLength(1)]
         public IList<IFormFile> Images { get; set; } = new List<IFormFile>();
         public string OriginalTags { get; set; }
