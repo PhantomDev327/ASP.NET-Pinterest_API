@@ -106,26 +106,117 @@
     await Html.RenderPartialAsync("/Views/Shared/_ImageRegistration.cshtml", Model.ImageRegistrationVM);
 }
 
+    <div class="modal fade text-black" id="createUserMediaFolderModal" tabindex="-1" role="dialog" aria-labelledby="createUserMediaFolderModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
+                </div>
+                <div class="modal-body" id="mediaFolderContent">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade text-black" id="shareUserMediaFileModal" tabindex="-1" role="dialog" aria-labelledby="shareUserMediaFileModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                <h5 class="modal-title w-100 text-center ">共通写真へのリンクはこちらです</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
+                 
+                </div>
+                <div class="modal-body">
+                <div class="row g-3 align-items-center">
+                    <div class="col-auto">
+                        <label for="lblDate" class="col-form-label">
+                            共有期限
+                        </label>
+                    </div>
+                    <div class="col-auto mx-auto">
+                        <div class="input-group input-medium date date-picker" data-provide="datepicker">
+                            <span class="input-group-btn" style="font-size: 0; white-space: nowrap;vert-align: middle">
+                                <button class="btn default" type="button" style="color: #666; background-color: #e1e5ec; border-color: #e1e5ec;border-radius: 0 ">
+                                    <i class="fa fa-calendar"></i>
+                                </button>
+                            </span>
+                            <input type="text" class="form-control" id="expireDate" readonly="" style="border-color: #e1e5ec;border-radius: 0 ">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-center mt-3">
+                    <div class="btn-group mr-4" style="margin-right:65px">
+                        <button type="button" id="sharedAlbumMedia" class="btn btn-outline-secondary btn-md text-center">
+                            共有する
+                        </button>
+                    </div>
+                    
+                </div>
+                
+                <div id="footerUserMediaLink">
+                    <div class="clearfix"></div>
+                    <hr class="mb-5">
+                    <div class="d-flex justify-content-center mt-3">
+                        <input type="text" class="form-control" id="shareUserMediaFileLink">
+                    </div>
+                    <div class="d-flex justify-content-center mt-3">
+                        <div class="btn-group mr-4" style="margin-right:30px">
+                            <button type="button" id="copyLinkMedia" class="btn btn-outline-secondary btn-md text-center" data-toggle="tooltip" data-placement="top" title="コピーする">
+                                コピーする <i class="fa fa-copy" aria-hidden="true"></i>
+
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+                </div>
+            <div class="modal-footer border-0">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade text-black" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <h3 class="text-center" style="font-weight: normal;">削除してよろしいですか</h3>
+            </div>
+            <div class="modal-footer pt-0">
+                <button type="button" class="btn" data-bs-dismiss="modal">いいえ</button>
+                <button type="button" class="btn btn-primary" onclick="deleteUserMediaFile();">はい</button>
+            </div>
+        </div>
+        </div>
+    </div>
+    
+    <div class="modal fade text-black" id="showPreviewImageModal" tabindex="-1" role="dialog" aria-labelledby="showPreviewImageModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-body" id="previewImageArea">
+                    <img id="previewImage" style="width:100%; height:100%">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <iframe id="iframeDownload1" style="display: none"></iframe>
+    <iframe id="iframeDownload2" style="display: none"></iframe>
+    <iframe id="iframeDownload3" style="display: none"></iframe>
+
+
 @section Scripts{
 <script src="~/lib/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
 <script src="~/lib/bootstrap-datepicker/locales/bootstrap-datepicker.ja.min.js"></script>
-    <script src="~/js/user-album/index.js"></script>
+<script src="~/js/user-album/index.js"></script>
+<script src="~/js/shared-user-album/index.js"></script>
     <script>
         var album = new userAlbumController();
+        var shareAlbum = new shareUserAlbumMediaController();
            album.initialize();
-    </script>
-    <script>
-       $(document).ready(function(){
-            if ($.fn.datepicker) {
-                $("#datetimepicker1").datepicker({ language: "ja", format: "YYYY-MM-DD HH:mm:ss", inline: true, sideBySide: true, todayHighlight: true, clearBtn: false });
-                $('#datetimepicker1').on('changeDate', function (event) {
+           shareAlbum.initialize();
 
-                    var formatted_date = event.date;
-                    console.info(formatted_date);
-                    
-                });
-            }
-       });
     </script>
     <script>
         $(document).ready(function () {

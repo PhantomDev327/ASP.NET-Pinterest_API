@@ -1,5 +1,6 @@
 ﻿using nxPinterest.Data.Models;
 using nxPinterest.Data.Repositories.Interfaces;
+using nxPinterest.Data.ViewModels;
 using nxPinterest.Services.Interfaces;
 using nxPinterest.Services.Models.Request;
 using System;
@@ -44,7 +45,7 @@ namespace nxPinterest.Services
                     ContainerId = containerId,
                     UserId = userId,
                     AlbumType = Data.Enums.AlbumType.Album,
-                    AlbumUrl = model.UserAlbumMedias[0].MediaUrl,
+                    AlbumUrl = $"{model.AlbumUrl};{model.UserAlbumMedias[0].MediaUrl}",
                     AlbumVisibility = true,
                     AlbumCreatedat = DateTime.Now,
                     AlbumExpireDate = new DateTime(2999,12,31)
@@ -85,9 +86,67 @@ namespace nxPinterest.Services
             }
         }
 
-        public async Task<IEnumerable<UserAlbum>> GetAlbumByUser(string userId)
+        public async Task<string> CreateAlbumShare(CreateUserAlbumSharedRequest model, string userId)
+        {
+            try
+            {
+                if (model.UserAlbumMedias.Count == 0 || string.IsNullOrEmpty(userId))
+                {
+                    return string.Empty;
+                }
+
+                var user = _userRepository.GetSingleByCondition(n => n.Id == userId);
+                var containerId = user.container_id;
+
+                var userAlbum = new UserAlbum
+                {
+                    AlbumName = model.AlbumName,
+                    ContainerId = containerId,
+                    UserId = userId,
+                    AlbumType = Data.Enums.AlbumType.AlbumShare,
+                    AlbumUrl = $"{model.AlbumUrl};{model.UserAlbumMedias[0].MediaUrl}",
+                    AlbumVisibility = true,
+                    AlbumCreatedat = DateTime.Now,
+                    AlbumExpireDate = model.AlbumExpireDate
+                };
+
+                await _userAlbumRepository.Add(userAlbum);
+                await _unitOfWork.CompleteAsync();
+
+                foreach (var item in model.UserAlbumMedias)
+                {
+                    var userAlbumMedia = new UserAlbumMedia
+                    {
+                        AlbumId = userAlbum.AlbumId,
+                        ContainerId = containerId,
+                        UserMediaId = item.UserMediaId,
+                        UserMediaName = model.AlbumName,
+                        AlbumMediaCreatedat = DateTime.Now
+                    };
+
+                    await _userAlbumMediaRepository.Add(userAlbumMedia);
+                }
+
+                await _unitOfWork.CompleteAsync();
+
+                var albumUrl = userAlbum.AlbumUrl.Split(';');
+
+                return !string.IsNullOrEmpty(userAlbum.AlbumUrl) && albumUrl.Length > 1 ? albumUrl[0] : string.Empty;
+            }
+            catch (Exception)
+            {
+                return string.Empty;
+            }
+        }
+
+        public async Task<IEnumerable<UserAlbumViewModel>> GetAlbumByUser(string userId)
         {
             return await _userAlbumRepository.GetAlbumByUser(userId);
+        }
+
+        public async Task<int> GetAlbumIdByUrl(string url)
+        {
+            return await GetAlbumIdByUrl(url);
         }
     }
 }

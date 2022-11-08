@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace nxPinterest.Web.Controllers
 {
@@ -18,6 +16,18 @@ namespace nxPinterest.Web.Controllers
             get {
                 return User.FindFirst(ClaimTypes.NameIdentifier).Value;
             }
+        }
+
+        protected string GenerateUrl()
+        {
+            var uriBuilder = new UriBuilder(Request.Scheme, Request.Host.Host, Request.Host.Port ?? -1);
+            if (uriBuilder.Uri.IsDefaultPort) uriBuilder.Port = -1;
+
+            var baseUri = uriBuilder.Uri.AbsoluteUri;
+
+            var fomatUrl = $"{baseUri}/shared/${Guid.NewGuid().ToString().Replace("-", "")}";
+
+            return fomatUrl;
         }
     }
 }
