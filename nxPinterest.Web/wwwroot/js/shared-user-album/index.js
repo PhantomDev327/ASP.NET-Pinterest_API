@@ -43,7 +43,9 @@
                     if (result.success) {
                         document.getElementById("shareUserMediaFileLink").value = result.data;
                         showHiddenFooterModalShare(true);
-                        document.getElementById("shareUserMediaFileLink").readOnly = true;                                             
+                        document.getElementById("shareUserMediaFileLink").readOnly = true;
+                    } else {
+                        alert("保存できない.");
                     }
                 },
                 error: function () {
