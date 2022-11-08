@@ -52,5 +52,25 @@ namespace nxPinterest.Web.Controllers
                 : Ok(new { Success = false, Data = result });
         }
 
+        [AllowAnonymous]
+        [HttpGet("/shared/{url?}")]
+        public async Task<IActionResult> DetailAlbum(string url)
+        {
+            //if (string.IsNullOrWhiteSpace(url))
+            //{
+            //    TempData["Message"] = "Url path not exist!";
+            //    return View("~/Views/Error/204.cshtml");
+            //}
+
+            //int albumId = await _userAlbumService.GetAlbumIdByUrl(url);
+
+            //if (albumId == 0)
+            //{
+            //    TempData["Message"] = "Album not exist!";
+            //    return View("~/Views/Error/204.cshtml");
+            //}
+            return View();
+        }
+
     }
 }

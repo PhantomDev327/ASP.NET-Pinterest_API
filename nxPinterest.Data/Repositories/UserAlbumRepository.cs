@@ -32,8 +32,8 @@ namespace nxPinterest.Data.Repositories
             DateTime? expiryDate = result.AlbumExpireDate;
             TimeSpan diff = (TimeSpan)(DateTime.UtcNow - expiryDate);
 
-            // if day >30 has expired
-            return diff.Days > 30;
+            // if day >0 has expired
+            return diff.Days > 0;
         }
 
         public async Task<IEnumerable<UserAlbumViewModel>> GetAlbumByUser(string userId)
@@ -71,6 +71,39 @@ namespace nxPinterest.Data.Repositories
             }
 
             return listAlbum;
+        }
+
+        public async Task<int> GetAlbumIdByUrl(string url)
+        {
+            int albumId = 0;
+
+            if (string.IsNullOrWhiteSpace(url)) return albumId;
+
+            var result = await Context.UserAlbums.Select(n => new UserAlbum
+            {
+                AlbumId = n.AlbumId,
+                AlbumUrl = n.AlbumUrl
+            }).ToListAsync();
+
+            foreach (UserAlbum item in result)
+            {
+                if (item == null) continue;
+                var baseUrl = item.AlbumUrl.Split(';');
+
+                if (!string.IsNullOrEmpty(item.AlbumUrl) && baseUrl.Length > 1)
+                {
+                    if (baseUrl[0] == url)
+                    {
+                        albumId = item.AlbumId;
+                        break;
+                    }
+                }
+            }
+
+            //if day > 0 has expired are return 0;
+            if (await CheckExpiryDayAlbum(albumId)) albumId = 0;
+
+            return albumId;
         }
 
         public (int albumId, string albumName) IsUserAlbumAlreadyExists(string albumName)
