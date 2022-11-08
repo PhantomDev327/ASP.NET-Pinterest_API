@@ -64,9 +64,16 @@
                 $copyLink.setSelectionRange(0, 99999);
                 navigator.clipboard.writeText($copyLink.value);
         });
+
+
+        $("body").on("click", "#shareMedia", function (e) {
+            e.preventDefault();
+            $('#shareUserMediaFileModal').modal('show');
+            showHiddenFooterModalShare(false);
+            document.getElementById("shareUserMediaFileLink").value = "";
+        });
     };
    
-
     function registerDatepicker() {
         $(document).ready(function() {
             $.fn.datepicker.defaults.language = "ja";
