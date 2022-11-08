@@ -72,7 +72,7 @@ namespace nxPinterest.Services
                         AlbumId = userAlbum.AlbumId,
                         ContainerId = containerId,
                         UserMediaId = item.UserMediaId,
-                        UserMediaName = model.AlbumName,
+                        UserMediaName = item.MediaUrl,
                         AlbumMediaCreatedat = DateTime.Now
                     };
 
@@ -124,7 +124,7 @@ namespace nxPinterest.Services
                         AlbumId = userAlbum.AlbumId,
                         ContainerId = containerId,
                         UserMediaId = item.UserMediaId,
-                        UserMediaName = model.AlbumName,
+                        UserMediaName = item.MediaUrl,
                         AlbumMediaCreatedat = DateTime.Now
                     };
 
