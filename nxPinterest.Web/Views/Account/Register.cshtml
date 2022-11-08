@@ -16,13 +16,15 @@
             <form class="certification text-color-white" method="post" asp-action="Register" asp-controller="Account">
                 <input type="email" class="form-control input-control useremail" placeholder="メールアドレス" asp-for="Email" />
                 <div class="form-text text-danger">@Html.ValidationMessageFor(c => c.Email)</div>
-                <input type="password" class="form-control input-control password" placeholder="パスワード" asp-for="Password" />
+                <input type="text" class="form-control input-control" placeholder="名前" asp-for="UserDispName" />
+                <div class="form-text text-danger">@Html.ValidationMessageFor(c => c.UserDispName)</div>
+                @*<input type="password" class="form-control input-control password" placeholder="パスワード" asp-for="Password" />
                 <div class="form-text text-danger">@Html.ValidationMessageFor(c => c.Password)</div>
                 <input type="password" class="form-control input-control confirm-password" placeholder="Confirm Password" asp-for="ConfirmPassword" />
                 <div class="form-text text-danger">@Html.ValidationMessageFor(c => c.ConfirmPassword)</div>
                 <a class="text-color-default" href="/account/certification">
                     <h5>ログインへ</h5>
-                </a>
+                </a>*@
                 <input type="submit" value="登録" class="btn btn-default btn-register" />
             </form>
         </div>

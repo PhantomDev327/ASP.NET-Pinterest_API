@@ -77,13 +77,14 @@ namespace nxPinterest.Web.Controllers
                         {
                             throw new Exception("This User is Invalid");
                         }
-                        if (userinfo.Discriminator == "SysAdmin")
-                        {
-                            return RedirectToAction("UserContainerIdList", "account");
-                        }else
-                        {
-                            return RedirectToAction("Index", "Home");
-                        }
+                        //if (userinfo.Discriminator == "SysAdmin")
+                        //{
+                        //    return RedirectToAction("UserContainerIdList", "account");
+                        //}else
+                        //{
+                        //    return RedirectToAction("Index", "Home");
+                        //}
+                        return RedirectToAction("Index", "Home");
                     }
                     TempData["Message"] = "ログインIDまたはパスワードが違います";
                     return View("Certification", request);
@@ -109,6 +110,94 @@ namespace nxPinterest.Web.Controllers
         public IActionResult Register()
         {
             Services.Models.Request.RegistrationRequest vm = new Services.Models.Request.RegistrationRequest();
+            return View(vm);
+        }
+
+        // ユーザ登録後のパスワード設定
+        [HttpPost]
+        public async Task<IActionResult> Register(Services.Models.Request.RegistrationRequest vm)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    //password なし
+                    var result = await this._userManager.CreateAsync(new ApplicationUser()
+                    {
+                        UserName = vm.Email,
+                        Email = vm.Email,
+                        UserDispName = vm.UserDispName
+                    });
+                    //var result = await this._userManager.CreateAsync(new ApplicationUser()
+                    //{
+                    //    UserName = vm.Email,
+                    //    Email = vm.Email
+                    //}, vm.Password);
+
+                    if (result.Succeeded)
+                    {
+                        var user = await _userManager.FindByEmailAsync(vm.Email);
+                        if (user != null)
+                        {
+                            if(_context.Users.ToList().Count == 1)
+                            {
+                                user.Discriminator = "SysAdmin";
+                            }
+                            else
+                            {
+                                user.Discriminator = _context.Users.Where(u => u.container_id.Equals(vm.ContainerId)).ToList().Count == 0 ? "ContainerAdmin" : "ApplicationUser";
+                                user.container_id = 2;
+                            }
+                        }
+                        var update = await this._userManager.UpdateAsync(user);
+
+                        if (update.Succeeded)
+                        {
+                            // メール送信
+                            var encryptionKey = "770A8A65DA156D24";
+                            var Email = user.ToString();
+                            var value = EncryptRijndael(Email, encryptionKey);
+                            var activationCode = value.Replace('/', '-').Replace('+', '_').PadRight(4 * ((value.Length + 3) / 4), '=');
+                            //added by ssa 20220531
+                            var configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json", true, true).Build();
+                            IConfigurationSection section = configuration.GetSection("MailSetting");
+                            string mailAddress = section["From"];
+                            string MailServer = section["MailServer"];
+                            string Port = section["Port"];
+                            string mailPassword = section["Password"];
+
+                            using (MailMessage mail = new MailMessage())
+                            {
+                                //mail.From = new MailAddress(nxPinterest.Services.dev_Settings.mailAddress);
+                                mail.From = new MailAddress(mailAddress);
+                                mail.To.Add(Email);
+                                mail.Subject = "【写真管理】アカウント登録完了のお知らせ";
+                                mail.Body = "アカウントの登録が完了いたしました。<br />以下URLをクリックしパスワードをご登録ください。<br /><a href = '" + string.Format("{0}://{1}/Account/SetPassword/{2}", Request.Scheme, Request.Host, activationCode) + "'>Click here to activate your account.</a>";
+                                mail.IsBodyHtml = true;
+
+                                //using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+                                using (SmtpClient smtp = new SmtpClient(MailServer, Convert.ToInt32(Port)))
+                                {
+                                    smtp.Credentials = new NetworkCredential(mailAddress, mailPassword);
+                                    smtp.EnableSsl = true;
+                                    smtp.Send(mail);
+                                }
+                            }
+
+                            TempData["custom-validation-success-message"] = "User has been successfully registered!";
+                            return RedirectToAction(nameof(Certification));
+
+                        }
+                    }
+                    throw new Exception(result.Errors.FirstOrDefault().Description);
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Message"] = ex.Message;
+                return View("~/Views/Error/204.cshtml");
+            }
+
             return View(vm);
         }
 
@@ -164,9 +253,13 @@ namespace nxPinterest.Web.Controllers
                         {
                             TempData["custom-validation-success-message"] = "Password has been successfully Registered!";
 
+                            user.user_visibility = true;
+                            var update = await this._userManager.UpdateAsync(user);
+
+
                         }
                         else
-                            throw new Exception(result.Errors.FirstOrDefault().Description);
+                            throw new Exception(string.Join("\n",result.Errors.Select(e => e.Description)));
                     }
 
                 }
@@ -361,78 +454,6 @@ namespace nxPinterest.Web.Controllers
                 TempData["Message"] = ex.Message;
                 return View("~/Views/Error/204.cshtml");
             }
-        }
-
-        // ユーザ登録後のパスワード設定
-        [HttpPost]
-        public async Task<IActionResult> Register(Services.Models.Request.RegistrationRequest vm)
-        {
-            try
-            {
-                if (ModelState.IsValid)
-                {
-                    var result = await this._userManager.CreateAsync(new ApplicationUser()
-                    {
-                        UserName = vm.Email,
-                        Email = vm.Email
-                    }, vm.Password);
-
-                    if (result.Succeeded) {
-                        var user = await _userManager.FindByEmailAsync(vm.Email);
-                        if (user != null)
-                        {
-                            user.Discriminator = (_context.Users.ToList().Count == 1) ? "Admin" : "ApplicationUser";
-                        }
-                        var update = await this._userManager.UpdateAsync(user);
-
-                        if (update.Succeeded)
-                        {
-                            // メール送信
-                            var encryptionKey = "770A8A65DA156D24";
-                            var Email = user.ToString();
-                            var value = EncryptRijndael(Email, encryptionKey);
-                            var activationCode = value.Replace('/', '-').Replace('+', '_').PadRight(4 * ((value.Length + 3) / 4), '=');
-                            //added by ssa 20220531
-                            var configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json", true, true).Build();
-                            IConfigurationSection section = configuration.GetSection("MailSetting");
-                            string mailAddress = section["From"];
-                            string MailServer = section["MailServer"];
-                            string Port = section["Port"];
-                            string mailPassword = section["Password"];
-
-                            using (MailMessage mail = new MailMessage())
-                            {
-                                //mail.From = new MailAddress(nxPinterest.Services.dev_Settings.mailAddress);
-                                mail.From = new MailAddress(mailAddress);
-                                mail.To.Add(Email);
-                                mail.Subject = "登録完了のお知らせ";
-                                mail.Body = "登録が完了いたしましたので、ご連絡いたします。<br />以下URLをクリックしパスワードをご登録ください。< br /><a href = '" + string.Format("{0}://{1}/Account/SetPassword/{2}", Request.Scheme, Request.Host, activationCode) + "'>Click here to activate your account.</a>";
-                                mail.IsBodyHtml = true;
-
-                                //using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
-                                using (SmtpClient smtp = new SmtpClient(MailServer, Convert.ToInt32(Port)))
-                                {
-                                    smtp.Credentials = new NetworkCredential(mailAddress, mailPassword);
-                                    smtp.EnableSsl = true;
-                                    smtp.Send(mail);
-                                }
-                            }
-
-                            TempData["custom-validation-success-message"] = "User has been successfully registered!";
-                            return RedirectToAction(nameof(Certification));
-
-                        }
-                    }
-                    throw new Exception(result.Errors.FirstOrDefault().Description);
-                }
-            }
-            catch (Exception ex)
-            {
-                TempData["Message"] = ex.Message;
-                return View("~/Views/Error/204.cshtml");
-            }
-
-            return View(vm);
         }
 
         /*
@@ -968,7 +989,7 @@ namespace nxPinterest.Web.Controllers
         {
             // コンテナ管理者のみ利用可能な機能
             var user = await this._userManager.FindByIdAsync(this.UserId);
-            if (user.Discriminator != "ContainerAdmin")
+            if (user.Discriminator != "SysAdmin" && user.Discriminator != "ContainerAdmin")
             {
                 TempData["Message"] = "Access Denied!";
                 return View("~/Views/Error/204.cshtml");
@@ -1104,7 +1125,7 @@ namespace nxPinterest.Web.Controllers
                     var errMsgs = ModelState.SelectMany(c => c.Value.Errors);
                     throw new Exception(errMsgs.First().ErrorMessage);
                 }
-                return Redirect("/Account/NormalUserRegister");
+                //return Redirect("/Account/NormalUserRegister");
             }
             catch (Exception ex)
             {
@@ -1124,8 +1145,8 @@ namespace nxPinterest.Web.Controllers
         public async Task<IActionResult> NormalUserEdit(String email)
         {
             // コンテナ管理者のみ利用可能な機能
-            var user = await this._userManager.FindByIdAsync(this.UserId);
-            if (user.Discriminator != "ContainerAdmin")
+            var login = await this._userManager.FindByIdAsync(this.UserId);
+            if (login.Discriminator != "ContainerAdmin")
             {
                 TempData["Message"] = "Access Denied!";
                 return View("~/Views/Error/204.cshtml");
@@ -1133,16 +1154,17 @@ namespace nxPinterest.Web.Controllers
 
             Services.Models.Request.NormalUserRegistrationRequest vm = new Services.Models.Request.NormalUserRegistrationRequest();
             String userEmail = email.Trim();
-            ApplicationUser usr = await this._userManager.FindByEmailAsync(userEmail);
+            ApplicationUser user = await this._userManager.FindByEmailAsync(userEmail);
+            if (user == null) return View();
 
             vm.Email = userEmail;
-            vm.UserDispName = usr.UserDispName;
-            vm.container_id = usr.container_id;
-            vm.PhoneNumber = usr.PhoneNumber;
-            vm.Discriminator = usr.Discriminator;
-            vm.user_visibility = usr.user_visibility;
+            vm.UserDispName = user.UserDispName;
+            vm.container_id = user.container_id;
+            vm.PhoneNumber = user.PhoneNumber;
+            vm.Discriminator = user.Discriminator;
+            vm.user_visibility = user.user_visibility;
             //追加 ssa20220527
-            ViewBag.UserDispName = user.UserDispName;
+            ViewBag.UserDispName = login.UserDispName;
 
             return this.View("~/Views/Account/NormalUserEdit.cshtml", vm);
         }
@@ -1185,7 +1207,7 @@ namespace nxPinterest.Web.Controllers
                 {
                     var errMsgs = ModelState.SelectMany(c => c.Value.Errors);
                     throw new Exception(errMsgs.First().ErrorMessage);
-                    return this.View("~/Views/Account/NormalUserEdit.cshtml", vm.Email);
+                    //return this.View("~/Views/Account/NormalUserEdit.cshtml", vm.Email);
                 }
             }
             catch (Exception ex)

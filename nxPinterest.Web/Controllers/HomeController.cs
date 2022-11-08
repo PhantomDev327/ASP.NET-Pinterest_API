@@ -52,7 +52,8 @@ namespace nxPinterest.Web.Controllers
 
             int skip = (pageIndex - 1) * pageSize;
 
-            vm.UserMediaList = await this.userMediaManagementService.SearchUserMediaAsync(searchKey, user[0].container_id);
+            //画面のajaxで取得と表示をしている ViewModelのListを未使用のためコメント
+            //vm.UserMediaList = await this.userMediaManagementService.SearchUserMediaAsync(searchKey, user[0].container_id);
 
             //int totalPages = (int)System.Math.Ceiling((decimal)(vm.UserMediaList.Count / (decimal)pageSize));
             //int totalRecordCount = vm.UserMediaList.Count;
@@ -68,7 +69,7 @@ namespace nxPinterest.Web.Controllers
             //vm.TotalRecords = totalRecordCount;
             vm.Discriminator = user[0].Discriminator;
 
-            //ホーム検索画面よく使用されているタグ候補
+            //よく使用されているタグ候補
             vm.TagsList = await this.userMediaManagementService.GetOftenUseTagsAsyc(user[0].container_id, searchKey, 30);
 
             //登録画面で使用されているタグ候補

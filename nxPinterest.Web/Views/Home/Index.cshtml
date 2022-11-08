@@ -1,4 +1,4 @@
-﻿@model nxPinterest.Web.Models.HomeViewModel
+﻿@model HomeViewModel
 @{
     ViewData["Title"] = "TOP";
 
@@ -89,8 +89,17 @@
         }
     </script>
 
+<div id="blockGallery" class="multiImageSelect-noselect">
+    <div class="m-3">
+        <div class="content gallery" id="contentGallery">
+            <div class="thumbnail-container" id="thumbnail-container">
+            </div>
+        </div>
+    </div>
+</div>
+
 @{
-    await Html.RenderPartialAsync("/Views/Home/_HomeImageContainer.cshtml", Model.UserMediaList);
+    await Html.RenderPartialAsync("/Views/Shared/_ImageContainer.cshtml");
 }
 
 @{
@@ -196,6 +205,7 @@
     <iframe id="iframeDownload2" style="display: none"></iframe>
     <iframe id="iframeDownload3" style="display: none"></iframe>
 
+
 @section Scripts{
 <script src="~/lib/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
 <script src="~/lib/bootstrap-datepicker/locales/bootstrap-datepicker.ja.min.js"></script>
@@ -208,5 +218,34 @@
            shareAlbum.initialize();
 
     </script>
- 
+    <script>
+        $(document).ready(function () {
+            var uploadMediaButtonEle = document.getElementById("uploadMedia");
+            if (uploadMediaButtonEle) {
+                uploadMediaButtonEle.style.display = "unset";
+            }
+        });
+        function loadImg() {
+            $.ajax({
+                url: "@Url.Action("getMedia", "UserMedia")",
+                method: "Post",
+                data: { pageIndex: window.page, searchKey: $('#SearchKey').val() },
+                success: function (sResult) {
+                    window.images.push( sResult.userMediaList);
+                    $.each(sResult.userMediaList, function(index, value) {
+                        appendData(value);
+                    });
+                    window.page = window.page + 1;
+                },
+                error: function () {
+                    window.images.forEach(function (data) {
+                        data.forEach(function (value) {
+                            appendData(value);
+                        });
+                    });
+                    window.page = window.page + 1;
+                }
+            });
+        }
+    </script>
     }

@@ -19,7 +19,7 @@ namespace nxPinterest.Web.Controllers
     [Authorize]
     public class UserMediaController : BaseController
     {
-        private readonly ILogger<HomeController> _logger;
+        //private readonly ILogger<HomeController> _logger;
         public const int pageSize = nxPinterest.Services.dev_Settings.displayMaxItems_search;
         private readonly IUserMediaManagementService userMediaManagementService;
         private readonly ApplicationDbContext _context;
@@ -131,6 +131,9 @@ namespace nxPinterest.Web.Controllers
                     ////ViewBag.PorjectTags = originalTags ?? null;
                     //////ViewBag.PhotoTags = string.Join(',', photo_tags_list.ToArray());
                     ////ViewBag.RelatedUserMediaList = JsonConvert.SerializeObject(vm.RelatedUserMediaList);
+
+                    //よく使用されているタグ候補
+                    vm.TagsList = await this.userMediaManagementService.GetOftenUseTagsAsyc(user[0].container_id, searchKey, 30);
 
                     //return PartialView("/Views/Home/Details.cshtml", vm);
                     return View("/Views/UserMedia/Details.cshtml", vm);

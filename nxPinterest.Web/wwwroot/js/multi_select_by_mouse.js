@@ -9,8 +9,7 @@ function MultiImageSelectByMouse(opts) {
         holdKey: "ctrlKey",
         onItemSelect: null,
         onItemDeselect: null,
-        onMultiSelectDone: null,
-        onImageOneClick: null
+        onMultiSelectDone: null
     };
     if (opts) {
         for (var key in opts) {
@@ -181,21 +180,6 @@ function multiSelect() {
         targetArea: multiSelectParams.targetArea,
         elements: multiSelectParams.elements,
         selectedClass: multiSelectParams.selectedClass,
-        onImageOneClick: function (e) {
-            var src = e.target.getAttribute("data-smallmedia-url");
-            if (!src) {
-                return;
-            }
-            $('#showPreviewImageModal').modal('show');
-            var imgEl = document.createElement('img');
-            imgEl.setAttribute('id', 'previewImage');
-            imgEl.setAttribute('src', src);
-            imgEl.setAttribute('width', '100%');
-            imgEl.setAttribute('height', '100%');
-            var previewImageEle = $('#showPreviewImageModal #previewImageArea');
-            previewImageEle.empty();
-            previewImageEle.append(imgEl);
-        },
         onMultiSelectDone: function () {
             var multiSelectedClass = multiSelectParams.targetArea + " " + multiSelectParams.elements + "." + multiSelectParams.selectedClass;
             var multiSelectedImages = document.querySelectorAll(multiSelectedClass);
@@ -211,9 +195,9 @@ function multiSelect() {
                     for (var childNode of el.childNodes) {
                         if (childNode.nodeName
                             && childNode.nodeName.toLowerCase() === "img"
-                            && childNode.getAttribute("data-smallmedia-url")
+                            && childNode.getAttribute("data-media-url")
                         ) {
-                            selectedMediaSrc = childNode.getAttribute("data-smallmedia-url");
+                            selectedMediaSrc = childNode.getAttribute("data-media-url");
                             break;
                         }
                     }
