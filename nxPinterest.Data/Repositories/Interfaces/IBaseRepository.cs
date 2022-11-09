@@ -24,6 +24,8 @@ namespace nxPinterest.Data.Repositories.Interfaces
         // Get an entity by int id
         T GetSingleById(int id);
 
+        T GetSingleById(string id);
+
         T GetSingleByCondition(Expression<Func<T, bool>> expression, string[] includes = null);
 
         IEnumerable<T> GetAll(string[] includes = null);

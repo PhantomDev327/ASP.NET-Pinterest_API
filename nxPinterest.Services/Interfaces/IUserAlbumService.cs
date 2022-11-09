@@ -12,7 +12,7 @@ namespace nxPinterest.Services.Interfaces
 
         Task<string> CreateAlbumShare(CreateUserAlbumSharedRequest model, string userId);
 
-        Task<IEnumerable<UserAlbumViewModel>> GetAlbumByUser(string userId);
+        Task<IEnumerable<UserAlbumViewModel>> GetAlbumUserByContainer(string userId);
 
         Task<int> GetAlbumIdByUrl(string url);
     }

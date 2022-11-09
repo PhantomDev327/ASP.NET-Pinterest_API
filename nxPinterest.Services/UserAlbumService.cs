@@ -139,9 +139,9 @@ namespace nxPinterest.Services
             }
         }
 
-        public async Task<IEnumerable<UserAlbumViewModel>> GetAlbumByUser(string userId)
+        public async Task<IEnumerable<UserAlbumViewModel>> GetAlbumUserByContainer(string userId)
         {
-            return await _userAlbumRepository.GetAlbumByUser(userId);
+            return await _userAlbumRepository.GetAlbumUserByContainer(userId);
         }
 
         public async Task<int> GetAlbumIdByUrl(string url)

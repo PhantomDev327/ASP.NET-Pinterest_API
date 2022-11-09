@@ -11,8 +11,10 @@ namespace nxPinterest.Data.Repositories
 {
     public class UserAlbumRepository : BaseRepository<UserAlbum>, IUserAlbumRepository
     {
-        public UserAlbumRepository(ApplicationDbContext context) : base(context)
+        private IUserRepository _userRepository;
+        public UserAlbumRepository(ApplicationDbContext context, IUserRepository userRepository) : base(context)
         {
+            _userRepository = userRepository;
         }
 
         public async Task<bool> CheckExpiryDayAlbum(int albumId)
@@ -40,23 +42,27 @@ namespace nxPinterest.Data.Repositories
             return diff.Days > 0;
         }
 
-        public async Task<IEnumerable<UserAlbumViewModel>> GetAlbumByUser(string userId)
+        public async Task<IEnumerable<UserAlbumViewModel>> GetAlbumUserByContainer(string userId)
         {
 
             if (string.IsNullOrEmpty(userId)) return new List<UserAlbumViewModel>();
 
+            var user = _userRepository.GetSingleById(userId);
+
+            if (user is null) return new List<UserAlbumViewModel>();
+            
             var result = await Context.UserAlbums.Select(n => new UserAlbumViewModel
             {
-                UserId = n.UserId,
+                ContainerId = n.ContainerId,
                 AlbumName = n.AlbumName,
                 AlbumId = n.AlbumId,
                 AlbumCreatedat = n.AlbumCreatedat,
                 AlbumUrl = n.AlbumUrl,
                 AlbumType = (int)n.AlbumType,
                 AlbumThumbnailUrl = n.AlbumThumbnailUrl
-            }).Where(n => n.UserId == userId && n.AlbumType == (int)Data.Enums.AlbumType.Album).OrderByDescending(n => n.AlbumCreatedat).ToListAsync();
+            }).Where(n => n.ContainerId == user.container_id && n.AlbumType == (int)Data.Enums.AlbumType.Album).OrderByDescending(n => n.AlbumCreatedat).ToListAsync();
 
-            return result!=null ? result : new List<UserAlbumViewModel>();
+            return result != null ? result : new List<UserAlbumViewModel>();
         }
 
         public async Task<int> GetAlbumIdByUrl(string url)
