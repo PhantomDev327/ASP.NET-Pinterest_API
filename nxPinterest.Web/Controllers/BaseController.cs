@@ -25,7 +25,7 @@ namespace nxPinterest.Web.Controllers
 
             var baseUri = uriBuilder.Uri.AbsoluteUri;
 
-            var fomatUrl = $"{baseUri}/shared/${Guid.NewGuid().ToString().Replace("-", "")}";
+            var fomatUrl = $"{baseUri}shared/${Guid.NewGuid().ToString().Replace("-", "")}";
 
             return fomatUrl;
         }
