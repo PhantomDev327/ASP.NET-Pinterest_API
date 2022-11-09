@@ -55,6 +55,12 @@
 
         });
 
+        $("body").on("click", "#shareMedia", function (e) {
+            e.preventDefault();
+            $('#shareUserMediaFileModal').modal('show');
+            showHiddenFooterModalShare(false);
+            document.getElementById("shareUserMediaFileLink").value = "";
+        });
 
         $("body").on("click", "#copyLinkMedia", function(e) {
                 e.preventDefault();
