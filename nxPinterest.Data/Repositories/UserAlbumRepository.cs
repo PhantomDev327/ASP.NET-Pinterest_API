@@ -48,8 +48,9 @@ namespace nxPinterest.Data.Repositories
                 AlbumName = n.AlbumName,
                 AlbumId = n.AlbumId,
                 AlbumCreatedat = n.AlbumCreatedat,
-                AlbumUrl = n.AlbumUrl
-            }).Where(n => n.UserId == userId).OrderByDescending(n => n.AlbumCreatedat).ToListAsync();
+                AlbumUrl = n.AlbumUrl,
+                AlbumType = (int)n.AlbumType
+            }).Where(n => n.UserId == userId && n.AlbumType == (int)Data.Enums.AlbumType.Album).OrderByDescending(n => n.AlbumCreatedat).ToListAsync();
 
             foreach (var item in result)
             {
