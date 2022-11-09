@@ -18,5 +18,9 @@ namespace nxPinterest.Services.Models.Request
         public int UserMediaId { get; set; }
 
         public string MediaUrl { get; set; }
+
+        public string MediaFileName { get; set; }
+
+        public string MediaThumbnailUrl { get; set; }
     }
 }

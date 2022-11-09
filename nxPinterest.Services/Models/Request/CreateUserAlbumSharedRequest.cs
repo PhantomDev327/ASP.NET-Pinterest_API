@@ -15,10 +15,4 @@ public class CreateUserAlbumSharedRequest
 
     public List<UserAlbumMediaRequest> UserAlbumMedias { get; set; }
 
-    public class UserAlbumMediaRequest
-    {
-        public int UserMediaId { get; set; }
-
-        public string MediaUrl { get; set; }
-    }
 }
