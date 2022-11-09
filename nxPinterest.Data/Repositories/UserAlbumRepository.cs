@@ -48,29 +48,13 @@ namespace nxPinterest.Data.Repositories
                 AlbumName = n.AlbumName,
                 AlbumId = n.AlbumId,
                 AlbumCreatedat = n.AlbumCreatedat,
-                AlbumUrl = n.AlbumUrl
-            }).Where(n => n.UserId == userId).OrderByDescending(n => n.AlbumCreatedat).ToListAsync();
+                AlbumUrl = n.AlbumUrl,
+                AlbumType = (int)n.AlbumType,
+                AlbumThumbnailUrl =n.AlbumThumbnailUrl
+                
+            }).Where(n => n.UserId == userId && n.AlbumType == (int)Data.Enums.AlbumType.Album).OrderByDescending(n => n.AlbumCreatedat).ToListAsync();
 
-            foreach (var item in result)
-            {
-                if (item == null) continue;
-
-                var userAlbum = new UserAlbumViewModel
-                {
-                    AlbumName = item.AlbumName,
-                    UserId = item.UserId,
-                    AlbumCreatedat = item.AlbumCreatedat
-                };
-
-                var imageUrl = item.AlbumUrl.Split(';', ' ');
-
-                if (!string.IsNullOrEmpty(item.AlbumUrl) && imageUrl.Length > 1)
-                    userAlbum.FirstImageAlbum = imageUrl[1];
-
-                listAlbum.Add(userAlbum);
-            }
-
-            return listAlbum;
+            return listAlbum !=null ? result: new List<UserAlbumViewModel>();
         }
 
         public async Task<int> GetAlbumIdByUrl(string url)
@@ -83,26 +67,14 @@ namespace nxPinterest.Data.Repositories
             {
                 AlbumId = n.AlbumId,
                 AlbumUrl = n.AlbumUrl
-            }).ToListAsync();
+            }).SingleOrDefaultAsync(n=>n.AlbumUrl== url);
 
-            foreach (UserAlbum item in result)
+            if (result != null)
             {
-                if (item == null) continue;
-                var baseUrl = item.AlbumUrl.Split(';');
-
-                if (!string.IsNullOrEmpty(item.AlbumUrl) && baseUrl.Length > 1)
-                {
-                    if (baseUrl[0] == url)
-                    {
-                        albumId = item.AlbumId;
-                        break;
-                    }
-                }
+                //if day > 0 has expired are return 0;
+                if (await CheckExpiryDayAlbum(result.AlbumId)) albumId = 0;
             }
-
-            //if day > 0 has expired are return 0;
-            if (await CheckExpiryDayAlbum(albumId)) albumId = 0;
-
+           
             return albumId;
         }
 
