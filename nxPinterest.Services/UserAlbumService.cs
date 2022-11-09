@@ -45,9 +45,7 @@ namespace nxPinterest.Services
                     ContainerId = containerId,
                     UserId = userId,
                     AlbumType = Data.Enums.AlbumType.Album,
-                    AlbumUrl = model.AlbumUrl,
-                    AlbumThumbnailUrl = model.UserAlbumMedias[0].MediaUrl,
-                    AlbumCount = 1,
+                    AlbumUrl = $"{model.AlbumUrl};{model.UserAlbumMedias[0].MediaUrl}",
                     AlbumVisibility = true,
                     AlbumCreatedat = DateTime.Now,
                     AlbumExpireDate = new DateTime(2999,12,31)
@@ -72,7 +70,7 @@ namespace nxPinterest.Services
                         AlbumId = userAlbum.AlbumId,
                         ContainerId = containerId,
                         UserMediaId = item.UserMediaId,
-                        UserMediaName = item.MediaUrl,
+                        UserMediaName = model.AlbumName,
                         AlbumMediaCreatedat = DateTime.Now
                     };
 
@@ -106,9 +104,7 @@ namespace nxPinterest.Services
                     ContainerId = containerId,
                     UserId = userId,
                     AlbumType = Data.Enums.AlbumType.AlbumShare,
-                    AlbumUrl = model.AlbumUrl,
-                    AlbumThumbnailUrl = model.UserAlbumMedias[0].MediaUrl,
-                    AlbumCount = 1,
+                    AlbumUrl = $"{model.AlbumUrl};{model.UserAlbumMedias[0].MediaUrl}",
                     AlbumVisibility = true,
                     AlbumCreatedat = DateTime.Now,
                     AlbumExpireDate = model.AlbumExpireDate
@@ -124,7 +120,7 @@ namespace nxPinterest.Services
                         AlbumId = userAlbum.AlbumId,
                         ContainerId = containerId,
                         UserMediaId = item.UserMediaId,
-                        UserMediaName = item.MediaUrl,
+                        UserMediaName = model.AlbumName,
                         AlbumMediaCreatedat = DateTime.Now
                     };
 
@@ -133,9 +129,9 @@ namespace nxPinterest.Services
 
                 await _unitOfWork.CompleteAsync();
 
-                var albumUrl = userAlbum.AlbumUrl;
+                var albumUrl = userAlbum.AlbumUrl.Split(';');
 
-                return !string.IsNullOrEmpty(userAlbum.AlbumUrl) ? albumUrl : string.Empty;
+                return !string.IsNullOrEmpty(userAlbum.AlbumUrl) && albumUrl.Length > 1 ? albumUrl[0] : string.Empty;
             }
             catch (Exception)
             {

@@ -1,5 +1,4 @@
-﻿using nxPinterest.Data.Enums;
-using System;
+﻿using System;
 
 namespace nxPinterest.Data.ViewModels
 {
@@ -17,10 +16,6 @@ namespace nxPinterest.Data.ViewModels
 
         public DateTime? AlbumCreatedat { get; set; }
 
-        public string AlbumThumbnailUrl { get; set; }
-
-
-        public int AlbumType { get; set; }
-
+        public string FirstImageAlbum { get; set; }
     }
 }

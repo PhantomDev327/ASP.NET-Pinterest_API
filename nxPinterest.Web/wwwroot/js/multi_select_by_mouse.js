@@ -234,6 +234,10 @@ function createUserMediaFolder() {
     $('#createUserMediaFolderModal').modal('show');
 }
 
+function shareUserMediaFile() {
+    $('#shareUserMediaFileModal').modal('show');
+    new Clipboard('#shareUserMediaFileCopyLink');
+}
 
 function downloadUserMediaFile() {
     if (!window.selectedMediaSrcList || window.selectedMediaSrcList.length === 0) {
