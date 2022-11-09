@@ -10,10 +10,8 @@
 
         $('body').on('click', '#sharedAlbumMedia', function (e) {
             e.preventDefault();
-            var $links = window.selectedMediaSrcList;
-            var $mediaid = window.selectedMediaIdList;
-            if (!window.selectedMediaIdList || $mediaid.length === 0 ||
-                !window.selectedMediaSrcList || $links.length === 0) {
+            var $albumMedias = window.selectedAlbumMediaList;
+            if (!window.selectedAlbumMediaList || $albumMedias.length === 0) {
                 alert("please choose the image !");
                 return;
             }
@@ -26,9 +24,6 @@
                 alert("Cannot be selected less than current date");
                 return;
             }
-            var $associateAlbum = $mediaid.map(function (v, k, a) {
-                return { UserMediaId: v, MediaUrl: $links[k] };
-            });
 
             $.ajax({
                 url: "/UserAlbum/CreateShareUserMedia",
@@ -36,7 +31,7 @@
                 dataType: "json",
                 data: {
                     AlbumExpireDate: formatDate($chooseDate.toLocaleString()),
-                    UserAlbumMedias: $associateAlbum
+                    UserAlbumMedias: $albumMedias
                 },
                 cache: false,
                 success: function (result) {
@@ -60,6 +55,7 @@
             $('#shareUserMediaFileModal').modal('show');
             showHiddenFooterModalShare(false);
             document.getElementById("shareUserMediaFileLink").value = "";
+            $("#expireDate").datepicker().datepicker("setDate", new Date());
         });
 
         $("body").on("click", "#copyLinkMedia", function(e) {
