@@ -87,6 +87,11 @@ namespace nxPinterest.Data.Repositories
             return _entities.Find(id);
         }
 
+        public T GetSingleById(string id)
+        {
+            return _entities.Find(id);
+        }
+
         public void Update(T entity)
         {
             _entities.Attach(entity);

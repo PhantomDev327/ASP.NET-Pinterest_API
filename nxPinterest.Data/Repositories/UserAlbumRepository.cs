@@ -11,8 +11,10 @@ namespace nxPinterest.Data.Repositories
 {
     public class UserAlbumRepository : BaseRepository<UserAlbum>, IUserAlbumRepository
     {
-        public UserAlbumRepository(ApplicationDbContext context) : base(context)
+        private IUserRepository _userRepository;
+        public UserAlbumRepository(ApplicationDbContext context, IUserRepository userRepository) : base(context)
         {
+            _userRepository = userRepository;
         }
 
         public async Task<bool> CheckExpiryDayAlbum(int albumId)
@@ -22,7 +24,11 @@ namespace nxPinterest.Data.Repositories
                 return false;
             }
 
-            UserAlbum result = await Context.UserAlbums.SingleOrDefaultAsync(n => n.AlbumId == albumId);
+            UserAlbum result = await Context.UserAlbums.Select(n=>new UserAlbum
+            {
+                AlbumId = albumId,
+                AlbumExpireDate = n.AlbumExpireDate
+            }).SingleOrDefaultAsync(n => n.AlbumId == albumId);
 
             if (result is null)
             {
@@ -36,42 +42,27 @@ namespace nxPinterest.Data.Repositories
             return diff.Days > 0;
         }
 
-        public async Task<IEnumerable<UserAlbumViewModel>> GetAlbumByUser(string userId)
+        public async Task<IEnumerable<UserAlbumViewModel>> GetAlbumUserByContainer(string userId)
         {
-            var listAlbum = new List<UserAlbumViewModel>();
 
             if (string.IsNullOrEmpty(userId)) return new List<UserAlbumViewModel>();
 
+            var user = _userRepository.GetSingleById(userId);
+
+            if (user is null) return new List<UserAlbumViewModel>();
+            
             var result = await Context.UserAlbums.Select(n => new UserAlbumViewModel
             {
-                UserId = n.UserId,
+                ContainerId = n.ContainerId,
                 AlbumName = n.AlbumName,
                 AlbumId = n.AlbumId,
                 AlbumCreatedat = n.AlbumCreatedat,
                 AlbumUrl = n.AlbumUrl,
-                AlbumType = (int)n.AlbumType
-            }).Where(n => n.UserId == userId && n.AlbumType == (int)Data.Enums.AlbumType.Album).OrderByDescending(n => n.AlbumCreatedat).ToListAsync();
+                AlbumType = (int)n.AlbumType,
+                AlbumThumbnailUrl = n.AlbumThumbnailUrl
+            }).Where(n => n.ContainerId == user.container_id && n.AlbumType == (int)Data.Enums.AlbumType.Album).OrderByDescending(n => n.AlbumCreatedat).ToListAsync();
 
-            foreach (var item in result)
-            {
-                if (item == null) continue;
-
-                var userAlbum = new UserAlbumViewModel
-                {
-                    AlbumName = item.AlbumName,
-                    UserId = item.UserId,
-                    AlbumCreatedat = item.AlbumCreatedat
-                };
-
-                var imageUrl = item.AlbumUrl.Split(';', ' ');
-
-                if (!string.IsNullOrEmpty(item.AlbumUrl) && imageUrl.Length > 1)
-                    userAlbum.FirstImageAlbum = imageUrl[1];
-
-                listAlbum.Add(userAlbum);
-            }
-
-            return listAlbum;
+            return result != null ? result : new List<UserAlbumViewModel>();
         }
 
         public async Task<int> GetAlbumIdByUrl(string url)
@@ -84,22 +75,7 @@ namespace nxPinterest.Data.Repositories
             {
                 AlbumId = n.AlbumId,
                 AlbumUrl = n.AlbumUrl
-            }).ToListAsync();
-
-            foreach (UserAlbum item in result)
-            {
-                if (item == null) continue;
-                var baseUrl = item.AlbumUrl.Split(';');
-
-                if (!string.IsNullOrEmpty(item.AlbumUrl) && baseUrl.Length > 1)
-                {
-                    if (baseUrl[0] == url)
-                    {
-                        albumId = item.AlbumId;
-                        break;
-                    }
-                }
-            }
+            }).SingleOrDefaultAsync(n=>n.AlbumUrl.Contains(url));
 
             //if day > 0 has expired are return 0;
             if (await CheckExpiryDayAlbum(albumId)) albumId = 0;

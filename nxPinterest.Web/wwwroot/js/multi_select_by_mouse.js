@@ -185,11 +185,14 @@ function multiSelect() {
             var multiSelectedImages = document.querySelectorAll(multiSelectedClass);
             window.selectedMediaIdList = [];
             window.selectedMediaSrcList = [];
+            window.selectedAlbumMediaList = [];
             for (var el of multiSelectedImages) {
                 var selectedMediaId;
                 var selectedMediaSrc;
+                var albumImage = {};
                 if (el.id && !window.selectedMediaIdList.includes(el.id)) {
                     selectedMediaId = parseInt(el.id);
+                    albumImage = { ...albumImage, UserMediaId: selectedMediaId };
                 }
                 if (el.childNodes) {
                     for (var childNode of el.childNodes) {
@@ -198,6 +201,7 @@ function multiSelect() {
                             && childNode.getAttribute("data-media-url")
                         ) {
                             selectedMediaSrc = childNode.getAttribute("data-media-url");
+                            albumImage = { ...albumImage, MediaUrl: selectedMediaSrc, MediaThumbnailUrl: childNode.currentSrc, MediaFileName: childNode.alt };
                             break;
                         }
                     }
@@ -205,6 +209,7 @@ function multiSelect() {
                 if (selectedMediaId && selectedMediaSrc) {
                     window.selectedMediaIdList.push(selectedMediaId);
                     window.selectedMediaSrcList.push(selectedMediaSrc);
+                    window.selectedAlbumMediaList.push(albumImage);
                 }
             }
             var selectedImageText = "";
@@ -227,6 +232,7 @@ function multiSelect() {
 
 window.selectedMediaIdList = [];
 window.selectedMediaSrcList = [];
+window.selectedAlbumMediaList = [];
 multiSelect();
 
 

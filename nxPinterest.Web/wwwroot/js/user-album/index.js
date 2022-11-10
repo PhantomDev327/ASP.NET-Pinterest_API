@@ -8,10 +8,8 @@
 
         $('body').on('click', '#createUserMediaFolderButton', function (e) {
             e.preventDefault();
-            var $links = window.selectedMediaSrcList;
-            var $mediaid = window.selectedMediaIdList;
-            if (!window.selectedMediaIdList || $mediaid.length === 0 ||
-                !window.selectedMediaSrcList || $links.length === 0) {
+            var $albumMedias = window.selectedAlbumMediaList;
+            if (!window.selectedAlbumMediaList || $albumMedias.length === 0) {
                 alert("please choose the image !");
                 return;
             }
@@ -20,9 +18,6 @@
                 alert("アルバムは、必ず指定してください。 !");
                 return;
             }
-            var $associateAlbum = $mediaid.map(function (v, k, a) {
-                return { UserMediaId: v, MediaUrl: $links[k] };
-            });
 
             $.ajax({
                 url: "/UserAlbum/Create",
@@ -30,7 +25,7 @@
                 dataType: "json",
                 data: {
                     AlbumName: $albumName,
-                    UserAlbumMedias: $associateAlbum
+                    UserAlbumMedias: $albumMedias
                 },
                 cache: false,
                 success: function (result) {
