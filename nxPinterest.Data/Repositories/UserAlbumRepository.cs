@@ -80,7 +80,7 @@ namespace nxPinterest.Data.Repositories
             //if day > 0 has expired are return 0;
             if (await CheckExpiryDayAlbum(albumId)) albumId = 0;
 
-            return albumId;
+            return result != null ? result.AlbumId : albumId;
         }
 
         public (int albumId, string albumName) IsUserAlbumAlreadyExists(string albumName)

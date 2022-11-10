@@ -146,7 +146,7 @@ namespace nxPinterest.Services
 
         public async Task<int> GetAlbumIdByUrl(string url)
         {
-            return await GetAlbumIdByUrl(url);
+            return await _userAlbumRepository.GetAlbumIdByUrl(url);
         }
     }
 }

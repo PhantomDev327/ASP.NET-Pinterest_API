@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using nxPinterest.Services.Models.Request;
 using System.Threading.Tasks;
 using nxPinterest.Services.Interfaces;
+using System.Security.Policy;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.Azure.Cosmos.Serialization.HybridRow;
 
 namespace nxPinterest.Web.Controllers
 {
@@ -12,9 +15,12 @@ namespace nxPinterest.Web.Controllers
     {
         private readonly IUserAlbumService _userAlbumService;
 
-        public UserAlbumController(IUserAlbumService userAlbumService)
+        private readonly IUserAlbumMediaService _userAlbumMediaService;
+
+        public UserAlbumController(IUserAlbumService userAlbumService, IUserAlbumMediaService userAlbumMediaService)
         {
             this._userAlbumService = userAlbumService;
+            _userAlbumMediaService = userAlbumMediaService;
         }
 
         [HttpPost]
@@ -70,6 +76,18 @@ namespace nxPinterest.Web.Controllers
             //    return View("~/Views/Error/204.cshtml");
             //}
             return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetListAlbums(int pageIndex , string url )
+        {
+            var albumId = await _userAlbumService.GetAlbumIdByUrl("https://localhost:44375/shared/$b57562d2ff884664924ddd2db554e292");
+
+            if (albumId == 0) return Ok(new { Success = false, Data = "" });
+
+            var data = await _userAlbumMediaService.GetListAlbumById(albumId, pageIndex);
+
+            return Ok(new { Success = true, Data = data });
         }
 
     }

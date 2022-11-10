@@ -26,7 +26,7 @@ namespace nxPinterest.Web.Extensions
             service.AddTransient<Services.Interfaces.IUserMediaManagementService, Services.UserMediaManagementService>();
             service.AddTransient<Services.Interfaces.IUserContainerManagementService, Services.UserContainerManagementService>();
             service.AddTransient<Services.Interfaces.IUserAlbumService, Services.UserAlbumService>();
-
+            service.AddTransient<Services.Interfaces.IUserAlbumMediaService, Services.UserAlbumMediaService>();
             // repository
             service.AddTransient(typeof(IUnitOfWork), typeof(UnitOfWork));
             service.AddTransient<IUserAlbumRepository, UserAlbumRepository>();
