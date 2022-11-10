@@ -1,0 +1,12 @@
+﻿.previewButton {
+    text-align: right !important;
+    position: relative !important;
+    top: -26px;
+    right: -5px;
+}
+    .previewButton .zoom__icon__album {
+        width: 10% !important;
+        float: right;
+        position: relative;
+        right: 8px;
+    }
