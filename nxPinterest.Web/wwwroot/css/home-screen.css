@@ -466,3 +466,31 @@ img.company-banner {
         transform: translateY(-50%);
     }
 }
+
+#loading-indicator {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    z-index: 1056; /* modalのz-index + 1 */
+}
+
+.navbar-header .bootstrap-tagsinput {
+    overflow-y: unset;
+    height: unset;
+}
+
+.navbar-header .bootstrap-tagsinput input {
+    width: 45px;
+}
+
+.navbar-header .bootstrap-tagsinput .label-info {
+    padding: 2px;
+    margin: 0;
+}
+
+.navbar-header .bootstrap-tagsinput .tag [data-role="remove"] {
+    margin-left: 5px; 
+}

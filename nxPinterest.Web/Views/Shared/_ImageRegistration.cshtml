@@ -76,6 +76,9 @@
         init: function () {
             var myDropzone = this;
             $("#upload_submit").click(function (e) {
+                if (showLoadingIndicator) {
+                    showLoadingIndicator();
+                }
                 this.disabled = true;
 
                 allFiles = myDropzone.getAcceptedFiles();
@@ -96,9 +99,15 @@
                 $("#project_tags_image").val($("#OriginalTags").val());
                 $("#btn_name").val("upload");
                 $('#dropzoneForm').submit();
+                if (hideLoadingIndicator) {
+                    hideLoadingIndicator();
+                }
             });
 
             $("#kobetsu_submit").click(function (e) {
+                if (showLoadingIndicator) {
+                    showLoadingIndicator();
+                }
                 this.disabled = true;
 
                 allFiles = myDropzone.getAcceptedFiles();
@@ -119,6 +128,9 @@
                 $("#project_tags_image").val($("#OriginalTags").val());
                 $("#btn_name").val("kobetsu");
                 $('#dropzoneForm').submit();
+                if (hideLoadingIndicator) {
+                    hideLoadingIndicator();
+                }
             });
         },
         accept: function (file, done) {

@@ -34,14 +34,6 @@
             $('#image-registration-modal').modal('show');
         }
 
-        function showLoader() {
-            $('.indicator-loader').show();
-        }
-
-        function hideLoader() {
-            $('.indicator-loader').fadeOut("slow");
-        }
-
         $.urlParam = function (name) {
             var results = new RegExp('[\?&]' + name + '=([^&#]*)')
                 .exec(window.location.search);
@@ -49,43 +41,42 @@
             return (results !== null) ? results[1] || 0 : false;
         }
 
-        $('.btn-search').on('click', function () {
-            var pageIndex = $.urlParam('pageIndex');
-            var searchKey = $('input[name="SearchKey"]').val();
-            showLoader();
-            if (pageIndex == false)
-                pageIndex = 1;
-
-            var url = '@Url.Action("Index","Home")' + "?pageIndex=" + pageIndex + "&searchKey=" + searchKey;
-            window.location = url;
-        });
-
-        $('#SearchKey').keypress(function(event){
-            if(event.keyCode == 13){
-                var pageIndex = $.urlParam('pageIndex');
-                var searchKey = $('input[name="SearchKey"]').val();
-                showLoader();
-                if (pageIndex == false)
-                    pageIndex = 1;
-
-                var url = '@Url.Action("Index","Home")' + "?pageIndex=" + pageIndex + "&searchKey=" + searchKey;
-                window.location = url;
-            }
-        });
-
         $(document).ready(function () {
-            hideLoader();
+            $('#SearchKey').tagsinput({
+                confirmKeys: [9, 44, 188]
+            });
+
+            $('.navbar-header .bootstrap-tagsinput input[type=text]').keydown(function (event) {
+                if (event.keyCode == 13) {
+                    searchByTags();
+                    return;
+                }
+            });
+        });
+        $('#SearchKey').on('itemRemoved', function (event) {
+            searchByTags();
         });
         function addTags(value) {
-            var searchKey = $('#SearchKey').val();
-            if (searchKey) {
-                searchKey = searchKey.concat(" " + value); 
-            } else {
-                searchKey = value;
+            $('#SearchKey').tagsinput('add', value);
+            searchByTags();
+        }
+        function searchByTags() {
+            if (showLoadingIndicator) {
+                showLoadingIndicator();
             }
-            $('#SearchKey').val(searchKey);
-            var url = '@Url.Action("Index","Home")' + "?searchKey=" + searchKey;
+            var pageIndex = $.urlParam('pageIndex');
+            if (pageIndex == false) {
+                pageIndex = 1;
+            }
+            var searchKey = $('#SearchKey').val();
+            var url = '@Url.Action("Index","Home")' + "?pageIndex=" + pageIndex;
+            if (searchKey) {
+                url += "&searchKey=" + searchKey;
+            }
             window.location = url;
+            if (hideLoadingIndicator) {
+                hideLoadingIndicator();
+            }
         }
     </script>
 
@@ -105,47 +96,6 @@
 @{
     await Html.RenderPartialAsync("/Views/Shared/_ImageRegistration.cshtml", Model.ImageRegistrationVM);
 }
-
-    <div class="modal fade text-black" id="createUserMediaFolderModal" tabindex="-1" role="dialog" aria-labelledby="createUserMediaFolderModalTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header border-0">
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
-                </div>
-                <div class="modal-body" id="mediaFolderContent">
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade text-black" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmModalTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-body">
-                <h3 class="text-center" style="font-weight: normal;">削除してよろしいですか</h3>
-            </div>
-            <div class="modal-footer pt-0">
-                <button type="button" class="btn" data-bs-dismiss="modal">いいえ</button>
-                <button type="button" class="btn btn-primary" onclick="deleteUserMediaFile();">はい</button>
-            </div>
-        </div>
-        </div>
-    </div>
-    
-    <div class="modal fade text-black" id="showPreviewImageModal" tabindex="-1" role="dialog" aria-labelledby="showPreviewImageModalTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
-            <div class="modal-content">
-                <div class="modal-body" id="previewImageArea">
-                    <img id="previewImage" style="width:100%; height:100%">
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <iframe id="iframeDownload1" style="display: none"></iframe>
-    <iframe id="iframeDownload2" style="display: none"></iframe>
-    <iframe id="iframeDownload3" style="display: none"></iframe>
-
 
 @section Scripts{
 <script src="~/lib/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
