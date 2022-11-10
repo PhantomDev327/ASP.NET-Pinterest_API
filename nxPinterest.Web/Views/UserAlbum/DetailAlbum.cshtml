@@ -449,4 +449,24 @@
     </div>
 </div>
 
+<div class="modal fade text-black" id="showPreviewImageModal" tabindex="-1" role="dialog" aria-labelledby="showPreviewImageModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-body" id="previewImageArea">
+                <img id="previewImage" style="width:100%; height:100%">
+            </div>
+        </div>
+    </div>
+</div>
 
+@section Scripts{
+    <script>
+        function showPreviewImage(mediaUrl) {
+            if (!mediaUrl) {
+                return;
+            }
+            $('#showPreviewImageModal').modal('show');
+            $('#previewImage').attr('src', mediaUrl);
+        }
+    </script>
+}
