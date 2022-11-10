@@ -261,6 +261,9 @@ var getFilenameFromUrl = function (imageUrl) {
 }
 
 function generateDownloadZip() {
+    if (showLoadingIndicator) {
+        showLoadingIndicator();
+    }
     var links = window.selectedMediaSrcList;
     var zip = new JSZip();
 
@@ -274,6 +277,9 @@ function generateDownloadZip() {
         filename = getFilenameFromUrl(filename);
         JSZipUtils.getBinaryContent(url, function (err, data) {
             if (err) {
+                if (hideLoadingIndicator) {
+                    hideLoadingIndicator();
+                }
                 throw err;
             }
             zip.file(filename, data, { binary: true });
@@ -281,6 +287,9 @@ function generateDownloadZip() {
             if (count == links.length) {
                 zip.generateAsync({ type: 'blob' }).then(function (content) {
                     saveAs(content, zipFilename);
+                    if (hideLoadingIndicator) {
+                        hideLoadingIndicator();
+                    }
                 });
             }
         });
