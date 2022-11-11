@@ -43,19 +43,23 @@
 
         $(document).ready(function () {
             $('#SearchKey').tagsinput({
-                confirmKeys: [9, 44, 188]
+                confirmKeys: [13, 44]
             });
 
-            $('.navbar-header .bootstrap-tagsinput input[type=text]').keydown(function (event) {
+            var tagsinputEle = getTagsinputEle();
+            tagsinputEle.keydown(function (event) {
                 if (event.keyCode == 13) {
-                    searchByTags();
-                    return;
+                    var typingInputValue = tagsinputEle.val();
+                    if (!typingInputValue) {
+                        searchByTags();
+                        return;
+                    }
                 }
             });
         });
-        $('#SearchKey').on('itemRemoved', function (event) {
-            searchByTags();
-        });
+        function getTagsinputEle() {
+            return $('.navbar-header .bootstrap-tagsinput input[type=text]');
+        }
         function addTags(value) {
             $('#SearchKey').tagsinput('add', value);
             searchByTags();
@@ -78,6 +82,21 @@
                 hideLoadingIndicator();
             }
         }
+        function changePlaceholderText() {
+            var searchKey = $('#SearchKey').val();
+            var tagsinputEle = getTagsinputEle();
+            if (searchKey) {
+                tagsinputEle.removeAttr('placeholder');
+            } else {
+                tagsinputEle.attr('placeholder', '検索');
+            } 
+        }
+        $('#SearchKey').on('itemAdded', function (event) {
+            changePlaceholderText();
+        });
+        $('#SearchKey').on('itemRemoved', function (event) {
+            changePlaceholderText();
+        });
     </script>
 
 <div id="blockGallery" class="multiImageSelect-noselect">
