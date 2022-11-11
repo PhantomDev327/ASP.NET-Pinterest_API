@@ -45,6 +45,12 @@
             LoadAlbums();
 
         });
+
+        $("body").on("click", "#listalbum .list-group-item", function(e) {
+                e.preventDefault();
+                var $valueAlbumName = $(this).data("albumname");
+                document.getElementById("createUserMediaFolderName").value = $valueAlbumName != null && $valueAlbumName != '' ? $valueAlbumName : '';
+            });
     };
 
     function LoadAlbums() {
