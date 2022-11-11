@@ -12,7 +12,8 @@
 <script src="~/lib/bootstrap-fileinput/js/locales/LANG.js" asp-append-version="true"></script>
 <div id="image-viewer-modal" tabindex="-1">
 	<div class="left-arrow-container arrow-key">
-		<a href="@Url.Action("Index", "Home", new { pageIndex = 1})">
+		@*<a href="@Url.Action("Index", "Home", new { pageIndex = 1})">*@
+		<a href="#" onclick="history.back(-1);return false;">
 			<i class="fas fa-arrow-circle-left fa-3x"></i>
 		</a>
 	</div>
