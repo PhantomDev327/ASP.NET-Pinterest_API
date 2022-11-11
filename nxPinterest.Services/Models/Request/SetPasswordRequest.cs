@@ -12,7 +12,7 @@ namespace nxPinterest.Services.Models.Request
         [DataType(DataType.Password)]
         public string NewPassword { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "確認用パスワードを入力してください")]
         [DataType(DataType.Password)]
         [Compare("NewPassword", ErrorMessage = "パスワードと確認用パスワードが一致していません")]
         public string ConfirmPassword { get; set; }

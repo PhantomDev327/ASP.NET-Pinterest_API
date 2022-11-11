@@ -15,9 +15,9 @@
             </div>
             <form class="certification text-color-white" method="post" asp-action="Register" asp-controller="Account">
                 <input type="email" class="form-control input-control useremail" placeholder="メールアドレス" asp-for="Email" />
-                <div class="form-text text-danger">@Html.ValidationMessageFor(c => c.Email)</div>
+                <span asp-validation-for="Email" class="text-danger"></span>
                 <input type="text" class="form-control input-control" placeholder="名前" asp-for="UserDispName" />
-                <div class="form-text text-danger">@Html.ValidationMessageFor(c => c.UserDispName)</div>
+                <span asp-validation-for="UserDispName" class="text-danger"></span>
                 @*<input type="password" class="form-control input-control password" placeholder="パスワード" asp-for="Password" />
                 <div class="form-text text-danger">@Html.ValidationMessageFor(c => c.Password)</div>
                 <input type="password" class="form-control input-control confirm-password" placeholder="Confirm Password" asp-for="ConfirmPassword" />
@@ -26,6 +26,12 @@
                     <h5>ログインへ</h5>
                 </a>*@
                 <input type="submit" value="登録" class="btn btn-default btn-register" />
+                @if(ViewBag.Message != "")
+                {
+                    <div class="form-text text-success">
+                        @ViewBag.Message
+                    </div>
+                }
             </form>
         </div>
     </div>

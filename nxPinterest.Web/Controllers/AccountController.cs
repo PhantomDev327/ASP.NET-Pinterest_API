@@ -77,26 +77,19 @@ namespace nxPinterest.Web.Controllers
                         {
                             throw new Exception("This User is Invalid");
                         }
-                        //if (userinfo.Discriminator == "SysAdmin")
-                        //{
-                        //    return RedirectToAction("UserContainerIdList", "account");
-                        //}else
-                        //{
-                        //    return RedirectToAction("Index", "Home");
-                        //}
+
                         return RedirectToAction("Index", "Home");
                     }
-                    TempData["Message"] = "ログインIDまたはパスワードが違います";
-                    return View("Certification", request);
+                    ViewBag.Message = "ログインIDまたはパスワードが違います.";
                 }
+
+                return View("Certification", request);
             }
             catch (Exception ex)
             {
                 TempData["Message"] = ex.Message;
                 return View("~/Views/Error/204.cshtml");
             }
-
-            return View("Certification", request);
         }
 
         // ログアウト
@@ -115,7 +108,7 @@ namespace nxPinterest.Web.Controllers
 
         // ユーザ登録後のパスワード設定
         [HttpPost]
-        public async Task<IActionResult> Register(Services.Models.Request.RegistrationRequest vm)
+        public async Task<IActionResult> Register(Services.Models.Request.RegistrationRequest request)
         {
             try
             {
@@ -124,9 +117,9 @@ namespace nxPinterest.Web.Controllers
                     //password なし
                     var result = await this._userManager.CreateAsync(new ApplicationUser()
                     {
-                        UserName = vm.Email,
-                        Email = vm.Email,
-                        UserDispName = vm.UserDispName
+                        UserName = request.Email,
+                        Email = request.Email,
+                        UserDispName = request.UserDispName
                     });
                     //var result = await this._userManager.CreateAsync(new ApplicationUser()
                     //{
@@ -136,7 +129,7 @@ namespace nxPinterest.Web.Controllers
 
                     if (result.Succeeded)
                     {
-                        var user = await _userManager.FindByEmailAsync(vm.Email);
+                        var user = await _userManager.FindByEmailAsync(request.Email);
                         if (user != null)
                         {
                             if(_context.Users.ToList().Count == 1)
@@ -145,7 +138,7 @@ namespace nxPinterest.Web.Controllers
                             }
                             else
                             {
-                                user.Discriminator = _context.Users.Where(u => u.container_id.Equals(vm.ContainerId)).ToList().Count == 0 ? "ContainerAdmin" : "ApplicationUser";
+                                user.Discriminator = _context.Users.Where(u => u.container_id.Equals(request.ContainerId)).ToList().Count == 0 ? "ContainerAdmin" : "ApplicationUser";
                                 user.container_id = 2;
                             }
                         }
@@ -175,7 +168,6 @@ namespace nxPinterest.Web.Controllers
                                 mail.Body = "アカウントの登録が完了いたしました。<br />以下URLをクリックしパスワードをご登録ください。<br /><a href = '" + string.Format("{0}://{1}/Account/SetPassword/{2}", Request.Scheme, Request.Host, activationCode) + "'>Click here to activate your account.</a>";
                                 mail.IsBodyHtml = true;
 
-                                //using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
                                 using (SmtpClient smtp = new SmtpClient(MailServer, Convert.ToInt32(Port)))
                                 {
                                     smtp.Credentials = new NetworkCredential(mailAddress, mailPassword);
@@ -184,21 +176,17 @@ namespace nxPinterest.Web.Controllers
                                 }
                             }
 
-                            TempData["custom-validation-success-message"] = "User has been successfully registered!";
-                            return RedirectToAction(nameof(Certification));
-
+                            ViewBag.Message = "User has been successfully registered.";
                         }
                     }
-                    throw new Exception(result.Errors.FirstOrDefault().Description);
                 }
+                return View();
             }
             catch (Exception ex)
             {
                 TempData["Message"] = ex.Message;
                 return View("~/Views/Error/204.cshtml");
             }
-
-            return View(vm);
         }
 
         // 画像登録
@@ -208,144 +196,17 @@ namespace nxPinterest.Web.Controllers
             return View(vm);
         }
 
-        // パスワード忘れ
-        [Route("Account/Forgot-Password")]
+        // パスワードを忘れた方
+        //[Route("Account/Forgot-Password")]
         public IActionResult ForgotPassword() {
             Services.Models.Request.ForgotPasswordRequest vm = new Services.Models.Request.ForgotPasswordRequest();
             return View(vm);
         }
 
-        //パスワード設定
-        public IActionResult SetPassword()
-        {
-            var value = RouteData.Values["id"].ToString();
-            var encryptionKey = "770A8A65DA156D24";
-            Services.Models.Request.SetPasswordRequest vm = new Services.Models.Request.SetPasswordRequest();
-            if (value != null)
-            {
-                var activationCode = DecryptRijndael(value, encryptionKey);
-                if (IsEmailExistsAsync(activationCode))
-                {
-                    ViewBag.Message = "Activation successful.";
-                }
-            }
-            return View(vm);
-        }
-
-        // パスワードセット
+        // パスワードを忘れた方
         [HttpPost]
-        public async Task<IActionResult> SetPassWord(Services.Models.Request.SetPasswordRequest request)
+        public async Task<IActionResult> ForgotPassword(Services.Models.Request.ForgotPasswordRequest request)
         {
-            try
-            {
-                if (ModelState.IsValid)
-                {
-
-                    var value = RouteData.Values["id"].ToString();
-                    var encryptionKey = "770A8A65DA156D24";
-                    if (value != null)
-                    {
-                        var activationMail= DecryptRijndael(value, encryptionKey);
-                        var user = await this._userManager.FindByEmailAsync(activationMail);
-
-                        var result = await this._userManager.AddPasswordAsync(user, request.NewPassword);
-                        if (result.Succeeded)
-                        {
-                            TempData["custom-validation-success-message"] = "Password has been successfully Registered!";
-
-                            user.user_visibility = true;
-                            var update = await this._userManager.UpdateAsync(user);
-
-
-                        }
-                        else
-                            throw new Exception(string.Join("\n",result.Errors.Select(e => e.Description)));
-                    }
-
-                }
-                else
-                {
-                    var errMsgs = ModelState.SelectMany(c => c.Value.Errors);
-                    throw new Exception(errMsgs.First().ErrorMessage);
-                }
-            }
-            catch (Exception ex)
-            {
-                TempData["Message"] = ex.Message;
-                return View("~/Views/Error/204.cshtml");
-            }
-            return Redirect("/Account/Certification");
-        }
-
-        // パスワードリセットの確認
-        [HttpPost]
-        public async Task<IActionResult> ResetPasswordConfirm(Services.Models.Request.SetPasswordRequest request)
-        {
-            try
-            {
-                if (ModelState.IsValid)
-                {
-
-                    var value = request.Email;
-                    var encryptionKey = "770A8A65DA156D24";
-                    if (value != null)
-                    {
-                        var activationMail = DecryptRijndael(value, encryptionKey);
-                        var user = await this._userManager.FindByEmailAsync(activationMail);
-
-                        var removePw = await this._userManager.RemovePasswordAsync(user);
-
-                        if (removePw.Succeeded)
-                        {
-                            var result = await this._userManager.AddPasswordAsync(user, request.NewPassword);
-
-                            if (result.Succeeded)
-                            {
-                                TempData["custom-validation-success-message"] = "Password has been successfully Changed!";
-                            }
-                            else
-                                throw new Exception(result.Errors.FirstOrDefault().Description);
-                         }   
-                    }
-
-                }
-                else
-                {
-                    var errMsgs = ModelState.SelectMany(c => c.Value.Errors);
-                    throw new Exception(errMsgs.First().ErrorMessage);
-                }
-            }
-            catch (Exception ex)
-            {
-                TempData["Message"] = ex.Message;
-                return View("~/Views/Error/204.cshtml");
-            }
-
-            return Redirect("/Account/Certification");
-        }
-
-        //パスワード再設定
-        public IActionResult ResetPassword()
-        {
-            var value = RouteData.Values["id"].ToString();
-            var encryptionKey = "770A8A65DA156D24";
-            Services.Models.Request.SetPasswordRequest vm = new Services.Models.Request.SetPasswordRequest();
-            if (value != null)
-            {
-                var activationCode = DecryptRijndael(value, encryptionKey);
-                if (IsEmailExistsAsync(activationCode))
-                {
-                    ViewBag.Message = "Activation successful.";
-                }
-
-                vm.Email = value;
-            }
-            return View(vm);
-        }
-
-        // パスワードリセット
-        [HttpPost]
-        public async Task<IActionResult> ResetPassword(Services.Models.Request.ForgotPasswordRequest request) {
             try
             {
                 bool isValid = ModelState.IsValid;
@@ -353,7 +214,10 @@ namespace nxPinterest.Web.Controllers
                 if (isValid)
                 {
                     var user = await this._userManager.FindByEmailAsync(request.Email);
-                    if (user == null) throw new Exception("User email not found!");
+                    if (user == null)
+                    {
+                        throw new Exception("User email not found!");
+                    }
 
                     Data.Models.UserContainer container = await (this._context.UserContainer.AsNoTracking()
                                                      .FirstOrDefaultAsync(c => c.container_id.Equals(user.container_id)));
@@ -369,7 +233,6 @@ namespace nxPinterest.Web.Controllers
                     var Email = user.Email;
                     var value = EncryptRijndael(Email, encryptionKey);
                     var activationCode = value.Replace('/', '-').Replace('+', '_').PadRight(4 * ((value.Length + 3) / 4), '=');
-                    //added by ssa 20220531
                     var configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json", true, true).Build();
                     IConfigurationSection section = configuration.GetSection("MailSetting");
                     string mailAddress = section["From"];
@@ -379,32 +242,153 @@ namespace nxPinterest.Web.Controllers
 
                     using (MailMessage mail = new MailMessage())
                     {
-                        //mail.From = new MailAddress(nxPinterest.Services.dev_Settings.mailAddress);
                         mail.From = new MailAddress(mailAddress);
                         mail.To.Add(Email);
                         mail.Subject = "パスワードリセットのお知らせ";
-                        mail.Body = "パスワードリセットの申請を受け付けました。<br />パスワードの再設定をご希望の場合は、以下URLをクリックし新しいパスワードをご登録ください。<br /><a href = '" + string.Format("{0}://{1}/Account/ResetPassword/{2}", Request.Scheme, Request.Host, activationCode) + "'>Click here to reset your password.</a>";
+                        mail.Body = "パスワードリセットのリクエストを受け付けました。<br />パスワードの再設定をご希望の場合は、以下のリンクをタップして手続きを完了してください。<br /><a href = '" + string.Format("{0}://{1}/Account/ResetPassword/{2}", Request.Scheme, Request.Host, activationCode) + "'>Click here to reset your password.</a>";
                         mail.IsBodyHtml = true;
 
-                        //using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
                         using (SmtpClient smtp = new SmtpClient(MailServer, Convert.ToInt32(Port)))
                         {
-                            //smtp.Credentials = new NetworkCredential(nxPinterest.Services.dev_Settings.mailAddress, nxPinterest.Services.dev_Settings.mailPassword);
                             smtp.Credentials = new NetworkCredential(mailAddress, mailPassword);
                             smtp.EnableSsl = true;
                             smtp.Send(mail);
                         }
                     }
 
-                    TempData["custom-validation-success-message"] = "Password reset mail has been sent。";
-                }
-                else
-                {
-                    var errMsgs = ModelState.SelectMany(c => c.Value.Errors);
-                    throw new Exception(errMsgs.First().ErrorMessage);
+                    ViewBag.Message = "Password reset mail has been sent.";
                 }
 
-                return Redirect("/account/forgot-password");
+                return View();
+            }
+            catch (Exception ex)
+            {
+                TempData["Message"] = ex.Message;
+                return View("~/Views/Error/204.cshtml");
+            }
+        }
+
+        // パスワード設定
+        public IActionResult SetPassword()
+        {
+            var value = RouteData.Values["id"].ToString();
+            var encryptionKey = "770A8A65DA156D24";
+            Services.Models.Request.SetPasswordRequest vm = new Services.Models.Request.SetPasswordRequest();
+            if (value != null)
+            {
+                var activationCode = DecryptRijndael(value, encryptionKey);
+                if (!IsEmailExistsAsync(activationCode))
+                {
+                    TempData["Message"] = "Expired or invalid access.";
+                    return View("~/Views/Error/204.cshtml");
+                }
+            }
+            return View(vm);
+        }
+
+        // パスワード設定
+        [HttpPost]
+        public async Task<IActionResult> SetPassWord(Services.Models.Request.SetPasswordRequest request)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var value = RouteData.Values["id"].ToString();
+                    var encryptionKey = "770A8A65DA156D24";
+                    if (value != null)
+                    {
+                        var activationMail = DecryptRijndael(value, encryptionKey);
+                        var user = await this._userManager.FindByEmailAsync(activationMail);
+
+                        var result = await this._userManager.AddPasswordAsync(user, request.NewPassword);
+                        if (result.Succeeded)
+                        {
+                            user.user_visibility = true;
+                            var update = await this._userManager.UpdateAsync(user);
+
+                            ViewBag.Message = "Activation successful Registered.";
+                        }
+                        else
+                            throw new Exception(string.Join("\n", result.Errors.Select(e => e.Description)));
+                    }
+                }
+                return View();
+            }
+            catch (Exception ex)
+            {
+                TempData["Message"] = ex.Message;
+                return View("~/Views/Error/204.cshtml");
+            }
+        }
+
+
+        // パスワード再設定
+        public IActionResult ResetPassword()
+        {
+            var value = RouteData.Values["id"].ToString();
+            var encryptionKey = "770A8A65DA156D24";
+            Services.Models.Request.ResetPasswordRequest vm = new Services.Models.Request.ResetPasswordRequest();
+            if (value != null)
+            {
+                var activationCode = DecryptRijndael(value, encryptionKey);
+                if (!IsEmailExistsAsync(activationCode))
+                {
+                    TempData["Message"] = "Expired or invalid access.";
+                    return View("~/Views/Error/204.cshtml");
+                }
+
+                vm.Email = value;
+            }
+            return View(vm);
+        }
+
+        // パスワード再設定
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(Services.Models.Request.ResetPasswordRequest request)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var value = request.Email;
+                    var encryptionKey = "770A8A65DA156D24";
+                    if (value != null)
+                    {
+                        var activationMail = DecryptRijndael(value, encryptionKey);
+                        var user = await this._userManager.FindByEmailAsync(activationMail);
+
+                        var removePw = await this._userManager.RemovePasswordAsync(user);
+
+                        if (removePw.Succeeded)
+                        {
+                            var result = await this._userManager.AddPasswordAsync(user, request.NewPassword);
+
+                            if (result.Succeeded)
+                            {
+                                ViewBag.Message = "Password has been successfully Changed.";
+                            }
+                            else
+                                throw new Exception(result.Errors.FirstOrDefault().Description);
+                        }
+                        else
+                        {
+                            TempData["Message"] = "Password reset failed.";
+                            return View("~/Views/Error/204.cshtml");
+                        }
+                    }
+                    else
+                    {
+                        TempData["Message"] = "User not found.";
+                        return View("~/Views/Error/204.cshtml");
+                    }
+                }
+                //else
+                //{
+                //    return View("ResetPassword", request);
+                //}
+
+                return View();
             }
             catch (Exception ex)
             {
@@ -414,7 +398,7 @@ namespace nxPinterest.Web.Controllers
         }
 
         // パスワード変更
-        [Route("Account/Change-Password")]
+        //[Route("Account/Change-Password")]
         public IActionResult ChangePassword()
         {
             Services.Models.Request.ChangePasswordRequest vm = new Services.Models.Request.ChangePasswordRequest();
@@ -426,7 +410,7 @@ namespace nxPinterest.Web.Controllers
 
         // パスワード変更の確認
         [HttpPost]
-        public async Task<IActionResult>ChangePasswordConfirm(Services.Models.Request.ChangePasswordRequest request)
+        public async Task<IActionResult>ChangePassword(Services.Models.Request.ChangePasswordRequest request)
         {
             try
             {
@@ -437,17 +421,13 @@ namespace nxPinterest.Web.Controllers
                     if (result.Succeeded)
                     {
                         ViewBag.UserRole = user.Discriminator;
-                        TempData["custom-validation-success-message"] = "Password has been successfully changed!";
+                        ViewBag.Message = "Password has been successfully changed.";
                     }
                     else
                         throw new Exception(result.Errors.FirstOrDefault().Description);
                 }
-                else
-                {
-                    var errMsgs = ModelState.SelectMany(c => c.Value.Errors);
-                    throw new Exception(errMsgs.First().ErrorMessage);
-                }
-                return Redirect("/Account/Change-Password");
+
+                return View();
             }
             catch (Exception ex)
             {
@@ -791,7 +771,9 @@ namespace nxPinterest.Web.Controllers
                     var update = await this._userManager.UpdateAsync(user);
                     if (update.Succeeded)
                     {
-                        TempData["custom-validation-success-message"] = "User Infromation has been successfully changed!";
+                        //TempData["custom-validation-success-message"] = "User Infromation has been successfully changed!";
+                        ViewBag.Message = "User Infromation has been successfully changed.";
+
                         return RedirectToAction(nameof(UserContainerIdList));
                     }
                     throw new Exception(update.Errors.FirstOrDefault().Description);
@@ -961,7 +943,8 @@ namespace nxPinterest.Web.Controllers
                         container.container_name = vm.container_name;
                         container.container_visibility = vm.container_visibility;
                         this.userContainerManagementService.UpdateUserContainer(container);
-                        TempData["custom-validation-success-message"] = "Container has been successfully changed!";
+                        //TempData["custom-validation-success-message"] = "Container has been successfully changed!";
+                        ViewBag.Message = "Container has been successfully changed.";
                         return RedirectToAction(nameof(UserContainerList));
                     }
                 }
@@ -1115,7 +1098,8 @@ namespace nxPinterest.Web.Controllers
                             }
                         }
 
-                        TempData["custom-validation-success-message"] = "User has been successfully registered!";
+                        //TempData["custom-validation-success-message"] = "User has been successfully registered!";
+                        ViewBag.Message = "User has been successfully registered.";
                         return Redirect("/Account/NormalUserList");
                     }
                     throw new Exception(result.Errors.FirstOrDefault().Description);
