@@ -61,14 +61,21 @@
         $("body").on("click", "#copyLinkMedia", function(e) {
                 e.preventDefault();
                 const $copyLink = document.getElementById("shareUserMediaFileLink");
-
-                $copyLink.select();
-                $copyLink.setSelectionRange(0, 99999);
-                navigator.clipboard.writeText($copyLink.value);
+                let listener = (e) => {
+                    let clipboard = e.clipboardData;
+                    clipboard.setData('text/plain', $copyLink.value);
+                    e.preventDefault();
+                };
+                document.addEventListener('copy', listener, false);
+                const copyResult = document.execCommand('copy');
+                document.removeEventListener('copy', listener, false);
+                mesageTooltipCopy();
+                // remove all ranges after copy
+                window.getSelection().removeAllRanges();
+                return copyResult;
         });
     };
    
-
     function registerDatepicker() {
         $(document).ready(function() {
             $.fn.datepicker.defaults.language = "ja";
@@ -102,4 +109,11 @@
         return [year, month, day].join('-');
     }
 
+    function mesageTooltipCopy() {
+        $('#tooltipCopy').tooltip('toggle');
+        $('.tooltip').addClass('tooltip-top');
+        setTimeout(function () {
+            $('#tooltipCopy').tooltip('hide');
+        }, 1000);
+    };
 }
