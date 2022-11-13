@@ -347,14 +347,6 @@
 		});
 	}
 
-	function showPreviewImage(mediaUrl) {
-		if (!mediaUrl) {
-			return;
-		}
-		$('#showPreviewImageModal').modal('show');
-		$('#previewImage').attr('src', mediaUrl);
-	}
-
 	function loadImgaeAlbum(url) {
 		$.ajax({
 			url: "/UserAlbum/GetAlbumSharedLink/",
