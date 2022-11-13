@@ -42,6 +42,7 @@
         }
 
         $(document).ready(function () {
+            hideLoader();
             $('#SearchKey').tagsinput({
                 confirmKeys: [13, 44]
             });
@@ -65,9 +66,7 @@
             searchByTags();
         }
         function searchByTags() {
-            if (showLoadingIndicator) {
-                showLoadingIndicator();
-            }
+            showLoader();
             var pageIndex = $.urlParam('pageIndex');
             if (pageIndex == false) {
                 pageIndex = 1;
@@ -78,9 +77,6 @@
                 url += "&searchKey=" + searchKey;
             }
             window.location = url;
-            if (hideLoadingIndicator) {
-                hideLoadingIndicator();
-            }
         }
         function changePlaceholderText() {
             var searchKey = $('#SearchKey').val();
@@ -136,6 +132,7 @@
             }
         });
         function loadImg() {
+            showLoader();
             $.ajax({
                 url: "@Url.Action("getMedia", "UserMedia")",
                 method: "Post",
@@ -146,6 +143,7 @@
                         appendData(value);
                     });
                     window.page = window.page + 1;
+                    hideLoader();
                 },
                 error: function () {
                     window.images.forEach(function (data) {
@@ -154,6 +152,7 @@
                         });
                     });
                     window.page = window.page + 1;
+                    hideLoader();
                 }
             });
         }

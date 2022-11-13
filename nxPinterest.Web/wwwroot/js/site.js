@@ -3,13 +3,21 @@
 
 // Write your JavaScript code.
 
+// ローディングタイプ: しばらくお待ちください
 function showLoadingIndicator() {
     $('body').addClass('opacity-50 pe-none');
     $('#loading-indicator').show();
 
 }
-
 function hideLoadingIndicator() {
     $('#loading-indicator').hide();
     $('body').removeClass('opacity-50 pe-none');
+}
+
+// ローディングタイプ: くるくる
+function showLoader() {
+    $('.indicator-loader').show();
+}
+function hideLoader() {
+    $('.indicator-loader').fadeOut("slow");
 }
