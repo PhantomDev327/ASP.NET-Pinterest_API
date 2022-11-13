@@ -8,6 +8,6 @@ namespace nxPinterest.Data.Repositories.Interfaces
 {
     public interface IUserAlbumMediaRepository : IBaseRepository<UserAlbumMedia>
     {
-        Task<IEnumerable<SharedLinkAlbumMediaViewModel>> GetListAlbumByIdAsync(int albumId , string baseUrl, string containerName, int pageIndex, int pageSize);
+        Task<IEnumerable<SharedLinkAlbumMediaViewModel>> GetListAlbumByIdAsync(int albumId , int pageIndex, int pageSize);
     }
 }

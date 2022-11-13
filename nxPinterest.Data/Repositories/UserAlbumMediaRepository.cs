@@ -14,21 +14,22 @@ namespace nxPinterest.Data.Repositories
         {
         }
 
-        public async Task<IEnumerable<SharedLinkAlbumMediaViewModel>> GetListAlbumByIdAsync(int albumId, string baseUrl,
-            string containerName, int pageIndex, int pageSize)
+        public async Task<IEnumerable<SharedLinkAlbumMediaViewModel>> GetListAlbumByIdAsync(int albumId,int pageIndex, int pageSize)
         {
             if (albumId == 0) return new List<SharedLinkAlbumMediaViewModel>();
 
-            baseUrl = "https://pinteresttest.blob.core.windows.net/";
-            var data = await Context.UserAlbumMedias.Select(n => new SharedLinkAlbumMediaViewModel
-            {
-                AlbumId = n.AlbumId,
-                MediaId = n.UserMediaId,
-                ContainerId = n.ContainerId,
-                MediaUrl = $"{baseUrl}{containerName}/{n.ContainerId}/original/{n.UserMediaName}.jpg",
-                MediaSmallUrl = $"{baseUrl}{containerName}/{n.ContainerId}/small/{n.UserMediaName}.jpg",
-                MediaThumbnailUrl = $"{baseUrl}{containerName}/{n.ContainerId}/thumb/{n.UserMediaName}.jpg"
-            }).Where(n => n.AlbumId == albumId).ToListAsync();
+            var data = await Context.UserAlbumMedias.OrderByDescending(x => x.AlbumMediaCreatedat)
+                   .Join(Context.UserMedia, p => p.UserMediaId, i => i.MediaId, (p, i) => new SharedLinkAlbumMediaViewModel
+                   {
+                       AlbumId = p.AlbumId,
+                       UserMediaName = p.UserMediaName,
+                       MediaId = p.UserMediaId,
+                       MediaUrl = i.MediaUrl,
+                       MediaThumbnailUrl = i.MediaThumbnailUrl,
+                       MediaSmallUrl = i.MediaSmallUrl,
+                       MediaDescription =i.MediaDescription,
+                       MediaTitle =i.MediaTitle
+                   }).Where(n => n.AlbumId == albumId).ToListAsync();
 
             return data.Skip((pageIndex - 1) * pageSize).Take(pageSize);
         }

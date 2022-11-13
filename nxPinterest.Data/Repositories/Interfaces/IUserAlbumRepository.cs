@@ -2,6 +2,7 @@
 using nxPinterest.Data.Models;
 using System.Threading.Tasks;
 using nxPinterest.Data.ViewModels;
+using System;
 
 namespace nxPinterest.Data.Repositories.Interfaces
 {
@@ -9,7 +10,7 @@ namespace nxPinterest.Data.Repositories.Interfaces
     {
         (int albumId, string albumName) IsUserAlbumAlreadyExists(string albumName);
 
-        Task<bool> CheckExpiryDayAlbum(int albumId);
+        bool CheckExpiryDayAlbum(int albumId, DateTime? albumExpireDate);
 
         Task<IEnumerable<UserAlbumViewModel>> GetAlbumUserByContainer(string userId);
 
