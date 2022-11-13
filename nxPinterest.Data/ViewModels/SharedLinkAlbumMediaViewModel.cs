@@ -11,6 +11,8 @@ public class SharedLinkAlbumMediaViewModel
     public string UserMediaName { get; set; }
     public string MediaSmallUrl { get; set; }
     public string MediaThumbnailUrl { get; set; }
+    public string MediaTitle { get; set; }
+    public string MediaDescription { get; set; }
     public int PageIndex { get; set; } = 1;
     public DateTime? AlbumMediaCreatedat { get; set; }
 }
