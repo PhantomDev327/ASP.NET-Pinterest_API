@@ -4,9 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using nxPinterest.Services.Models.Request;
 using System.Threading.Tasks;
 using nxPinterest.Services.Interfaces;
-using System.Security.Policy;
-using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.Azure.Cosmos.Serialization.HybridRow;
 
 namespace nxPinterest.Web.Controllers
 {
@@ -60,34 +57,21 @@ namespace nxPinterest.Web.Controllers
 
         [AllowAnonymous]
         [HttpGet("/shared/{url?}")]
-        public async Task<IActionResult> DetailAlbum(string url)
-        {
-            //if (string.IsNullOrWhiteSpace(url))
-            //{
-            //    TempData["Message"] = "Url path not exist!";
-            //    return View("~/Views/Error/204.cshtml");
-            //}
+        public IActionResult SharedAlbum(string url) => View();
 
-            //int albumId = await _userAlbumService.GetAlbumIdByUrl(url);
-
-            //if (albumId == 0)
-            //{
-            //    TempData["Message"] = "Album not exist!";
-            //    return View("~/Views/Error/204.cshtml");
-            //}
-            return View();
-        }
-
+        [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> GetListAlbums(int pageIndex , string url )
+        public async Task<IActionResult> GetAlbumSharedLink(int pageIndex,string siteUrl )
         {
-            var albumId = await _userAlbumService.GetAlbumIdByUrl("https://localhost:44375/shared/$b57562d2ff884664924ddd2db554e292");
+            //if(string.IsNullOrWhiteSpace(siteUrl)) return Ok(new { StatusCode = 404, Data = "" ,Message = "Urlが間違っているか、Urlが存在しません。" });
 
-            if (albumId == 0) return Ok(new { Success = false, Data = "" });
+            var albumId = await _userAlbumService.GetAlbumIdByUrl(siteUrl);
+
+            if (albumId == 0) return Ok(new { StatusCode = 404, Data = "", Message= "アルバムが存在しませんか、期限が切された。" });
 
             var data = await _userAlbumMediaService.GetListAlbumById(albumId, pageIndex);
 
-            return Ok(new { Success = true, Data = data });
+            return Ok(new { StatusCode = 200, Data = data, Message = "" });
         }
 
     }
