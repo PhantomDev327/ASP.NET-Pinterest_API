@@ -29,6 +29,13 @@
 			$('#previewImage').attr('src', mediaUrl);
 
 		});
+
+
+		$('body').on('click', '#downloadMedia', function (e) {
+			e.preventDefault();
+			downloadUserMediaFile();
+
+		});
 	};
 
 
