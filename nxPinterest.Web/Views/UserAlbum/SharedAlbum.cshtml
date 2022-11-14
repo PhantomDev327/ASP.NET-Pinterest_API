@@ -5,31 +5,31 @@
 @section Styles {
     <link href="~/css/page-shared-album/index.css" rel="stylesheet" />
 }
-<div class="row mx-auto mt-4 text-center">
-    <h1 class="text-white" id="error"></h1>
-    <h3 class="text-white" id="content__error"></h3>
-</div>
-<div id="blockGallery">
-    <div class="m-3">
-        <div class="content gallery" id="contentGallery">
-            <div class="thumbnail-container" id="thumbnail-container">
+    <div class="row mx-auto mt-4 text-center">
+        <h1 class="text-white" id="error"></h1>
+        <h3 class="text-white" id="content__error"></h3>
+    </div>
+    <div id="blockGallery">
+        <div class="m-3">
+            <div class="content gallery" id="contentGallery">
+                <div class="thumbnail-container" id="thumbnail-container">
+                </div>
             </div>
         </div>
     </div>
-</div>
-<div class="modal fade text-black" id="showPreviewImageModal" tabindex="-1" role="dialog" aria-labelledby="showPreviewImageModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
-        <div class="modal-content">
-            <div class="modal-body" id="previewImageArea">
-                <img id="previewImage" style="width: 100%; height: 100%">
+    <div class="modal fade text-black" id="showPreviewImageModal" tabindex="-1" role="dialog" aria-labelledby="showPreviewImageModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-body" id="previewImageArea">
+                    <img id="previewImage" style="width: 100%; height: 100%">
+                </div>
             </div>
         </div>
     </div>
-</div>
-<iframe id="iframeDownload1" style="display: none"></iframe>
-<iframe id="iframeDownload2" style="display: none"></iframe>
-<iframe id="iframeDownload3" style="display: none"></iframe>
-@section Scripts{
+    <iframe id="iframeDownload1" style="display: none"></iframe>
+    <iframe id="iframeDownload2" style="display: none"></iframe>
+    <iframe id="iframeDownload3" style="display: none"></iframe>
+    @section Scripts{
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip-utils/0.0.2/jszip-utils.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>

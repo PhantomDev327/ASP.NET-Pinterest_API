@@ -56,8 +56,11 @@ namespace nxPinterest.Web.Controllers
         }
 
         [AllowAnonymous]
-        [HttpGet("/shared/{url?}")]
-        public IActionResult SharedAlbum(string url) => View();
+        [HttpGet("shared/{url?}")]
+        public IActionResult SharedAlbum(string url)
+        {
+            return View("/Views/UserAlbum/SharedAlbum.cshtml");
+        }
 
         [AllowAnonymous]
         [HttpPost]
