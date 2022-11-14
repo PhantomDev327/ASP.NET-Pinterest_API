@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Http;
 
 namespace nxPinterest.Web.Controllers
 {
@@ -18,17 +17,10 @@ namespace nxPinterest.Web.Controllers
             }
         }
 
-        protected string GenerateUrl()
+        protected string GeneratePathUrl()
         {
-            var uriBuilder = new UriBuilder(Request.Scheme, Request.Host.Host, Request.Host.Port ?? -1);
-            if (uriBuilder.Uri.IsDefaultPort) uriBuilder.Port = -1;
-
-            var baseUri = uriBuilder.Uri.AbsoluteUri;
-
-            var fomatUrl = $"{baseUri}shared/{Guid.NewGuid().ToString().Replace("-", "")}";
-            //var fomatUrl = $"{Guid.NewGuid().ToString().Replace("-", "")}";
-
-            return fomatUrl;
+            // random path url
+            return $"{Guid.NewGuid().ToString().Replace("-", "")}{DateTime.Now.ToString("yyyyMMddhhmmsss")}";
         }
     }
 }

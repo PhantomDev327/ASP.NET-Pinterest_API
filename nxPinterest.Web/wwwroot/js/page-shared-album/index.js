@@ -2,7 +2,7 @@
 
 	window.page = 1;
 	window.itemWidth = 250;
-	var linkShareUrl = document.URL;
+	var pathSharedUrl = window.location.pathname.split("/").pop();
 
 	this.initialize = function () {
 		registerEvents();
@@ -13,10 +13,10 @@
 		$(document).ready(function () {
 			$(window).css('min-width', 500);
 			initCol();
-			loadImgaeAlbum(linkShareUrl);
+			loadImgaeAlbum(pathSharedUrl);
 			$(window).scroll(function () {
 				if ($(window).scrollTop() + $(window).height() == $(document).height()) {
-					loadImgaeAlbum(linkShareUrl);
+					loadImgaeAlbum(pathSharedUrl);
 				}
 			});
 
@@ -360,7 +360,7 @@
 			method: "POST",
 			data: {
 				pageIndex: window.page,
-				siteUrl: url
+				pathUrl: url
 			},
 			success: function (result) {
 				if (result.statusCode === 200) {
