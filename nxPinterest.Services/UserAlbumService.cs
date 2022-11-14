@@ -66,6 +66,9 @@ namespace nxPinterest.Services
 
                 foreach (var item in model.UserAlbumMedias)
                 {
+
+                    if (await _userAlbumMediaRepository.IsMediaExistAsync(userAlbum.AlbumId, item.UserMediaId)) continue;
+
                     var userAlbumMedia = new UserAlbumMedia
                     {
                         AlbumId = userAlbum.AlbumId,
