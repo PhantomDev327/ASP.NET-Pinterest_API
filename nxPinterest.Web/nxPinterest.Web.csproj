@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -7,16 +7,12 @@
 
   <ItemGroup>
 	  <Compile Remove="Areas\**" />
-	  <Compile Remove="Views\UserAlbum\**" />
 	  <Compile Remove="wwwroot\lib\Hyper_v4.4\Bootstrap_4x\**" />
 	  <Content Remove="Areas\**" />
-	  <Content Remove="Views\UserAlbum\**" />
 	  <Content Remove="wwwroot\lib\Hyper_v4.4\Bootstrap_4x\**" />
 	  <EmbeddedResource Remove="Areas\**" />
-	  <EmbeddedResource Remove="Views\UserAlbum\**" />
 	  <EmbeddedResource Remove="wwwroot\lib\Hyper_v4.4\Bootstrap_4x\**" />
 	  <None Remove="Areas\**" />
-	  <None Remove="Views\UserAlbum\**" />
 	  <None Remove="wwwroot\lib\Hyper_v4.4\Bootstrap_4x\**" />
   </ItemGroup>
 
@@ -38,7 +34,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Views\UserAlbum\SharedAlbum.cshtml" />
     <None Include="wwwroot\lib\bootstrap-datepicker\js\bootstrap-datepicker.min.js" />
     <None Include="wwwroot\lib\bootstrap-datepicker\locales\bootstrap-datepicker.ja.min.js" />
     <None Include="wwwroot\lib\Hyper_v4.4\Bootstrap_5x\docs\js\core.c464bbd1982b6f37ac4e.js" />
