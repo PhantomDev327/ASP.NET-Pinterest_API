@@ -12,9 +12,12 @@ namespace nxPinterest.Web.Controllers
     {
         private readonly IUserAlbumService _userAlbumService;
 
-        public UserAlbumController(IUserAlbumService userAlbumService)
+        private readonly IUserAlbumMediaService _userAlbumMediaService;
+
+        public UserAlbumController(IUserAlbumService userAlbumService, IUserAlbumMediaService userAlbumMediaService)
         {
             this._userAlbumService = userAlbumService;
+            _userAlbumMediaService = userAlbumMediaService;
         }
 
         [HttpPost]
@@ -54,22 +57,21 @@ namespace nxPinterest.Web.Controllers
 
         [AllowAnonymous]
         [HttpGet("/shared/{url?}")]
-        public async Task<IActionResult> DetailAlbum(string url)
+        public IActionResult SharedAlbum(string url) => View();
+
+        [AllowAnonymous]
+        [HttpPost]
+        public async Task<IActionResult> GetAlbumSharedLink(int pageIndex,string siteUrl )
         {
-            //if (string.IsNullOrWhiteSpace(url))
-            //{
-            //    TempData["Message"] = "Url path not exist!";
-            //    return View("~/Views/Error/204.cshtml");
-            //}
+            //if(string.IsNullOrWhiteSpace(siteUrl)) return Ok(new { StatusCode = 404, Data = "" ,Message = "Urlが間違っているか、Urlが存在しません。" });
 
-            //int albumId = await _userAlbumService.GetAlbumIdByUrl(url);
+            var albumId = await _userAlbumService.GetAlbumIdByUrl(siteUrl);
 
-            //if (albumId == 0)
-            //{
-            //    TempData["Message"] = "Album not exist!";
-            //    return View("~/Views/Error/204.cshtml");
-            //}
-            return View();
+            if (albumId == 0) return Ok(new { StatusCode = 404, Data = "", Message= "アルバムが存在しませんか、期限が切された。" });
+
+            var data = await _userAlbumMediaService.GetListAlbumById(albumId, pageIndex);
+
+            return Ok(new { StatusCode = 200, Data = data, Message = "" });
         }
 
     }

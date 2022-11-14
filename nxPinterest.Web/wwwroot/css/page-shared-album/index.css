@@ -1,0 +1,73 @@
+﻿.previewButton {
+    text-align: right !important;
+    position: relative !important;
+    top: -26px;
+    right: -5px;
+}
+    .previewButton .zoom__icon__album {
+        width: 10% !important;
+        float: right;
+        position: relative;
+        right: 8px;
+    }
+
+#multiImageSelect-area {
+    position: absolute;
+    z-index: 9999;
+    border: 2px solid #f1f1f1;
+    background-color: #e5e5e5;
+    opacity: 0.5;
+}
+
+#blockGallery {
+    width: 100%;
+    position: absolute;
+    overflow: initial;
+    min-height: 100% !important;
+    height: auto;
+    z-index: -1;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+    #blockGallery::-webkit-scrollbar {
+        display: none; /* Chrome, Safari and Opera */
+        -ms-overflow-style: none; /* IE and Edge */
+        scrollbar-width: none; /* Firefox */
+    }
+
+
+.disabled-link {
+    pointer-events: none;
+    cursor: default;
+    text-decoration: none;
+    color: #808080;
+}
+
+.active-link {
+    color: white;
+}
+
+
+/* range */
+.range-custom::-webkit-slider-thumb {
+    background-color: #fff;
+}
+
+/* slide */
+.range-custom::-webkit-slider-runnable-track {
+    background-color: #c3c3c3;
+}
+
+.range-area > * {
+    vertical-align: middle
+}
+
+#previewImageArea {
+    padding: 5px;
+    background-color: black;
+}
