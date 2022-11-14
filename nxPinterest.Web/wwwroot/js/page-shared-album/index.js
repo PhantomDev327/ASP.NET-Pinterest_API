@@ -80,7 +80,7 @@
 			figureItemEle.append(previewButtonEl);
 		});
 		newImgEl.setAttribute('src', value.mediaThumbnailUrl);
-		newImgEl.setAttribute('alt', value.userFileName);
+		newImgEl.setAttribute('alt', value.userMediaName);
 		newImgEl.setAttribute('data-media-url', value.mediaUrl);
 		newImgEl.setAttribute('data-smallmedia-url', value.mediaSmallUrl);
 	}
