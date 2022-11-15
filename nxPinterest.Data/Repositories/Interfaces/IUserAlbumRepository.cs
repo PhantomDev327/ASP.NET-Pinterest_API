@@ -14,6 +14,6 @@ namespace nxPinterest.Data.Repositories.Interfaces
 
         Task<IEnumerable<UserAlbumViewModel>> GetAlbumUserByContainer(string userId);
 
-        Task<int> GetAlbumIdByUrl(string url);
+        Task<int> GetAlbumIdByPathUrl(string pathUrl);
     }
 }

@@ -66,6 +66,9 @@ namespace nxPinterest.Services
 
                 foreach (var item in model.UserAlbumMedias)
                 {
+
+                    if (await _userAlbumMediaRepository.IsMediaExistAsync(userAlbum.AlbumId, item.UserMediaId)) continue;
+
                     var userAlbumMedia = new UserAlbumMedia
                     {
                         AlbumId = userAlbum.AlbumId,
@@ -144,9 +147,9 @@ namespace nxPinterest.Services
             return await _userAlbumRepository.GetAlbumUserByContainer(userId);
         }
 
-        public async Task<int> GetAlbumIdByUrl(string url)
+        public async Task<int> GetAlbumIdByPathUrlAsync(string pathUrl)
         {
-            return await _userAlbumRepository.GetAlbumIdByUrl(url);
+            return await _userAlbumRepository.GetAlbumIdByPathUrl(pathUrl);
         }
     }
 }

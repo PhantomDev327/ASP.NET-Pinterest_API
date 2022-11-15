@@ -54,18 +54,18 @@ namespace nxPinterest.Data.Repositories
             return result != null ? result : new List<UserAlbumViewModel>();
         }
 
-        public async Task<int> GetAlbumIdByUrl(string url)
+        public async Task<int> GetAlbumIdByPathUrl(string pathUrl)
         {
             int albumId = 0;
 
-            if (string.IsNullOrWhiteSpace(url)) return albumId;
+            if (string.IsNullOrWhiteSpace(pathUrl)) return albumId;
 
             var result = await Context.UserAlbums.Select(n => new UserAlbum
             {
                 AlbumId = n.AlbumId,
                 AlbumUrl = n.AlbumUrl,
-                AlbumExpireDate =n.AlbumExpireDate
-            }).SingleOrDefaultAsync(n=>n.AlbumUrl.Contains(url));
+                AlbumExpireDate = n.AlbumExpireDate
+            }).SingleOrDefaultAsync(n => n.AlbumUrl == pathUrl);
 
             if(result == null) return albumId;
 

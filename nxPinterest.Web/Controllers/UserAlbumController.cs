@@ -25,7 +25,7 @@ namespace nxPinterest.Web.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            model.AlbumUrl = GenerateUrl();
+            model.AlbumUrl = GeneratePathUrl();
             var result = await _userAlbumService.Create(model, UserId);
 
             return Ok(result);
@@ -47,12 +47,18 @@ namespace nxPinterest.Web.Controllers
 
             if (compareDate.Days < 0) return BadRequest(ModelState);
 
-            model.AlbumUrl = GenerateUrl();
-            var result = await _userAlbumService.CreateAlbumShare(model, UserId);
+            model.AlbumUrl = GeneratePathUrl();
 
-            return !string.IsNullOrEmpty(result)
-                ? Ok(new { Success = true, Data = result })
-                : Ok(new { Success = false, Data = result });
+            var keyPathUrl = await _userAlbumService.CreateAlbumShare(model, UserId);
+
+            if (!string.IsNullOrEmpty(keyPathUrl))
+            {
+                string url = $"{Request.Scheme}://{Request.Host}/{"shared"}/{keyPathUrl}";
+
+                return Ok(new { Success = true, Data = url });
+            }
+
+            return Ok(new { Success = false, Data = keyPathUrl });
         }
 
         [AllowAnonymous]
@@ -64,11 +70,11 @@ namespace nxPinterest.Web.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> GetAlbumSharedLink(int pageIndex,string siteUrl )
+        public async Task<IActionResult> GetAlbumSharedLink(int pageIndex,string pathUrl)
         {
-            //if(string.IsNullOrWhiteSpace(siteUrl)) return Ok(new { StatusCode = 404, Data = "" ,Message = "Urlが間違っているか、Urlが存在しません。" });
+            if (string.IsNullOrWhiteSpace(pathUrl)) return Ok(new { StatusCode = 404, Data = "", Message = "Urlが間違っているか、Urlが存在しません。" });
 
-            var albumId = await _userAlbumService.GetAlbumIdByUrl(siteUrl);
+            var albumId = await _userAlbumService.GetAlbumIdByPathUrlAsync(pathUrl);
 
             if (albumId == 0) return Ok(new { StatusCode = 404, Data = "", Message= "アルバムが存在しませんか、期限が切された。" });
 

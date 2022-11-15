@@ -33,5 +33,12 @@ namespace nxPinterest.Data.Repositories
 
             return data.Skip((pageIndex - 1) * pageSize).Take(pageSize);
         }
+
+        public async Task<bool> IsMediaExistAsync(int albumId, int mediaId)
+        {
+            return await Context.UserAlbumMedias
+                .Where(x => x.AlbumId == albumId && x.UserMediaId == mediaId)
+                .AnyAsync();
+        }
     }
 }
