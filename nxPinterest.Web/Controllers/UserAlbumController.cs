@@ -76,7 +76,7 @@ namespace nxPinterest.Web.Controllers
 
             var albumId = await _userAlbumService.GetAlbumIdByPathUrlAsync(pathUrl);
 
-            if (albumId == 0) return Ok(new { StatusCode = 404, Data = "", Message= "アルバムが存在しませんか、期限が切された。" });
+            if (albumId == 0) return Ok(new { StatusCode = 404, Data = "", Message= "アルバムが存在されていません、または共有期限が切れました。" });
 
             var data = await _userAlbumMediaService.GetListAlbumById(albumId, pageIndex);
 
