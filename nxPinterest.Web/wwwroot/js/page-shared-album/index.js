@@ -22,7 +22,7 @@
 
 		});
 
-		$('body').on('click', '.previewButton .zoom__icon__album', function (e) {
+		$('body').on('click', '.previewButton', function (e) {
 			e.preventDefault();
 			var mediaUrl = $(this).data('mediaurl');
 			$('#showPreviewImageModal').modal('show');
@@ -71,7 +71,7 @@
 
 	function appendData(value) {
 		var newImgEl = document.createElement('img');
-		var previewButtonEl = '<span class="previewButton" data-mediaurl="' + value.mediaSmallUrl + '"><img data-mediaurl="' + value.mediaSmallUrl + '" src="/images/icon-zoom.png" class="zoom__icon__album"/></span>';
+		var previewButtonEl = '<span class="previewButton" data-mediaurl="' + value.mediaSmallUrl + '"><i class="bi bi-zoom-in fa-lg px-2"></i></span>';
 		newImgEl.addEventListener('load', function () {
 			shortest = findShortestCol();
 			shortest.append('<figure id="' + value.mediaId + '"><figcaption><p class="title">' + value.mediaTitle + '</p><p class="description">' + value.mediaDescription + '</p></figcaption></figure>');
