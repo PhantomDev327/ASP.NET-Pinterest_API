@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using nxPinterest.Services.Models.Request;
 using System.Threading.Tasks;
 using nxPinterest.Services.Interfaces;
+using ImageMagick;
+using nxPinterest.Data.ViewModels;
 
 namespace nxPinterest.Web.Controllers
 {
@@ -81,6 +83,29 @@ namespace nxPinterest.Web.Controllers
             var data = await _userAlbumMediaService.GetListAlbumById(albumId, pageIndex);
 
             return Ok(new { StatusCode = 200, Data = data, Message = "" });
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> GetSelectedAlbums(int pageIndex, string albumName)
+        {
+            if (string.IsNullOrEmpty(albumName)) return Ok(new { StatusCode = 404, Data = "", Message = "Not found data。" });
+
+            var albumId = await _userAlbumService.GetAlbumIdByNameAsync(albumName);
+
+            if (albumId == 0) return Ok(new { StatusCode = 404, Data = "", Message = "Not found data。" });
+
+            var createAlbumDate = await _userAlbumService.GetCreateDateAlbumNameAsync(albumId);
+
+            var data = await _userAlbumMediaService.GetListAlbumById(albumId, pageIndex);
+
+            var albumVm = new HomeAlbumViewModel
+            {
+                Albums = data,
+                AlbumCreateDate = createAlbumDate
+            };
+
+            return Ok(new { StatusCode = 200, Data = albumVm, Message = "" });
         }
 
     }

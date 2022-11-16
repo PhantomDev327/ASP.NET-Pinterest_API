@@ -87,5 +87,31 @@ namespace nxPinterest.Data.Repositories
 
             return result != null ? (result.AlbumId, result.AlbumName) : (0, null);
         }
+
+        public async Task<int> GetAlbumIdByName(string albumName)
+        {
+            if (string.IsNullOrEmpty(albumName)) return 0;
+
+            var result = await Context.UserAlbums.Select(n => new
+            {
+                n.AlbumName,
+                n.AlbumId
+            }).SingleOrDefaultAsync(n => n.AlbumName == albumName);
+
+            return result != null ? result.AlbumId : 0;
+        }
+
+        public async Task<DateTime?> GetCreateDateAlbumName(int albumId)
+        {
+            if (albumId ==0 ) return null;
+
+            var result = await Context.UserAlbums.Select(n => new
+            {
+                n.AlbumId,
+                n.AlbumCreatedat
+            }).SingleOrDefaultAsync(n => n.AlbumId == albumId);
+
+            return result != null ? result.AlbumCreatedat : null;
+        }
     }
 }

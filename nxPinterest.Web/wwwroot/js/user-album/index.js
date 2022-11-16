@@ -40,7 +40,7 @@
 
         });
 
-        $('body').on('click', '#createMediaFolder', function (e) {
+        $('body').on('click', '#createMediaFolder, .createMediaFolder', function (e) {
             e.preventDefault();
             LoadAlbums();
 

@@ -112,6 +112,10 @@
     </script>
 
 <div id="blockGallery" class="multiImageSelect-noselect">
+    <div class="row" style="margin-left: 15px;">
+        <h2 id="album__name"></h2>
+        <p><strong id="album__date"></strong>&nbsp&nbsp<strong id="count__album"></strong></p>
+    </div>
     <div class="m-3">
         <div class="content gallery" id="contentGallery">
             <div class="thumbnail-container" id="thumbnail-container">
@@ -171,6 +175,66 @@
                     hideLoader();
                 }
             });
+        }
+
+        function loadImgByName(albumname) {
+            window.page = 1;
+            window.images = new Array();
+            window.itemWidth = 250;
+            showLoader();
+            $.ajax({
+                url: "@Url.Action("GetSelectedAlbums", "UserAlbum")",
+                method: "Post",
+                data: { pageIndex: window.page, albumName: albumname },
+                success: function (result) {
+                    window.images.push(result.data.albums);
+                    $.each(result.data.albums, function (index, value) {
+                        appendData(value);
+                    });
+                    if(result.data.albums.length >0 ){
+                        document.getElementById("count__album").innerHTML = `${result.data.albums.length} 項目`;
+                        document.getElementById("album__date").innerHTML = dateToStr12H(new Date(result.data.albumCreateDate), 'Y年M月D日 h:m:s AP');
+                    }
+                    window.page = window.page + 1;
+                    hideLoader();
+                },
+                error: function () {
+                    window.images.forEach(function (data) {
+                        data.forEach(function (value) {
+                            appendData(value);
+                        });
+                    });
+                    window.page = window.page + 1;
+                    hideLoader();
+                }
+            });
+        }
+
+        function selectedAlbum(value) {
+            initCol();
+            document.getElementById("album__name").innerHTML=value;
+            loadImgByName(value);
+            var element = document.getElementById('navbarSearchAndTag');
+            if (element.classList.contains('show')) {
+                element.classList.remove("show");
+            }
+        }
+        function dateToStr12H(date, format) {
+            if (!format) {
+                format = 'Y/M/D h:m:s AP';
+            }
+            var hours = date.getHours();
+            var ampm = hours < 12 ? 'AM' : 'PM';
+            hours = hours % 12;
+            hours = (hours != 0) ? hours : 12;
+            format = format.replace(/Y/g, date.getFullYear());
+            format = format.replace(/M/g, (date.getMonth() + 1));
+            format = format.replace(/D/g, date.getDate());
+            format = format.replace(/h/g, hours);
+            format = format.replace(/m/g, date.getMinutes());
+            format = format.replace(/s/g, date.getSeconds());
+            format = format.replace(/AP/g, ampm);
+            return format;
         }
     </script>
     }

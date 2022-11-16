@@ -1,4 +1,5 @@
-﻿using nxPinterest.Data.Models;
+﻿using ImageMagick;
+using nxPinterest.Data.Models;
 using nxPinterest.Data.Repositories.Interfaces;
 using nxPinterest.Data.ViewModels;
 using nxPinterest.Services.Interfaces;
@@ -150,6 +151,16 @@ namespace nxPinterest.Services
         public async Task<int> GetAlbumIdByPathUrlAsync(string pathUrl)
         {
             return await _userAlbumRepository.GetAlbumIdByPathUrl(pathUrl);
+        }
+
+        public async Task<int> GetAlbumIdByNameAsync(string albumName)
+        {
+            return await _userAlbumRepository.GetAlbumIdByName(albumName);
+        }
+
+        public async Task<DateTime?> GetCreateDateAlbumNameAsync(int albumId)
+        {
+            return await _userAlbumRepository.GetCreateDateAlbumName(albumId);
         }
     }
 }
