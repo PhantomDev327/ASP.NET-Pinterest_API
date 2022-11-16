@@ -10,7 +10,8 @@ namespace nxPinterest.Web.Models
     public class HomeViewModel
     {
         public string SearchKey { get; set; }
-        public IList<string> TagsList { get; set; }
+        public IList<string> TagList { get; set; }
+        public IList<string> AlbumList { get; set; }
 
         //public Services.Models.Request.ImageRegistrationRequests ImageRegistrationRequests { get; set; } = new Services.Models.Request.ImageRegistrationRequests();
         public ImageRegisterViewModel ImageRegistrationVM { get; set; } = new ImageRegisterViewModel();

@@ -10,9 +10,9 @@ namespace nxPinterest.Web.Models
     public class DetailsViewModel
     {
         public string SearchKey { get; set; }
-        public IList<string> TagsList { get; set; }
-        //public Services.Models.Request.ImageRegistrationRequests ImageRegistrationRequests { get; set; } = new Services.Models.Request.ImageRegistrationRequests();
-        //public nxPinterest.Services.Models.Response.UserMediaDetailModel UserMediaDetail { get; set; }
+        public IList<string> TagList { get; set; }
+        public IList<string> AlbumList { get; set; }
+
         public Data.Models.UserMedia UserMediaDetail { get; set; }
         public IList<Data.Models.UserMedia> SameTitleUserMediaList { get; set; }
         public IList<Data.Models.UserMedia> RelatedUserMediaList { get; set; }

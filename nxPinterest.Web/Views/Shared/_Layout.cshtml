@@ -31,7 +31,8 @@
 
     <script src="~/js/site.js" asp-append-version="true"></script>
 
-    <link rel="stylesheet" href="~/css/multi_select_by_mouse.css" />
+    <link rel="stylesheet" href="~/css/darkmode.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/multi_select_by_mouse.css" asp-append-version="true"/>
     
     <script src="https://cdn.jsdelivr.net/clipboard.js/1.5.3/clipboard.min.js"></script>
 
@@ -103,27 +104,16 @@
                 <span id="shareMedia" title="共有" class="disabled-link">
                     <i class="bi bi-box-arrow-up fa-lg px-2"></i>
                 </span>
-                <span onclick="downloadUserMediaFile();" id="downloadMedia" title="ダウンロード" class="disabled-link">
+                <span id="downloadMedia" onclick="downloadUserMediaFile();" title="ダウンロード" class="disabled-link">
                     <i class="bi bi-cloud-download fa-lg px-2"></i>
                 </span>
-                <span onclick="showDeleteConfirmDialog();" id="deleteMedia" title="ゴミ箱" class="disabled-link">
+                <span id="deleteMedia" onclick="showDeleteConfirmDialog();" title="ゴミ箱" class="disabled-link">
                     <i class="bi bi-trash fa-lg px-2"></i>
                 </span>
 
                 <div class="dropdown px-2">
                     <div data-bs-toggle="dropdown" aria-expanded="false">
-@*                        <i class="bi bi-person-circle"></i>*@
-                        @{
-                            <span class="px-1">@ViewBag.UserDispName</span>
-                            //if(@ViewBag.UserDispName == null)
-                            //{
-                            //    <span class="px-1"></span>
-                            //}
-                            //else
-                            //{
-                            //    <span class="px-1">@ViewBag.UserDispName</span>
-                            //}
-                        }
+                        <span class="px-1">@ViewBag.UserDispName</span>
                         <i class="bi bi-chevron-down"></i>
                     </div>
                     <ul class="dropdown-menu dropdown-menu-end">
@@ -160,10 +150,6 @@
     <!--        </div>-->
     <!--    </div>-->
 
-    <div class="spinner-border text-info indicator-loader" role="status" style="display: none;">
-        <span class="sr-only">Loading...</span>
-    </div>
-
     <div id="loading-indicator" class="rounded-3 bg-dark px-5 py-3">
         <div class="spinner-border align-middle" role="status">
             <span class="visually-hidden">Loading...</span>
@@ -171,30 +157,38 @@
         <span class="align-middle">しばらくお待ちください</span>
     </div>
 
-    @*<div id="navbarSearchAndTag" class="navbar-custom topnav-navbar topnav-navbar-dark d-flex align-items-center" style="z-index:5">
-        <div class="m-3">
-   	        <div class="project_tags">
-                <p>よく使うタグ</p>
-		        @foreach (var tag in @Model.TagsList){
-			        <div onclick=addTags("@tag") style="display:inline-block;color:#4d4d4d;background-color: #F7F7F7;padding:10px 20px;border-radius:3px;margin:5px;">@tag</div>
-		        }
-	        </div>
-        </div>
-    </div>*@
-    @*<div class="spinner-border text-info indicator-loader" role="status">
+    <div class="spinner-border text-info indicator-loader" role="status" style="display: none;">
         <span class="sr-only">Loading...</span>
-    </div>*@
+    </div>
+    <script>
+        function showLoader() {
+            $('.indicator-loader').show();
+        }
+        function hideLoader() {
+            $('.indicator-loader').fadeOut("slow");
+        }
+    </script>
 
     <div style="margin-top: 3.7rem">
 @*        <div id="navbarSearchAndTag" class="collapse collapse-horizontal show" style="position:fixed;left:0;top:3.7rem;">
 *@        <div id="navbarSearchAndTag" class="collapse collapse-horizontal     " style="position:fixed;left:0;top:3.7rem;z-index:1;">
 @*            <div class="p-3 bg-dark" style="width:8rem;height:calc(100vh - 3.7rem);overflow-y:auto" id="tagArea">
 *@            <div class="p-3 bg-dark" style="height:calc(100vh - 3.7rem);overflow-y:auto" id="tagArea">
-                <div class="project_tags">
-                    @*<p>よく使うタグ</p>*@
-                    @foreach (var tag in @Model.TagsList){
-                        @*<div onclick=addTags("@tag") style="display:inline-block;color:#4d4d4d;background-color: #F7F7F7;padding:10px 20px;border-radius:3px;margin:5px;">@tag</div>*@
-                        <div onclick="addTags('@tag')" style="margin:5px;">#@tag</div>
+                <div>
+                    <p>よく使うタグ</p>
+                    @if(@Model.TagList != null){
+                        @foreach (var tag in @Model.TagList){
+			                @*<div onclick=addTags("@tag") style="display:inline-block;color:#4d4d4d;background-color: #F7F7F7;padding:10px 20px;border-radius:3px;margin:5px;">@tag</div>*@
+                            <div onclick=addTags("@tag") style="margin:5px;">#@tag</div>
+		                }
+                    }
+                </div>
+                <div>
+                    <p><i class="bi bi-journal-richtext"></i>アルバム</p>
+                    @if(@Model.AlbumList != null){
+                        @foreach (var album in @Model.AlbumList){
+                            <div style="margin:5px;">@album</div>
+		                }
                     }
                 </div>
             </div>
@@ -203,8 +197,6 @@
         @RenderBody()
 
     </div>
-
-
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip-utils/0.0.2/jszip-utils.min.js"></script>

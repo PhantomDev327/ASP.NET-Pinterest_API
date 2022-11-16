@@ -69,7 +69,7 @@ namespace nxPinterest.Services
                 //todo tagテーブルで検索に変更したい？どっちが早いか
                 if (!String.IsNullOrEmpty(searchKey))
                 {
-                    string[] listSearchKey = Regex.Split(searchKey.Trim(), "[ 　]+", RegexOptions.IgnoreCase);
+                    string[] listSearchKey = Regex.Split(searchKey.Trim(), "[, 　]+", RegexOptions.IgnoreCase);
 
                     foreach(var word in listSearchKey)
                     {
@@ -79,6 +79,30 @@ namespace nxPinterest.Services
 
                 IList<Data.Models.UserMedia> userMediaList = await query.OrderByDescending(c => c.MediaId)
                                                                         .Skip(skip).Take(take).ToListAsync();
+                return userMediaList;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        public async Task<IList<Data.Models.UserMedia>> SearchAlbumMediaAsync(string searchKey, int skip, int take)
+        {
+            try
+            {                
+                var userMediaList = await (
+                                        from um in _context.UserMedia.AsNoTracking()
+                                        join am in _context.UserAlbumMedias.AsNoTracking()
+                                        on um.MediaId equals am.UserMediaId
+                                        join ua in _context.UserAlbums.AsNoTracking()
+                                        on am.AlbumId equals ua.AlbumId
+                                        where ua.AlbumUrl.EndsWith(searchKey) && ua.AlbumVisibility == true && ua.AlbumDeletedat == null
+                                        && um.Status == 0 && um.Deleted == null
+                                        orderby am.AlbumMediaId descending
+                                        select um
+                                    )
+                                    .Skip(skip).Take(take).ToListAsync();
+
                 return userMediaList;
             }
             catch (Exception)

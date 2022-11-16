@@ -14,6 +14,8 @@ namespace nxPinterest.Services.Interfaces
         //Task<IList<Data.Models.UserMedia>> ListUserMediaAsyc(string userId = "");
         Task<IList<Data.Models.UserMedia>> SearchUserMediaAsync(string searchKey, int containerId, int skip = 0, int take = dev_Settings.displayMaxItems_search);
         //Task<IList<Data.Models.UserMedia>> SearchSimilarImagesAsync(UserMedia userMedia);
+        Task<IList<Data.Models.UserMedia>> SearchAlbumMediaAsync(string searchKey, int skip = 0, int take = dev_Settings.displayMaxItems_search);
+
         Task<UserMedia> GetUserMediaAsync(int mediaId);
         //Task<UserMediaDetailModel> GetUserMediaDetailsByIDAsync(int mediaId);
         Task<IList<Data.Models.UserMedia>> GetUserMediaSameTitleMediasAsync(UserMedia media);

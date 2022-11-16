@@ -22,14 +22,17 @@ namespace nxPinterest.Web.Controllers
         //private readonly ILogger<HomeController> _logger;
         public const int pageSize = nxPinterest.Services.dev_Settings.displayMaxItems_search;
         private readonly IUserMediaManagementService userMediaManagementService;
+        private readonly IUserAlbumService userAlbumService;
         private readonly ApplicationDbContext _context;
         //private CosmosDbService _cosmosDbService;
 
         public UserMediaController(ApplicationDbContext context,
-                                         IUserMediaManagementService mediaManagementService)
+                                    IUserMediaManagementService mediaManagementService,
+                                    IUserAlbumService userAlbumService)
         {
             this._context = context;
-            userMediaManagementService = mediaManagementService;
+            this.userMediaManagementService = mediaManagementService;
+            this.userAlbumService = userAlbumService;
         }
 
 
@@ -133,7 +136,11 @@ namespace nxPinterest.Web.Controllers
                     ////ViewBag.RelatedUserMediaList = JsonConvert.SerializeObject(vm.RelatedUserMediaList);
 
                     //よく使用されているタグ候補
-                    vm.TagsList = await this.userMediaManagementService.GetOftenUseTagsAsyc(user[0].container_id, searchKey, 30);
+                    vm.TagList = await this.userMediaManagementService.GetOftenUseTagsAsyc(user[0].container_id, searchKey, 30);
+
+                    //よく使用されているアルバムの一覧 TODO
+                    var album = await userAlbumService.GetAlbumUserByContainer(user[0].Id);
+                    vm.AlbumList = album.Select(a => a.AlbumName).ToList();
 
                     //return PartialView("/Views/Home/Details.cshtml", vm);
                     return View("/Views/UserMedia/Details.cshtml", vm);
