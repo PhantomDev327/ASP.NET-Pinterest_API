@@ -97,6 +97,37 @@ namespace nxPinterest.Data.Repositories
             _entities.Attach(entity);
             Context.Entry(entity).State = EntityState.Modified;
         }
+
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Attach then update entity, can specify properties to update, or update all except exclude properties
+        /// </summary>
+        /// <param name="entity">The entity to update</param>
+        /// <param name="updateProperties">if has value, update these properties instead all properties of entity</param>
+        /// <param name="excludeProperties">if has value, exclude these properties out of update process</param>
+        /// <returns>
+        /// The updated entity
+        /// </returns>
+        public T Update(T entity, List<Expression<Func<T, object>>> updateProperties = null, List<Expression<Func<T, object>>> excludeProperties = null)
+        {
+            _entities.Attach(entity);
+
+            if (updateProperties == null || updateProperties.Count == 0)
+            {
+                Context.Entry(entity).State = EntityState.Modified;
+                if (excludeProperties != null && excludeProperties.Count > 0)
+                {
+                    excludeProperties.ForEach(p => Context.Entry(entity).Property(p).IsModified = false);
+                }
+            }
+            else
+            {
+                updateProperties.ForEach(p => Context.Entry(entity).Property(p).IsModified = true);
+            }
+
+            return entity;
+        }
         #endregion
 
     }

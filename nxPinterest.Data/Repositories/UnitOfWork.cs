@@ -16,8 +16,25 @@ namespace nxPinterest.Data.Repositories
         #endregion
 
         #region Method
-        public async Task CompleteAsync() =>
-            await _context.SaveChangesAsync();
+        public int SaveChanges()
+        {
+            // If any error throw, handle exception by your own way
+            var record = _context.SaveChanges();
+            return record;
+        }
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Save any change in database context, with async task
+        /// </summary>
+        /// <returns>
+        /// Total effected records
+        /// </returns>
+        public async Task<int> SaveChangesAsync()
+        {
+            var record = await _context.SaveChangesAsync();
+            return record;
+        }
 
         protected virtual void Clean(bool disposing)
         {

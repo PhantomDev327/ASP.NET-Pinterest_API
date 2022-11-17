@@ -33,5 +33,15 @@ namespace nxPinterest.Data.Repositories.Interfaces
         int Count(Expression<Func<T, bool>> where);
 
         bool CheckContains(Expression<Func<T, bool>> predicate);
+
+
+        // <summary>
+        /// Attach then update entity, can specify properties to update, or update all except exclude properties
+        /// </summary>
+        /// <param name="entity">The entity to update</param>
+        /// <param name="updateProperties">if has value, update these properties instead all properties of entity</param>
+        /// <param name="excludeProperties">if has value, exclude these properties out of update process</param>
+        /// <returns>The updated entity</returns>
+        T Update(T entity, List<Expression<Func<T, object>>> updateProperties = null, List<Expression<Func<T, object>>> excludeProperties = null);
     }
 }
