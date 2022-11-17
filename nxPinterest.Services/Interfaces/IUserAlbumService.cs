@@ -20,5 +20,7 @@ namespace nxPinterest.Services.Interfaces
         Task<int> GetAlbumIdByNameAsync(string albumName);
 
         Task<DateTime?> GetCreateDateAlbumNameAsync(int albumId);
+
+        UserAlbum UpdateAlbumAsync(int albumId, UserAlbum model);
     }
 }

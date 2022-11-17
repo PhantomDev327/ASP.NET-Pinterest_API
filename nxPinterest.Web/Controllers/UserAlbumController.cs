@@ -5,6 +5,7 @@ using nxPinterest.Services.Models.Request;
 using System.Threading.Tasks;
 using nxPinterest.Services.Interfaces;
 using ImageMagick;
+using nxPinterest.Data.Models;
 using nxPinterest.Data.ViewModels;
 
 namespace nxPinterest.Web.Controllers
@@ -106,6 +107,30 @@ namespace nxPinterest.Web.Controllers
             };
 
             return Ok(new { StatusCode = 200, Data = albumVm, Message = "" });
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> Update(string oldAlbumName, string newAlbumName)
+        {
+            if (string.IsNullOrEmpty(oldAlbumName) || string.IsNullOrEmpty(newAlbumName))
+            {
+                return Ok(new { Success = false, Data= "" });
+            }
+
+            var albumId = await _userAlbumService.GetAlbumIdByNameAsync(oldAlbumName);
+
+            if (albumId == 0) return Ok(new { Success = false, Data = "" });
+
+            var model = new UserAlbum
+            {
+                AlbumId = albumId,
+                AlbumName = newAlbumName,
+                AlbumUpdatedat = DateTime.Now
+            };
+            var result = _userAlbumService.UpdateAlbumAsync(albumId, model);
+
+            return Ok(new { Success = true, Data = result });
         }
 
     }

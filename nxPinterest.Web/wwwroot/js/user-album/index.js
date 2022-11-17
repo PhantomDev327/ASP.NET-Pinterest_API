@@ -39,6 +39,45 @@
             });
 
         });
+        $('body').on('click', '#editMediaFolder', function (e) {
+            e.preventDefault();
+            $('#editUserMediaFolderModal').modal('show');
+            var $albumName = $('#album__name').text();
+            if ($albumName != null && $albumName != undefined) {
+                document.getElementById('oldAlbumName').value = $albumName;
+                document.getElementById('newAlbumName').value = $albumName;
+            }
+          
+        });
+
+        $('body').on('click', '#btnEditAlbum', function (e) {
+            e.preventDefault();
+            var $newAlbumName = document.getElementById('newAlbumName').value;
+            var $oldAlbumName = document.getElementById('oldAlbumName').value;
+            if ($newAlbumName != null && $newAlbumName != undefined) {
+                $.ajax({
+                    url: "/UserAlbum/Update",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        oldAlbumName: $oldAlbumName,
+                        newAlbumName: $newAlbumName
+                    },
+                    cache: false,
+                    success: function (result) {
+                        debugger;
+                        if (result.success) {
+                            document.getElementById('album__name').innerText = result.data.albumName;
+                            $('#editUserMediaFolderModal').modal('hide');
+                        }
+                    },
+                    error: function () {
+                        alert("保存できない.");
+                    }
+                });
+            }
+
+        });
 
         $('body').on('click', '#createMediaFolder, .createMediaFolder', function (e) {
             e.preventDefault();
