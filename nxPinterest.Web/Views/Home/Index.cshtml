@@ -112,10 +112,6 @@
     </script>
 
 <div id="blockGallery" class="multiImageSelect-noselect">
-    <div class="row" style="margin-left: 15px;">
-        <h2 id="album__name"></h2>
-        <p><strong id="album__date"></strong>&nbsp&nbsp<strong id="count__album"></strong></p>
-    </div>
     <div class="m-3">
         <div class="content gallery" id="contentGallery">
             <div class="thumbnail-container" id="thumbnail-container">
@@ -212,12 +208,20 @@
 
         function selectedAlbum(value) {
             initCol();
-            document.getElementById("album__name").innerHTML=value;
+            renderContentAlbum(value);
             loadImgByName(value);
             var element = document.getElementById('navbarSearchAndTag');
             if (element.classList.contains('show')) {
                 element.classList.remove("show");
             }
+        }
+        function renderContentAlbum(value) {
+            $(".content_album").empty();
+            $("#blockGallery").before(`<div class="row content_album" style="margin-left: 15px;">
+                                                    <h2><span id="album__name">${value}</span><span class="px-2 my-1" id="editMediaFolder"  style="font-size: 0.995rem; cursor: pointer;"><i class="bi bi-pencil-square"></i></span>
+                                            </h2>
+                                             <p><strong id="album__date"></strong>&nbsp&nbsp<strong id="count__album"></strong></p>
+                                       </div>`);
         }
         function dateToStr12H(date, format) {
             if (!format) {
