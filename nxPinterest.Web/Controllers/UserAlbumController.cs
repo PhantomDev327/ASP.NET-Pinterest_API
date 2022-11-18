@@ -113,9 +113,9 @@ namespace nxPinterest.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Update(string oldAlbumName, string newAlbumName)
         {
-            if (string.IsNullOrEmpty(oldAlbumName) || string.IsNullOrEmpty(newAlbumName))
+            if (string.IsNullOrEmpty(newAlbumName))
             {
-                return Ok(new { Success = false, Data= "" });
+                return Ok(new { Success = false, Message= "アルバム名を入力してください" });
             }
 
             var albumId = await _userAlbumService.GetAlbumIdByNameAsync(oldAlbumName);

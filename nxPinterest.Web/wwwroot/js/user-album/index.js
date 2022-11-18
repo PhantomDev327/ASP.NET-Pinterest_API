@@ -65,10 +65,11 @@
                     },
                     cache: false,
                     success: function (result) {
-                        debugger;
                         if (result.success) {
                             document.getElementById('album__name').innerText = result.data.albumName;
                             $('#editUserMediaFolderModal').modal('hide');
+                        } else {
+                            alert(result.message);
                         }
                     },
                     error: function () {
