@@ -120,7 +120,7 @@ namespace nxPinterest.Web.Controllers
 
             var albumId = await _userAlbumService.GetAlbumIdByNameAsync(oldAlbumName);
 
-            if (albumId == 0) return Ok(new { Success = false, Data = "" });
+            if (albumId == 0) return Ok(new { Success = false, Message = "" });
 
             var model = new UserAlbum
             {
