@@ -5,6 +5,7 @@ using nxPinterest.Services.Interfaces;
 using nxPinterest.Services.Models.Request;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace nxPinterest.Services
@@ -61,7 +62,7 @@ namespace nxPinterest.Services
                 else
                 {
                     await _userAlbumRepository.Add(userAlbum);
-                    await _unitOfWork.CompleteAsync();
+                    await _unitOfWork.SaveChangesAsync();
                 }
 
                 foreach (var item in model.UserAlbumMedias)
@@ -81,7 +82,7 @@ namespace nxPinterest.Services
                     await _userAlbumMediaRepository.Add(userAlbumMedia);
                 }
 
-                await _unitOfWork.CompleteAsync();
+                await _unitOfWork.SaveChangesAsync();
                 return true;
             }
             catch (Exception)
@@ -116,7 +117,7 @@ namespace nxPinterest.Services
                 };
 
                 await _userAlbumRepository.Add(userAlbum);
-                await _unitOfWork.CompleteAsync();
+                await _unitOfWork.SaveChangesAsync();
 
                 foreach (var item in model.UserAlbumMedias)
                 {
@@ -132,7 +133,7 @@ namespace nxPinterest.Services
                     await _userAlbumMediaRepository.Add(userAlbumMedia);
                 }
 
-                await _unitOfWork.CompleteAsync();
+                await _unitOfWork.SaveChangesAsync();
 
                 return !string.IsNullOrEmpty(userAlbum.AlbumUrl) ? userAlbum.AlbumUrl : string.Empty;
             }
@@ -150,6 +151,31 @@ namespace nxPinterest.Services
         public async Task<int> GetAlbumIdByPathUrlAsync(string pathUrl)
         {
             return await _userAlbumRepository.GetAlbumIdByPathUrl(pathUrl);
+        }
+
+        public async Task<int> GetAlbumIdByNameAsync(string albumName)
+        {
+            return await _userAlbumRepository.GetAlbumIdByName(albumName);
+        }
+
+        public async Task<DateTime?> GetCreateDateAlbumNameAsync(int albumId)
+        {
+            return await _userAlbumRepository.GetCreateDateAlbumName(albumId);
+        }
+
+        public UserAlbum UpdateAlbumAsync(int albumId, UserAlbum model)
+        {
+            var updateProps = new List<Expression<Func<UserAlbum, object>>>
+            {
+                x => x.AlbumUpdatedat,
+                x => x.AlbumName
+            };
+
+            var result = _userAlbumRepository.Update(model, updateProps);
+
+            _unitOfWork.SaveChanges();
+
+            return result;
         }
     }
 }

@@ -22,7 +22,7 @@ namespace nxPinterest.Data.Repositories
                    .Join(Context.UserMedia, p => p.UserMediaId, i => i.MediaId, (p, i) => new SharedLinkAlbumMediaViewModel
                    {
                        AlbumId = p.AlbumId,
-                       UserMediaName = p.UserMediaName,
+                       MediaFileName = p.UserMediaName,
                        MediaId = p.UserMediaId,
                        MediaUrl = i.MediaUrl,
                        MediaThumbnailUrl = i.MediaThumbnailUrl,

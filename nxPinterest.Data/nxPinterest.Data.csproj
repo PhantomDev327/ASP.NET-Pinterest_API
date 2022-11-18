@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Repositories\Interfaces\IBaseRepository.cs~RFc33a6a9.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Azure.Search.Documents" Version="11.4.0-beta.4" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.10" />
