@@ -177,5 +177,10 @@ namespace nxPinterest.Services
 
             return result;
         }
+
+        public async Task<bool> IsAlbumNameExistAsync(string albumName)
+        {
+            return await _userAlbumRepository.IsAlbumNameExist(albumName);
+        }
     }
 }

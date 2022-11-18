@@ -19,5 +19,7 @@ namespace nxPinterest.Data.Repositories.Interfaces
         Task<int> GetAlbumIdByName(string albumName);
 
         Task<DateTime?> GetCreateDateAlbumName(int albumId);
+
+        Task<bool> IsAlbumNameExist(string albumName);
     }
 }

@@ -66,10 +66,11 @@
                     cache: false,
                     success: function (result) {
                         if (result.success) {
-                            document.getElementById('album__name').innerText = result.data.albumName;
+                            document.getElementById('album__name').innerText = result.data;
                             $('#editUserMediaFolderModal').modal('hide');
                         } else {
-                            alert(result.message);
+                            document.getElementById('error_album').innerText = result.message;
+                            $('#editUserMediaFolderModal').modal('show');
                         }
                     },
                     error: function () {

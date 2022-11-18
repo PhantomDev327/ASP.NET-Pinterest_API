@@ -113,5 +113,12 @@ namespace nxPinterest.Data.Repositories
 
             return result != null ? result.AlbumCreatedat : null;
         }
+
+        public async Task<bool> IsAlbumNameExist(string albumName)
+        {
+            return await Context.UserAlbums
+                .Where(x => x.AlbumName==albumName)
+                .AnyAsync();
+        }
     }
 }

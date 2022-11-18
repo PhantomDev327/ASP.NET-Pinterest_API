@@ -118,6 +118,15 @@ namespace nxPinterest.Web.Controllers
                 return Ok(new { Success = false, Message= "アルバム名を入力してください" });
             }
 
+            if (oldAlbumName.Equals(newAlbumName))
+            {
+                return Ok(new { Success = true, Data = oldAlbumName });
+            }
+            if (await _userAlbumService.IsAlbumNameExistAsync(newAlbumName))
+            {
+                return Ok(new { Success = false, Message = "アルバム名が存在されました。他のアルバム名を入力してください。" });
+            }
+
             var albumId = await _userAlbumService.GetAlbumIdByNameAsync(oldAlbumName);
 
             if (albumId == 0) return Ok(new { Success = false, Message = "" });
@@ -130,7 +139,7 @@ namespace nxPinterest.Web.Controllers
             };
             var result = _userAlbumService.UpdateAlbumAsync(albumId, model);
 
-            return Ok(new { Success = true, Data = result });
+            return Ok(new { Success = true, Data = result.AlbumName });
         }
 
     }
