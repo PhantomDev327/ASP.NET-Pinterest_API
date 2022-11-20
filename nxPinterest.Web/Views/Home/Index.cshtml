@@ -127,7 +127,9 @@
 @{
     await Html.RenderPartialAsync("/Views/Shared/_ImageRegistration.cshtml", Model.ImageRegistrationVM);
 }
-
+@{
+    await Html.RenderPartialAsync("/Views/Shared/_EditAlbum.cshtml");
+}
 @section Scripts{
 <script src="~/lib/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
 <script src="~/lib/bootstrap-datepicker/locales/bootstrap-datepicker.ja.min.js"></script>
