@@ -78,7 +78,11 @@ namespace nxPinterest.Web.Controllers
 
             //よく使用されているアルバムの一覧 TODO
            var album = await userAlbumService.GetAlbumUserByContainer(user[0].Id);
-           vm.AlbumList = album.Select(a => a.AlbumName).ToList();
+           vm.AlbumList = album.Select(n=> new nxPinterest.Web.Models.UserAlbumViewModel
+           {
+               AlbumName = n.AlbumName,
+               AlbumUrl = n.AlbumUrl
+           }).ToList();
 
             //登録画面で使用されているタグ候補
             vm.ImageRegistrationVM.SuggestTagsList = vm.TagList;
