@@ -99,7 +99,7 @@
             let url = '';
             const $valueLink = $(this).data("albumurl");
             if ($valueLink != '') {
-                url = `${window.location.protocol}//${window.location.hostname}/shared/${$valueLink}`;
+                url = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/shared/${$valueLink}`;
             }
             let listener = (e) => {
                 let clipboard = e.clipboardData;
