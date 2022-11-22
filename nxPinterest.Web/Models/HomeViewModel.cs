@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using nxPinterest.Services.Models;
-using nxPinterest.Utils;
+﻿using System.Collections.Generic;
 
 namespace nxPinterest.Web.Models
 {
@@ -11,7 +6,7 @@ namespace nxPinterest.Web.Models
     {
         public string SearchKey { get; set; }
         public IList<string> TagList { get; set; }
-        public IList<string> AlbumList { get; set; }
+        public IList<UserAlbumViewModel> AlbumList { get; set; }
 
         //public Services.Models.Request.ImageRegistrationRequests ImageRegistrationRequests { get; set; } = new Services.Models.Request.ImageRegistrationRequests();
         public ImageRegisterViewModel ImageRegistrationVM { get; set; } = new ImageRegisterViewModel();
@@ -24,5 +19,13 @@ namespace nxPinterest.Web.Models
         public int TotalPages { get; set; }
         public int TotalRecords { get; set; }
         public virtual string Discriminator { get; set; }
+    }
+
+    public class UserAlbumViewModel
+    {
+        public string AlbumName { get; set; }
+
+        public string AlbumUrl { get; set; }
+
     }
 }

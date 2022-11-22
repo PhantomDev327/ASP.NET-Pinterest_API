@@ -140,7 +140,6 @@
         var shareAlbum = new shareUserAlbumMediaController();
            album.initialize();
            shareAlbum.initialize();
-
     </script>
     <script>
         $(document).ready(function () {
@@ -208,23 +207,25 @@
             });
         }
 
-        function selectedAlbum(value) {
+        function selectedAlbum(albumName, albumUrl) {
             initCol();
-            renderContentAlbum(value);
-            loadImgByName(value);
+            renderContentAlbum(albumName,albumUrl);
+            loadImgByName(albumName);
             var element = document.getElementById('navbarSearchAndTag');
             if (element.classList.contains('show')) {
                 element.classList.remove("show");
             }
         }
-        function renderContentAlbum(value) {
+
+        function renderContentAlbum(albumName, albumUrl) {
             $(".content_album").empty();
             $("#blockGallery").before(`<div class="row content_album" style="margin-left: 15px;">
-                                                    <h2><span id="album__name">${value}</span><span class="px-2 my-1" id="editMediaFolder"  style="font-size: 0.995rem; cursor: pointer;"><i class="bi bi-pencil-square"></i></span>
-                                            </h2>
-                                                     <p><strong id="album__date"></strong>&nbsp&nbsp・<strong id="count__album"></strong></p>
-                                       </div>`);
+                                                            <h2><span id="album__name">${albumName}</span><span class="px-2 my-1" id="editMediaFolder"  style="font-size: 0.995rem; cursor: pointer;"><i class="bi bi-pencil-square"></i></span>
+                                                    </h2>
+                                                            <p><strong id="album__date"></strong>&nbsp&nbsp・<strong id="count__album"></strong> <strong style="color:#0d6efd;">&nbsp&nbsp 共有する</strong> <i style="color:#0d6efd;cursor: pointer;" class="fa fa-copy" id="copyAlbum" data-albumurl="${albumUrl}" aria-hidden="true"></i></p>
+                                                       </div> <div id="tooltipAlbumCopy" data-toggle="tooltip" data-placement="top" title="コピーされました。"></div>`);
         }
+
         function dateToStr12H(date, format) {
             if (!format) {
                 format = 'Y/M/D h:m:s AP';

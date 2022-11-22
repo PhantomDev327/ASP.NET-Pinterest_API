@@ -91,9 +91,38 @@
                 e.preventDefault();
                 var $valueAlbumName = $(this).data("albumname");
                 document.getElementById("createUserMediaFolderName").value = $valueAlbumName != null && $valueAlbumName != '' ? $valueAlbumName : '';
-            });
+        });
+
+
+        $("body").on("click", "#copyAlbum", function (e) {
+            e.preventDefault();
+            let url = '';
+            const $valueLink = $(this).data("albumurl");
+            if ($valueLink != '') {
+                url = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/shared/${$valueLink}`;
+            }
+            let listener = (e) => {
+                let clipboard = e.clipboardData;
+                clipboard.setData('text/plain', url);
+                e.preventDefault();
+            };
+            document.addEventListener('copy', listener, false);
+            const copyResult = document.execCommand('copy');
+            document.removeEventListener('copy', listener, false);
+            mesageTooltipCopy();
+            // remove all ranges after copy
+            window.getSelection().removeAllRanges();
+            return copyResult;
+        });
     };
 
+    function mesageTooltipCopy() {
+        $('#tooltipAlbumCopy').tooltip('toggle');
+        $('.tooltip').addClass('tooltip-top');
+        setTimeout(function () {
+            $('#tooltipAlbumCopy').tooltip('hide');
+        }, 1000);
+    };
     function LoadAlbums() {
         $.ajax({
             url: "/UserAlbum/GetAlbums",

@@ -1,5 +1,4 @@
 ﻿@*@model HomeViewModel*@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -187,7 +186,7 @@
                     <p><i class="bi bi-journal-richtext"></i>アルバム<i class="bi bi-plus-circle float-end createMediaFolder"></i></p>
                     @if(@Model.AlbumList != null){
                         @foreach (var album in @Model.AlbumList){
-                            <div onclick="selectedAlbum('@album')" style="margin:5px; cursor: pointer">@album</div>
+                            <div onclick="selectedAlbum('@album.AlbumName','@album.AlbumUrl')" style="margin:5px; cursor: pointer">@album.AlbumName</div>
 		                }
                     }
                 </div>
