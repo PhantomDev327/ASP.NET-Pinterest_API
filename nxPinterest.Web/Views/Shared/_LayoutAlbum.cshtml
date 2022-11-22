@@ -36,12 +36,11 @@
                 </a>
                 <div class="form-inline mx-2">
                     <div class="col range-area">
-                        <span onclick="changeZoomOut();">
+                        <span id="changeZoomOut">
                             <i class="bi bi-dash fa-lg"></i>
                         </span>
-                        <input class="form-range range-custom w-50 h-50" id="changeZoomRange" type="range" min="0" max="6" step="1" onchange="changeZoom()">
-                        @*<input class="form-range w-50" id="changeZoomRange" type="range" min="0" max="6" step="1" onchange="changeZoom()">*@
-                        <span onclick="changeZoomIn();">
+                        <input class="form-range range-custom w-50 h-50" id="changeZoomRange" type="range" min="0" max="6" step="1">
+                        <span id="changeZoomIn">
                             <i class="bi bi-plus fa-lg"></i>
                         </span>
                     </div>

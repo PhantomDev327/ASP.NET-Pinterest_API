@@ -2,6 +2,7 @@
 
 	window.page = 1;
 	window.itemWidth = 250;
+	window.images = new Array();
 	var pathSharedUrl = window.location.pathname.split("/").pop();
 
 	this.initialize = function () {
@@ -19,7 +20,13 @@
 					loadImgaeAlbum(pathSharedUrl);
 				}
 			});
-
+			var timer = null;
+			$(window).on('resize', function () {
+				clearTimeout(timer);
+				timer = setTimeout(function () {
+					reloadImage();
+				}, 300);
+			});
 		});
 
 		$('body').on('click', '.previewButton', function (e) {
@@ -36,9 +43,60 @@
 			downloadUserMediaFile();
 
 		});
+
+
+		$('body').on('click', '#changeZoomOut', function (e) {
+			e.preventDefault();
+			var zoomSize = getCurrentZoomRange();
+			if (zoomSize <= 0) {
+				return;
+			}
+			document.getElementById("changeZoomRange").value = zoomSize - 1;
+			changeZoom();
+
+		});
+
+
+		$('body').on('click', '#changeZoomIn', function (e) {
+			e.preventDefault();
+			var zoomSize = getCurrentZoomRange();
+			if (zoomSize >= 6) {
+				return;
+			}
+			document.getElementById("changeZoomRange").value = zoomSize + 1;
+			changeZoom();
+
+		});
+
+		$('body').on('change', '#changeZoomRange', function (e) {
+			e.preventDefault();			
+			changeZoom();
+
+		});
 	};
+	function reloadImage() {
+		initCol();
+		window.images.forEach(function (data) {
+			data.forEach(function (value) {
+				appendData(value);
+			});
+		});
+	}
+	function changeZoom() {
+		var zoomSize = getCurrentZoomRange();
+		var rangeWidth = 50;
+		window.itemWidth = 100 + rangeWidth * zoomSize;
 
-
+		var timer = null;
+		clearTimeout(timer);
+		timer = setTimeout(function () {
+			reloadImage();
+		}, 300);
+	}
+	function getCurrentZoomRange() {
+		var changeZoomRange = document.getElementById("changeZoomRange");
+		return Number(changeZoomRange.value);
+	}
 	function getColNum(itemWidth) {
 		var col_num = Math.floor($(window).width() / itemWidth);
 		return col_num;
@@ -355,6 +413,7 @@
 	}
 
 	function loadImgaeAlbum(url) {
+		showLoader();
 		$.ajax({
 			url: "/UserAlbum/GetAlbumSharedLink/",
 			method: "POST",
@@ -364,19 +423,27 @@
 			},
 			success: function (result) {
 				if (result.statusCode === 200) {
+					window.images.push(result.data);
 					$.each(result.data, function (index, value) {
 						appendData(value);
 					});
+					
 				} else {
 
 					document.getElementById("content__error").innerText = result.message;
 					document.getElementById("error").innerText = "メッセージ";
 				}
 				window.page = window.page + 1;
+				hideLoader();
 			},
 			error: function () {
-
+				window.images.forEach(function (data) {
+					data.forEach(function (value) {
+						appendData(value);
+					});
+				});
 				window.page = window.page + 1;
+				hideLoader();
 			}
 		});
 	}
