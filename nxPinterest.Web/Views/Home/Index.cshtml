@@ -178,6 +178,13 @@
             window.page = 1;
             window.images = new Array();
             window.itemWidth = 250;
+            window.selectedMediaIdList = [];
+            if (window.selectedMediaIdList.length === 0) {
+                document.getElementById("createMediaFolder").className = "disabled-link";
+                document.getElementById("shareMedia").className = "disabled-link";
+                document.getElementById("downloadMedia").className = "disabled-link";
+                document.getElementById("deleteMedia").className = "disabled-link";
+            } 
             showLoader();
             $.ajax({
                 url: "@Url.Action("GetSelectedAlbums", "UserAlbum")",
