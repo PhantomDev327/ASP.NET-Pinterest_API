@@ -28,7 +28,6 @@
 				}, 300);
 			});
 		});
-
 		$('body').on('click', '.previewButton', function (e) {
 			e.preventDefault();
 			var mediaUrl = $(this).data('mediaurl');
@@ -76,7 +75,15 @@
 	};
 	function reloadImage() {
 		initCol();
-		window.images.forEach(function (data) {
+		// check unique array
+		const unique = window.images.reduce((data, current) => {
+			if (!data.some((x) => x.mediaId === current.mediaId)) {
+				data.push(current);
+			}
+			return data;
+		}, []);
+
+		unique.forEach(function (data) {
 			data.forEach(function (value) {
 				appendData(value);
 			});
