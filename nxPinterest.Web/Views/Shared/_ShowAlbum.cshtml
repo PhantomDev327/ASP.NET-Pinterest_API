@@ -1,18 +1,13 @@
 ﻿@model IEnumerable<nxPinterest.Data.ViewModels.UserAlbumViewModel>
 <div class="row">
-    <div class="col-md-12">
-        <h3 class="text-rigth">アルバムに追加</h3>
-        <input type="text" class="form-control" id="createUserMediaFolderName" placeholder="新しいアルバム">
-
+    <div class="form-group row">
+        <label for="createUserMediaFolderName" class="col-sm-4 col-form-label">新しいアルバム</label>
+        <div class="col-sm-8">
+            <input type="text" class="form-control" id="createUserMediaFolderName">
+            <button type="button" class="btn btn-outline-secondary btn-md mt-2" id="createUserMediaFolderButton">作成</button>
+        </div>
     </div>
 </div>
-
-<div class="row float-end">
-    <div class="col-md-12 mt-2">
-        <button type="button" class="btn btn-outline-secondary btn-md" id="createUserMediaFolderButton">作成</button>
-    </div>
-</div>
-
 <div class="clearfix"></div>
 <h6>アルバム</h6>
 <hr>
