@@ -167,6 +167,18 @@ function MultiImageSelectByMouse(opts) {
         self.options.onMultiSelectDone && self.options.onMultiSelectDone();
     }
 
+    $(this.options.targetArea).keyup(function (e) {
+        if (window.images && e.ctrlKey && (e.keyCode == 65 || e.keyCode == 97)) {
+            window.images.forEach(function (data) {
+                data.forEach(function (image) {
+                    var figureItemEle = $('figure[id="' + image.mediaId + '"]');
+                    figureItemEle.addClass(self.options.selectedClass);
+                });
+            });
+            self.options.onMultiSelectDone && self.options.onMultiSelectDone();
+        }
+    });
+
     return this;
 }
 
