@@ -99,15 +99,27 @@
 
 <script>
 	window.page = 1;
+    window.isFullImage = true;
+    window.fullAlbumName = "";
     window.images = new Array();
     window.itemWidth = 250;
     $(document).ready(function() {
         $(window).css('min-width', 500);
         initCol();
-        loadImg();
+        if (!window.isFullImage) {
+            loadImgByName(window.fullAlbumName);
+        } else {
+            loadImg();
+        }
         $(window).scroll(function() {
             if($(window).scrollTop() + $(window).height() == $(document).height()) {
-                loadImg();
+                initCol();
+                if (!window.isFullImage) {
+                    loadImgByName(window.fullAlbumName);
+                } else {
+                    loadImg();
+                }
+
             }
         });
         var timer = null;
@@ -137,7 +149,10 @@
     }
     function reloadImage() {
         initCol();
-        window.images.forEach(function (data) {
+        // check unique array
+        var arrayImages = checkUniqueArray(window.images);
+
+        arrayImages.forEach(function (data) {
             data.forEach(function (value) {
                 appendData(value);
             });

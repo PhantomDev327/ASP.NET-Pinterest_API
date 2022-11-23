@@ -26,6 +26,7 @@
     </div>*@
 @section Styles {
     <link href="~/lib/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <link href="~/css/albums/index.css" rel="stylesheet" />
 }
 
     <script>
@@ -150,6 +151,7 @@
         });
         function loadImg() {
             showLoader();
+            window.isFullImage = true;
             $.ajax({
                 url: "@Url.Action("getMedia", "UserMedia")",
                 method: "Post",
@@ -173,11 +175,25 @@
                 }
             });
         }
+        function checkUniqueArray(arrayData) {
 
+            if (arrayData.length === 0) return [];
+
+            const unique = arrayData.reduce((data, current) => {
+                if (!data.some((x) => x.mediaId === current.mediaId)) {
+                    data.push(current);
+                }
+                return data;
+            }, []);
+
+            return unique;
+        }
         function loadImgByName(albumname) {
+            window.isFullImage = false;
             window.page = 1;
             window.images = new Array();
             window.itemWidth = 250;
+            window.fullAlbumName = albumname;
             window.selectedMediaIdList = [];
             if (window.selectedMediaIdList.length === 0) {
                 document.getElementById("createMediaFolder").className = "disabled-link";
@@ -191,8 +207,9 @@
                 method: "Post",
                 data: { pageIndex: window.page, albumName: albumname },
                 success: function (result) {
-                    window.images.push(result.data.albums);
-                    $.each(result.data.albums, function (index, value) {
+                    var arrayData = checkUniqueArray(result.data.albums);
+                    window.images.push(arrayData);
+                    $.each(arrayData, function (index, value) {
                         appendData(value);
                     });
                     if(result.data.albums.length >0 ){
