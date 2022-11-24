@@ -99,25 +99,26 @@
 
 <script>
 	window.page = 1;
+    window.pageAlbum = 1;
     window.isFullImage = true;
     window.fullAlbumName = "";
     window.images = new Array();
+    window.imagesAlbum = new Array();
     window.itemWidth = 250;
     $(document).ready(function() {
         $(window).css('min-width', 500);
         initCol();
-        if (!window.isFullImage) {
-            loadImgByName(window.fullAlbumName);
-        } else {
+        if (window.isFullImage) {
             loadImg();
+        } else {
+            loadImgByName(window.fullAlbumName);
         }
         $(window).scroll(function() {
             if($(window).scrollTop() + $(window).height() == $(document).height()) {
-                initCol();
-                if (!window.isFullImage) {
-                    loadImgByName(window.fullAlbumName);
-                } else {
+                if (window.isFullImage) {
                     loadImg();
+                } else {
+                    loadImgByName(window.fullAlbumName);
                 }
 
             }
@@ -126,7 +127,11 @@
         $(window).on('resize', function(){
             clearTimeout(timer);
             timer = setTimeout(function() {
-                reloadImage();
+                if (window.isFullImage) {
+                    reloadImage();
+                } else {
+                    reloadImageAlbum();
+                }
             },300);
         });
     });
@@ -149,10 +154,15 @@
     }
     function reloadImage() {
         initCol();
-        // check unique array
-        var arrayImages = checkUniqueArray(window.images);
-
-        arrayImages.forEach(function (data) {
+        window.images.forEach(function (data) {
+            data.forEach(function (value) {
+                appendData(value);
+            });
+        });
+    }
+    function reloadImageAlbum() {
+        initCol();
+        window.imagesAlbum.forEach(function (data) {
             data.forEach(function (value) {
                 appendData(value);
             });
@@ -185,7 +195,7 @@
     }
     function onViewUserMediaDetails(media_id) {
         $("#imagePreview").html("");
-
+        window.isFullImage = true;
         OnGetUserMediaDetails(media_id).then(function (html) {
             $("#contentGallery").hide();
             $("#sectionPagination").hide();
@@ -232,7 +242,11 @@
         var timer = null;
         clearTimeout(timer);
         timer = setTimeout(function () {
-            reloadImage();
+            if (window.isFullImage) {
+                reloadImage();
+            } else {
+                reloadImageAlbum();
+            }
         }, 300);
     }
 
