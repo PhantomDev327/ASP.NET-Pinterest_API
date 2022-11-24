@@ -6,7 +6,7 @@ namespace nxPinterest.Web.Models
     {
         public string SearchKey { get; set; }
         public IList<string> TagList { get; set; }
-        public IList<UserAlbumViewModel> AlbumList { get; set; }
+        public IList<nxPinterest.Data.ViewModels.UserAlbumViewModel> AlbumList { get; set; }
 
         //public Services.Models.Request.ImageRegistrationRequests ImageRegistrationRequests { get; set; } = new Services.Models.Request.ImageRegistrationRequests();
         public ImageRegisterViewModel ImageRegistrationVM { get; set; } = new ImageRegisterViewModel();
@@ -21,11 +21,4 @@ namespace nxPinterest.Web.Models
         public virtual string Discriminator { get; set; }
     }
 
-    public class UserAlbumViewModel
-    {
-        public string AlbumName { get; set; }
-
-        public string AlbumUrl { get; set; }
-
-    }
 }
