@@ -175,24 +175,9 @@
                 }
             });
         }
-        function checkUniqueArray(arrayData) {
 
-            if (arrayData.length === 0) return [];
-
-            const unique = arrayData.reduce((data, current) => {
-                if (!data.some((x) => x.mediaId === current.mediaId)) {
-                    data.push(current);
-                }
-                return data;
-            }, []);
-
-            return unique;
-        }
         function loadImgByName(albumname) {
             window.isFullImage = false;
-            window.page = 1;
-            window.images = new Array();
-            window.itemWidth = 250;
             window.fullAlbumName = albumname;
             window.selectedMediaIdList = [];
             if (window.selectedMediaIdList.length === 0) {
@@ -205,33 +190,34 @@
             $.ajax({
                 url: "@Url.Action("GetSelectedAlbums", "UserAlbum")",
                 method: "Post",
-                data: { pageIndex: window.page, albumName: albumname },
+                data: { pageIndex: window.pageAlbum, albumName: albumname },
                 success: function (result) {
-                    var arrayData = checkUniqueArray(result.data.albums);
-                    window.images.push(arrayData);
-                    $.each(arrayData, function (index, value) {
+                    window.imagesAlbum.push(result.data.albums);
+                    $.each(result.data.albums, function (index, value) {
                         appendData(value);
                     });
                     if(result.data.albums.length >0 ){
                         document.getElementById("count__album").innerHTML = `${result.data.albums.length} 項目`;
                         document.getElementById("album__date").innerHTML = dateToStr12H(new Date(result.data.albumCreateDate), 'Y年M月D日 h:m:s AP');
                     }
-                    window.page = window.page + 1;
+                    window.pageAlbum = window.pageAlbum + 1;
                     hideLoader();
+                  
                 },
                 error: function () {
-                    window.images.forEach(function (data) {
+                    window.imagesAlbum.forEach(function (data) {
                         data.forEach(function (value) {
                             appendData(value);
                         });
                     });
-                    window.page = window.page + 1;
+                    window.pageAlbum = window.pageAlbum + 1;
                     hideLoader();
                 }
             });
         }
 
         function selectedAlbum(albumName, albumUrl) {
+            window.pageAlbum = 1;
             initCol();
             renderContentAlbum(albumName,albumUrl);
             loadImgByName(albumName);
