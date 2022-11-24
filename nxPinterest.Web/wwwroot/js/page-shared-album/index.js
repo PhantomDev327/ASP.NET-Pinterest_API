@@ -17,7 +17,6 @@
 			loadImgaeAlbum(pathSharedUrl);
 			$(window).scroll(function () {
 				if ($(window).scrollTop() + $(window).height() == $(document).height()) {
-					initCol();
 					loadImgaeAlbum(pathSharedUrl);
 				}
 			});
@@ -76,28 +75,11 @@
 	};
 	function reloadImage() {
 		initCol();
-		// check unique array
-		var arrayImages = checkUniqueArray(window.images);
-
-		arrayImages.forEach(function (data) {
+		window.images.forEach(function (data) {
 			data.forEach(function (value) {
 				appendData(value);
 			});
 		});
-	}
-
-	function checkUniqueArray(arrayData) {
-
-		if (arrayData.length === 0) return [];
-
-		const unique = arrayData.reduce((data, current) => {
-			if (!data.some((x) => x.mediaId === current.mediaId)) {
-				data.push(current);
-			}
-			return data;
-		}, []);
-
-		return unique;
 	}
 	function changeZoom() {
 		var zoomSize = getCurrentZoomRange();
@@ -440,8 +422,7 @@
 			},
 			success: function (result) {
 				if (result.statusCode === 200) {
-					var arrayImages = checkUniqueArray(result.data);
-					window.images.push(arrayImages);
+					window.images.push(result.data);
 					$.each(result.data, function (index, value) {
 						appendData(value);
 					});
@@ -455,8 +436,7 @@
 				hideLoader();
 			},
 			error: function () {
-				var arrayImages = checkUniqueArray(window.images);
-				arrayImages.forEach(function (data) {
+				window.images.forEach(function (data) {
 					data.forEach(function (value) {
 						appendData(value);
 					});
