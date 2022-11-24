@@ -3,6 +3,7 @@
 	window.page = 1;
 	window.itemWidth = 250;
 	window.images = new Array();
+	window.isLoadImage = false;
 	var pathSharedUrl = window.location.pathname.split("/").pop();
 
 	this.initialize = function () {
@@ -412,6 +413,8 @@
 	}
 
 	function loadImgaeAlbum(url) {
+		if (window.isLoadImage) return;
+		window.isLoadImage = true;
 		showLoader();
 		$.ajax({
 			url: "/UserAlbum/GetAlbumSharedLink/",
@@ -428,12 +431,12 @@
 					});
 					
 				} else {
-
 					document.getElementById("content__error").innerText = result.message;
 					document.getElementById("error").innerText = "メッセージ";
 				}
 				window.page = window.page + 1;
 				hideLoader();
+				window.isLoadImage = false;
 			},
 			error: function () {
 				window.images.forEach(function (data) {
@@ -443,6 +446,7 @@
 				});
 				window.page = window.page + 1;
 				hideLoader();
+				window.isLoadImage = false;
 			}
 		});
 	}
