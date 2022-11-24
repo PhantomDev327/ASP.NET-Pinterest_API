@@ -11,7 +11,7 @@ namespace nxPinterest.Web.Models
     {
         public string SearchKey { get; set; }
         public IList<string> TagList { get; set; }
-        public IList<string> AlbumList { get; set; }
+        public IList<nxPinterest.Data.ViewModels.UserAlbumViewModel> AlbumList { get; set; }
 
         public Data.Models.UserMedia UserMediaDetail { get; set; }
         public IList<Data.Models.UserMedia> SameTitleUserMediaList { get; set; }
