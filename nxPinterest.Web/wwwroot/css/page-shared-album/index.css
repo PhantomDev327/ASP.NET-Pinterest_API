@@ -255,3 +255,9 @@ figure.selection-border {
 .thumbnail-container figure:hover .previewButton {
     display: -webkit-box
 }
+.indicator-loader {
+    position: absolute;
+    left: 50%;
+    top: 45%;
+    z-index: 99999;
+}
