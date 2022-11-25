@@ -178,6 +178,8 @@
 
         function loadImgByName(albumname) {
             window.isFullImage = false;
+            if (window.isLoadAlbum) return;
+            window.isLoadAlbum = true;
             window.fullAlbumName = albumname;
             window.selectedMediaIdList = [];
             if (window.selectedMediaIdList.length === 0) {
@@ -202,7 +204,8 @@
                     }
                     window.pageAlbum = window.pageAlbum + 1;
                     hideLoader();
-                  
+                    window.isLoadAlbum = false;
+
                 },
                 error: function () {
                     window.imagesAlbum.forEach(function (data) {
@@ -212,6 +215,7 @@
                     });
                     window.pageAlbum = window.pageAlbum + 1;
                     hideLoader();
+                    window.isLoadAlbum = false;
                 }
             });
         }
