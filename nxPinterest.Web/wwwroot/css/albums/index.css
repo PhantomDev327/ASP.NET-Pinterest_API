@@ -1,13 +1,6 @@
-﻿
-@media (min-width:320px) { /* smartphones, portrait iPhone, portrait 480x320 phones (Android) */
+﻿@media only screen and (max-width: 600px) {
     .content_album {
-        margin-top: 120px;
-    }
-}
-
-@media (min-width:480px) { /* smartphones, Android phones, landscape iPhone */
-    .content_album {
-        margin-top: 100px ;
+        margin-top: 100px !important
     }
 }
 
