@@ -14,12 +14,13 @@
 	<div class="left-arrow-container arrow-key">
 		@*<a href="@Url.Action("Index", "Home", new { pageIndex = 1})">*@
 		<a href="#" onclick="history.back(-1);return false;">
-			<i class="fas fa-arrow-circle-left fa-3x"></i>
+@*			<i class="fas fa-arrow-circle-left fa-3x"></i>*@
+			<i class="fas fa-chevron-left fa-3x"></i>
 		</a>
 	</div>
 	<div class="modal-image-viewer" role="document">
 		<div class="modal-content">
-			<div class="modal-body bg-white" style="padding: 1rem;">
+			<div class="modal-body" style="padding: 1rem;">
 				<div class="row">
 					<div class="col-12 col-md-6 image-detail-col">
 						<div class="content h-100">
@@ -31,9 +32,21 @@
 								</div>
 							</div>
 							<div class="row">
-								<div class="slider">
-									@*<h6 style="color:#111111;margin-left: 0%;">Other images registered in &quot; @userMedia.MediaTitle &quot;</h6>*@
-									<h6 style="color:#111111;margin-left: 0%;">&quot; @userMedia.MediaTitle &quot; で登録されている他の画像 </h6>
+								<h3 style="text-align: left;">@userMedia.MediaTitle</h3>
+								<br />
+								<p class="media_desc" style="color:black;margin-left: 5px;">
+									@userMedia.MediaDescription
+								</p>
+								<br />
+								@*<p class="text-black tag-text">Tag</p>*@
+								<div class="project_tags">
+									@foreach (var tag in @Model.OriginalTagsList){
+										var url = "/?searchKey=" + tag;
+										<a href="@url"><div style="display:inline-block;color:#fff;background-color: #343a40;padding:10px 20px 10px 20px;border-radius:3px;margin-right:7px;margin-bottom:7px;">@tag</div></a>
+									}
+								</div>
+								<div class="slider" style="max-width:870px;">
+									<h6 style="color:#ccc;margin-left: 0%;">&quot; @userMedia.MediaTitle &quot; で登録されている他の画像 </h6>
 									<input type="radio" name="slide_switch" checked="checked" id="@userMedia.MediaId" value="@userMedia.MediaId"/>
 									<label for="@userMedia.MediaId" style="background-image:url('@userMedia.MediaThumbnailUrl');">
 									        
@@ -66,7 +79,7 @@
 								<div class="dots-image-container">
 									<div class="dropdown">
 										<button class="dropdown_btn" id="dropdown_btn">
-											<i class="fas fa-ellipsis-h fa-2x" style="color:black"></i>
+											<i class="fas fa-ellipsis-h fa-2x" style="color:white"></i>
 										</button>
 										<div class="dropdown_body">
 											<ul class="dropdown_list">
@@ -80,20 +93,7 @@
 											</ul>
 										</div>
 									</div>
-								</div>
-								<h3 style="color:black; text-align: left;">@userMedia.MediaTitle</h3>
-								<br />
-								<p class="media_desc" style="color:black;margin-left: 5px;">
-									@userMedia.MediaDescription
-								</p>
-								<br />
-								@*<p class="text-black tag-text">Tag</p>*@
-								<div class="project_tags">
-									@foreach (var tag in @Model.OriginalTagsList){
-										var url = "/?searchKey=" + tag;
-										<a href="@url"><div style="display:inline-block;color:#fff;background-color: #343a40;padding:10px 20px 10px 20px;border-radius:3px;margin-right:7px;margin-bottom:7px;">@tag</div></a>
-									}
-								</div>
+								</div>								
 
 								<input hidden asp-for="@userMedia.MediaId" name="MediaId" />
 							</div>
