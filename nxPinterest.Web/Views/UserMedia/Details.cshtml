@@ -154,7 +154,7 @@
 	            $('.image-detail-col h5').html(sResult.userMediaDetail.mediaTitle);
 				$('.image-detail-col .media_desc').html(sResult.userMediaDetail.mediaDescription);
 	            $('.project_tags').empty();
-				$.each(sResult.project_tags_list, function(index, value) {
+				$.each(sResult.originalTagsList, function(index, value) {
                     var url = '/' + "?searchKey=" + value;
 	                $('.project_tags').append('<a href='+url+'><div style="display:inline-block;color:#fff;background-color: #343a40;padding:10px 20px 10px 20px;border-radius:3px;margin-right:7px;margin-bottom:7px;">'+value +'</div></a>');
 	            });
