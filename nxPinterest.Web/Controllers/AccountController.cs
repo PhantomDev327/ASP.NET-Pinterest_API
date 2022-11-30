@@ -1012,7 +1012,7 @@ namespace nxPinterest.Web.Controllers
         {
             // コンテナ管理者のみ利用可能な機能
             var user = await this._userManager.FindByIdAsync(this.UserId);
-            if (user.Discriminator != "ContainerAdmin")
+            if (user.Discriminator != "SysAdmin" && user.Discriminator != "ContainerAdmin")
             {
                 TempData["Message"] = "Access Denied!";
                 return View("~/Views/Error/204.cshtml");
@@ -1038,7 +1038,7 @@ namespace nxPinterest.Web.Controllers
             {
                 // コンテナ管理者のみ利用可能な機能
                 var loginUser = await this._userManager.FindByIdAsync(this.UserId);
-                if (loginUser.Discriminator != "ContainerAdmin")
+                if (loginUser.Discriminator != "SysAdmin" && loginUser.Discriminator != "ContainerAdmin")
                 {
                     throw new Exception("Access Denied");
                 }
@@ -1130,7 +1130,7 @@ namespace nxPinterest.Web.Controllers
         {
             // コンテナ管理者のみ利用可能な機能
             var login = await this._userManager.FindByIdAsync(this.UserId);
-            if (login.Discriminator != "ContainerAdmin")
+            if (login.Discriminator != "SysAdmin" && login.Discriminator != "ContainerAdmin")
             {
                 TempData["Message"] = "Access Denied!";
                 return View("~/Views/Error/204.cshtml");
@@ -1163,7 +1163,7 @@ namespace nxPinterest.Web.Controllers
             {
                 // コンテナ管理者のみ利用可能な機能
                 var loginUser = await this._userManager.FindByIdAsync(this.UserId);
-                if (loginUser.Discriminator != "ContainerAdmin")
+                if (loginUser.Discriminator != "SysAdmin" && loginUser.Discriminator != "ContainerAdmin")
                 {
                     throw new Exception("Access Denied");
                 }
