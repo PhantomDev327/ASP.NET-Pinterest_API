@@ -75,9 +75,11 @@
 									<br />
 									<p class="text-black tag-text">Tag</p>
 									<div class="project_tags">
-										@foreach (var tag in @userMedia.OriginalTags){
-											var url = "/?searchKey=" + tag;
-											<a href="@url"><div style="display:inline-block;color:#fff;background-color: #343a40;padding:10px 20px 10px 20px;border-radius:3px;margin-right:7px;margin-bottom:7px;">@tag</div></a>
+										@if(@userMedia.OriginalTags != null){
+											@foreach (var tag in @userMedia.OriginalTags){
+												var url = "/?searchKey=" + tag;
+												<a href="@url"><div style="display:inline-block;color:#fff;background-color: #343a40;padding:10px 20px 10px 20px;border-radius:3px;margin-right:7px;margin-bottom:7px;">@tag</div></a>
+											}
 										}
 									</div>
 
