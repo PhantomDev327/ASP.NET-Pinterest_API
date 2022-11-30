@@ -25,22 +25,26 @@ using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Metadata.Profiles.Exif;
+using Microsoft.Extensions.Logging;
 
 namespace nxPinterest.Services
 {
     public class UserMediaManagementService : IUserMediaManagementService
     {
+        private readonly ILogger _logger;
         #region Field
         public ApplicationDbContext _context;
         private StorageBlobService _blobService;
         private CosmosDbService _cosmosDbService;
         #endregion
 
-        public UserMediaManagementService(ApplicationDbContext context)
+        public UserMediaManagementService(ApplicationDbContext context,
+                                ILogger<UserMediaManagementService> logger)
         {
             _context = context;
             _blobService = new StorageBlobService();
             _cosmosDbService = new CosmosDbService();
+            _logger = logger;
         }
 
         //public async Task<IList<Data.Models.UserMedia>> ListUserMediaAsyc(string userId = "")
@@ -309,23 +313,32 @@ namespace nxPinterest.Services
                         imgSharp.Save(smallimageStream, format);
                         smallimageStream.Seek(0, SeekOrigin.Begin);
 
-                        var sb = new StringBuilder(imgSharp.Metadata.ExifProfile.GetValue(ExifTag.DateTimeOriginal).Value);
-                        //var sb = new StringBuilder(imgSharp.Metadata.ExifProfile.GetValue(ExifTag.DateTime).Value);
-                        takeDateString = sb.Replace(":", "/", 0, 10).ToString();
-
+                        // 撮影日
+                        if (imgSharp.Metadata.ExifProfile == null)
+                        {
+                            takeDateString = "";
+                        }
+                        else
+                        {
+                            var sb = new StringBuilder(imgSharp.Metadata.ExifProfile.GetValue(ExifTag.DateTimeOriginal).Value);
+                            //var sb = new StringBuilder(imgSharp.Metadata.ExifProfile.GetValue(ExifTag.DateTime).Value);
+                            takeDateString = sb.Replace(":", "/", 0, 10).ToString();
+                        }
                     }
                 }
                 catch (Exception)
                 {
                     // ImageSharp Error
-                    throw new Exception("ImageSharp でサムネイルを作成ができませんでした。ファイルは登録されません");
+                    //throw new Exception("ImageSharp でサムネイルを作成ができませんでした。ファイルは登録されません");
+                    _logger.LogWarning("{DT} ImageSharp でサムネイルを作成ができませんでした。ファイルは登録されません", DateTime.UtcNow.ToLongTimeString());
                 }
 
 
                 // Upload file (small size)
                 var small_result = _blobService.UploadStreamBlobAsync(small, ContainerName, smallimageStream);
                 if (small_result == null)
-                    throw new Exception("Update small image fail!");
+                    //throw new Exception("Update small image fail!");
+                    _logger.LogWarning("{DT} Update small image fail!", DateTime.UtcNow.ToLongTimeString());
 
 
                 // Upload file (Original)
@@ -394,7 +407,7 @@ namespace nxPinterest.Services
                     userMedia.ContainerId = int.Parse(userContainerId);
                     userMedia.Status = 0;
                     userMedia.Uploaded = DateTime.Now;
-                    userMedia.Created = DateTime.ParseExact(takeDateString, "yyyy/MM/dd HH:mm:ss", null);
+                    userMedia.Created = string.IsNullOrEmpty(takeDateString) ? null : DateTime.ParseExact(takeDateString, "yyyy/MM/dd HH:mm:ss", null);
                     userMedia.Tags = "";
                     userMedia.AITags = string.Join(",", aitagsString.Split("|").Where(s => s!="").Select(s => s.Substring(0, s.IndexOf(":"))));
 
