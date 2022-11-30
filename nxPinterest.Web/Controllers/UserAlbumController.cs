@@ -75,11 +75,11 @@ namespace nxPinterest.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> GetAlbumSharedLink(int pageIndex,string pathUrl)
         {
-            if (string.IsNullOrWhiteSpace(pathUrl)) return Ok(new { StatusCode = 404, Data = "", Message = "Urlが間違っているか、Urlが存在しません。" });
+            if (string.IsNullOrWhiteSpace(pathUrl)) return Ok(new { StatusCode = 404, Data = "", Message = "リンクが間違っているか存在しません。" });
 
             var albumId = await _userAlbumService.GetAlbumIdByPathUrlAsync(pathUrl);
 
-            if (albumId == 0) return Ok(new { StatusCode = 404, Data = "", Message= "アルバムが存在されていません、または共有期限が切れました。" });
+            if (albumId == 0) return Ok(new { StatusCode = 404, Data = "", Message= "アルバムが存在しません。" });
 
             var data = await _userAlbumMediaService.GetListAlbumById(albumId, pageIndex);
 
