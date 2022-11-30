@@ -28,8 +28,11 @@ namespace nxPinterest.Data.Repositories
                        MediaThumbnailUrl = i.MediaThumbnailUrl,
                        MediaSmallUrl = i.MediaSmallUrl,
                        MediaDescription =i.MediaDescription,
-                       MediaTitle =i.MediaTitle
-                   }).Where(n => n.AlbumId == albumId).ToListAsync();
+                       MediaTitle =i.MediaTitle,
+                       Deleted = i.Deleted,
+                       Status = i.Status,
+                       AlbumMediaDeletedat = p.AlbumMediaDeletedat
+                   }).Where(n => n.AlbumId == albumId && n.Deleted == null && n.Status == 0 && n.AlbumMediaDeletedat == null).ToListAsync();
 
             return data.Skip((pageIndex - 1) * pageSize).Take(pageSize);
         }
