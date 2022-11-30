@@ -15,4 +15,8 @@ public class SharedLinkAlbumMediaViewModel
     public string MediaDescription { get; set; }
     public int PageIndex { get; set; } = 1;
     public DateTime? AlbumMediaCreatedat { get; set; }
+
+    public DateTime? AlbumMediaDeletedat { get; set; }
+    public DateTime? Deleted { get; set; }
+    public byte Status { get; set; }
 }
