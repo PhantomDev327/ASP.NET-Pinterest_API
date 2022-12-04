@@ -494,3 +494,7 @@ img.company-banner {
 .navbar-header .bootstrap-tagsinput .tag [data-role="remove"] {
     margin-left: 5px; 
 }
+
+.navbar-header {
+    user-select: none;
+}
