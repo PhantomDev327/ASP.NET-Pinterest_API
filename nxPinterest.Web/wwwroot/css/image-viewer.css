@@ -1,6 +1,7 @@
 ﻿.modal-image-viewer {
     width: 872px;
     margin: auto;
+    user-select: none;
 }
 .image-detail-col {
     width: 432px;
