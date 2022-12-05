@@ -270,12 +270,14 @@ namespace nxPinterest.Web.Controllers
                 //userMedia.ContainerId = vm.ContainerId;
 
                 var ret = this.userMediaManagementService.UpdateUserMedia(userMedia);
-                return Json(new { success = ret });
+                //return Json(new { success = ret });
+                return RedirectToAction("Details", "UserMedia", new { searchKey = vm.SearchKey, media_id = vm.MediaId });
             }
             catch (Exception ex)
             {
                 TempData["Message"] = ex.Message;
-                return Json(new { success = false, errMsg = ex.Message });
+                //return Json(new { success = false, errMsg = ex.Message });
+                return View();
             }
         }
         /// <summary>
@@ -337,8 +339,6 @@ namespace nxPinterest.Web.Controllers
         {
             return View(new Data.Models.ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
-
-
 
         /// <summary>
         /// Create Media File
