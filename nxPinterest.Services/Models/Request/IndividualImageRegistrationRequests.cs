@@ -17,12 +17,12 @@ namespace nxPinterest.Services.Models.Request
 
     public class ImageInfo
     {
-        [Required(ErrorMessage = "タイトルを入力してください")]
+        //[Required(ErrorMessage = "タイトルを入力してください")]
         public string Title { get; set; }
         public string Description { get; set; }
 
-        [Required(ErrorMessage = "写真をアップロードしてください")]
-        [MinLength(1)]
+        //[Required(ErrorMessage = "写真をアップロードしてください")]
+        //[MinLength(1)]
         public IFormFile Images { get; set; }
         public string OriginalTags { get; set; }
         public string AITags { get; set; }
