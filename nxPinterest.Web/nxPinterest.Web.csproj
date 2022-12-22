@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <Compile Remove="Controllers\ImageManagementController.cs" />
+    <Compile Remove="Controllers\MediaShareController.cs" />
     <Compile Remove="Models\FileInfo.cs" />
     <Compile Remove="Models\Tag.cs" />
     <Compile Remove="Models\TagList.cs" />
@@ -29,9 +30,11 @@
 
   <ItemGroup>
     <Content Remove="Views\Home\Details.cshtml" />
+    <Content Remove="Views\Home\ShareIndex.cshtml" />
     <Content Remove="Views\Home\_HomeImageContainer.cshtml" />
     <Content Remove="Views\Home\_HomeImageDetail.cshtml" />
     <Content Remove="Views\Shared\_ImageDetail.cshtml" />
+    <Content Remove="Views\Shared\_ImageLayout.cshtml" />
     <Content Remove="Views\Shared\_ImageViewer.cshtml" />
     <Content Remove="wwwroot\css\darkmode.css" />
     <Content Remove="wwwroot\css\styles.css" />
