@@ -2,12 +2,8 @@
 
 namespace nxPinterest.Web.Models
 {
-    public class HomeViewModel
+    public class HomeViewModel : BaseViewModel
     {
-        public string SearchKey { get; set; }
-        public IList<string> TagList { get; set; }
-        public IList<nxPinterest.Data.ViewModels.UserAlbumViewModel> AlbumList { get; set; }
-
         //public Services.Models.Request.ImageRegistrationRequests ImageRegistrationRequests { get; set; } = new Services.Models.Request.ImageRegistrationRequests();
         public ImageRegisterViewModel ImageRegistrationVM { get; set; } = new ImageRegisterViewModel();
         
@@ -18,7 +14,6 @@ namespace nxPinterest.Web.Models
         public int PageIndex { get; set; } = 1;
         public int TotalPages { get; set; }
         public int TotalRecords { get; set; }
-        public virtual string Discriminator { get; set; }
     }
 
 }

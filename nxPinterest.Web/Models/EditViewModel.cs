@@ -6,8 +6,10 @@ namespace nxPinterest.Web.Models
     /// <summary>
     /// UserMedia EditページのViewModel
     /// </summary>
-    public class EditViewModel
+    public class EditViewModel : BaseViewModel
     {
+        public Data.Models.UserMedia UserMediaDetail { get; set; }
+
         public int MediaId { get; set; }
         public string UserId { get; set; }
         public int ContainerId { get; set; }
