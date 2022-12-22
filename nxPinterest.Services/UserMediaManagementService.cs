@@ -47,12 +47,12 @@ namespace nxPinterest.Services
             _logger = logger;
         }
 
-        //public async Task<IList<Data.Models.UserMedia>> ListUserMediaAsyc(string userId = "")
+        //public async Task<IList<UserMedia>> ListUserMediaAsyc(string userId = "")
         //{
         //    var query = (this._context.UserMedia.AsNoTracking()
         //                             .Where(c => c.UserId.Equals(userId)));
 
-        //    IList<Data.Models.UserMedia> userMediaList = await query.OrderByDescending(c => c.MediaId).ToListAsync();
+        //    IList<UserMedia> userMediaList = await query.OrderByDescending(c => c.MediaId).ToListAsync();
 
         //    return userMediaList;
         //}
@@ -63,7 +63,7 @@ namespace nxPinterest.Services
         /// <param name="searchKey"></param>
         /// <param name="container_id"></param>
         /// <returns></returns>
-        public async Task<IList<Data.Models.UserMedia>> SearchUserMediaAsync(string searchKey, int container_id, int skip, int take)
+        public async Task<IList<UserMedia>> SearchUserMediaAsync(string searchKey, int container_id, int skip, int take)
         {
             try
             {
@@ -81,7 +81,7 @@ namespace nxPinterest.Services
                     }
                 }
 
-                IList<Data.Models.UserMedia> userMediaList = await query.OrderByDescending(c => c.MediaId)
+                IList<UserMedia> userMediaList = await query.OrderByDescending(c => c.MediaId)
                                                                         .Skip(skip).Take(take).ToListAsync();
                 return userMediaList;
             }
@@ -90,7 +90,7 @@ namespace nxPinterest.Services
                 throw;
             }
         }
-        public async Task<IList<Data.Models.UserMedia>> SearchAlbumMediaAsync(string searchKey, int skip, int take)
+        public async Task<IList<UserMedia>> SearchAlbumMediaAsync(string searchKey, int skip, int take)
         {
             try
             {                
@@ -131,7 +131,7 @@ namespace nxPinterest.Services
         /// </summary>
         /// <param name="media_id"></param>
         /// <returns></returns>
-        public async Task<IList<Data.Models.UserMedia>> GetUserMediaSameTitleMediasAsync(UserMedia media)
+        public async Task<IList<UserMedia>> GetUserMediaSameTitleMediasAsync(UserMedia media)
         {
             return await this._context.UserMedia.AsNoTracking()
                                  .Where(c => c.ContainerId.Equals(media.ContainerId) && c.MediaTitle.Equals(media.MediaTitle.TrimExtraSpaces())).ToListAsync();
@@ -143,7 +143,7 @@ namespace nxPinterest.Services
         /// </summary>
         /// <param name="media_id"></param>
         /// <returns></returns>
-        public async Task<IList<Data.Models.UserMedia>> GetUserMediaRelatedMediasAsync(UserMedia media, int skip, int take)
+        public async Task<IList<UserMedia>> GetUserMediaRelatedMediasAsync(UserMedia media, int skip, int take)
         {
             try
             {
@@ -212,58 +212,41 @@ namespace nxPinterest.Services
         /// <returns></returns>
         public async Task<IList<string>> GetOftenUseTagsAsyc(int containerId, string searchKey, int take)
         {
-            if (!String.IsNullOrEmpty(searchKey))
+            //30日以内にアップロードした写真が対象
+            var subquery = await this._context.UserMedia.AsNoTracking()
+                                .Where(c => c.ContainerId.Equals(containerId) && c.Uploaded >= DateTime.Today.AddDays(-30))
+                                .Select(s => new { s.MediaFileName, s.SearchText }).ToListAsync();
+
+            if (String.IsNullOrEmpty(searchKey)) searchKey = "";
+
+            string[] listSearchKey = Regex.Split(searchKey.Trim(), "[ 　]+", RegexOptions.IgnoreCase);
+
+            foreach (var word in listSearchKey)
             {
-                string[] listSearchKey = Regex.Split(searchKey.Trim(), "[ 　]+", RegexOptions.IgnoreCase);
+                subquery = subquery.Where(s => s.SearchText.Contains(word)).ToList();
+            }
+            
+            var targetmedias = subquery.Select(s => s.MediaFileName);
 
-                //60日以内に撮影した写真が対象
-                var subquery = await this._context.UserMedia.AsNoTracking()
-                                    .Where(c => c.ContainerId.Equals(containerId) && c.Created>=DateTime.Today.AddDays(-60))
-                                    .Select(s => new { s.MediaFileName, s.SearchText }).ToListAsync();
-
-                foreach (var word in listSearchKey)
-                {
-                    subquery = subquery.Where(s => s.SearchText.Contains(word)).ToList();
-                }
-                var targetmedias = subquery.Select(s => s.MediaFileName);
-
-                var query = await this._context.UserMediaTags.AsNoTracking()
+            var query = await this._context.UserMediaTags.AsNoTracking()
                                     .Where(s => targetmedias.Contains(s.UserMediaName) && s.TagsType==1)
                                     .GroupBy(g => g.Tag)
                                     .OrderByDescending(w => w.Count())
                                     .Select(s => s.Key).Take(take).ToListAsync();
 
-                //キーワード除外
-                foreach (var word in listSearchKey)
-                {
-                    query.RemoveAll(r => r.Equals(word));
-                }
-
-                return query;
-            }
-            else
+            //キーワード除外
+            foreach (var word in listSearchKey)
             {
-                //TODO
-                //var query = await this._context.UserMediaTags.AsNoTracking()
-                //                    .Where(c => c.ContainerId.Equals(containerId) && c.TagsType == 1 && c.Created >= DateTime.Today.AddDays(-60))
-                //                    .GroupBy(g => g.Tag)
-                //                    .OrderByDescending(w => w.Count())
-                //                    .Select(s => s.Key).Take(take).ToListAsync();
-
-                //60日以内に撮影した写真が対象
-                var subquery = await this._context.UserMedia.AsNoTracking()
-                                    .Where(c => c.ContainerId.Equals(containerId) && c.Created >= DateTime.Today.AddDays(-60))
-                                    .Select(s => new { s.MediaFileName, s.SearchText }).ToListAsync();
-
-                var targetmedias = subquery.Select(s => s.MediaFileName);
-
-                var query = await this._context.UserMediaTags.AsNoTracking()
-                                    .Where(s => targetmedias.Contains(s.UserMediaName) && s.TagsType == 1)
-                                    .GroupBy(g => g.Tag)
-                                    .OrderByDescending(w => w.Count())
-                                    .Select(s => s.Key).Take(take).ToListAsync();
-                return query;
+                query.RemoveAll(r => r.Equals(word));
             }
+
+            return query;
+
+            //    var query = await this._context.UserMediaTags.AsNoTracking()
+            //                        .Where(c => c.ContainerId.Equals(containerId) && c.TagsType == 1 && c.Created >= DateTime.Today.AddDays(-60))
+            //                        .GroupBy(g => g.Tag)
+            //                        .OrderByDescending(w => w.Count())
+            //                        .Select(s => s.Key).Take(take).ToListAsync();
         }
 
         /// <summary>
@@ -298,6 +281,7 @@ namespace nxPinterest.Services
                 string original = String.Format(blobFilePath, userContainerId, "original", blobFileName);
                 string small = String.Format(blobFilePath, userContainerId, "small", blobFileName);
                 string thumb = String.Format(blobFilePath, userContainerId, "thumb", blobFileName);
+                string thumbUrl = "https://sozosya.blob.core.windows.net/pinterest/1/thumb/noimage.png";
 
                 // Upload file (no Validation)
                 //Stream imageStream = file.OpenReadStream();
@@ -334,9 +318,22 @@ namespace nxPinterest.Services
                         }
                         else
                         {
-                            var sb = new StringBuilder(imgSharp.Metadata.ExifProfile.GetValue(ExifTag.DateTimeOriginal).Value);
-                            //var sb = new StringBuilder(imgSharp.Metadata.ExifProfile.GetValue(ExifTag.DateTime).Value);
-                            takeDateString = sb.Replace(":", "/", 0, 10).ToString();
+                            var exif = imgSharp.Metadata.ExifProfile.GetValue(ExifTag.DateTimeOriginal)?.Value;
+                            if (string.IsNullOrEmpty(exif))
+                            {
+                                takeDateString = "";
+                            }
+                            else
+                            {
+                                var sb = new StringBuilder(imgSharp.Metadata.ExifProfile.GetValue(ExifTag.DateTimeOriginal).Value);
+                                //var sb = new StringBuilder(imgSharp.Metadata.ExifProfile.GetValue(ExifTag.DateTime).Value);
+                                takeDateString = sb.Replace(":", "/", 0, 10).ToString();
+                                //TODO yyyy/MM/dd HH:mm: というデータがきた
+                                if (takeDateString.Length < "1976/12/19 23:59:59".Length)
+                                {
+                                    takeDateString = takeDateString.TrimEnd() + "00";
+                                }
+                            }
                         }
                     }
                 }
@@ -383,14 +380,29 @@ namespace nxPinterest.Services
                     aitagsString = cv.GetImageTag_str(small_result.Result.Uri.ToString());
                     if (String.IsNullOrEmpty(aitagsString))
                     {
-                        // Computer Vision Error
-                        throw new Exception("Computer Vision による解析ができませんでした。ファイルは登録されません");
+                        // Computer Vision Error ⇒ 正常で解析されない写真もあり
+                        //throw new Exception("Computer Vision による解析ができませんでした。ファイルは登録されません");
                     }
 
                     // Get thumbnail data
                     using var stream = cv.GetThumbnail(small_result.Result.Uri.ToString());
                     stream.CopyTo(thumbnailStream);
                     thumbnailStream.Seek(0, SeekOrigin.Begin);
+
+                    //サムネイル作成に失敗したらnoimageで登録しておく
+                    if (thumbnailStream != null)
+                    {
+                        // Upload file (thumbnai)
+                        var thumb_result = _blobService.UploadStreamBlobAsync(thumb, ContainerName, thumbnailStream);
+                        if (thumb_result == null)
+                            throw new Exception("Update thumbnail image fail!");
+
+                        thumbUrl = thumb_result.Result.Uri.ToString();
+                    }
+                    else
+                    {
+                        thumbUrl = "https://sozosya.blob.core.windows.net/pinterest/1/thumb/noimage.png";
+                    }
                 }
                 catch (Exception)
                 {
@@ -398,11 +410,6 @@ namespace nxPinterest.Services
                     //TODO エラーでも登録
                     //throw new Exception("Computer Vision による解析ができませんでした。ファイルは登録されません");
                 }
-
-                // Upload file (thumbnai)
-                var thumb_result = _blobService.UploadStreamBlobAsync(thumb, ContainerName, thumbnailStream);
-                if (thumb_result == null)
-                    throw new Exception("Update thumbnail image fail!");
 
                 try
                 {
@@ -412,7 +419,7 @@ namespace nxPinterest.Services
                     userMedia.MediaFileType = blobFileName.Split('.').Last();
                     userMedia.MediaUrl = result.Result.Uri.ToString();
                     userMedia.MediaSmallUrl = small_result.Result.Uri.ToString();
-                    userMedia.MediaThumbnailUrl = thumb_result.Result.Uri.ToString();
+                    userMedia.MediaThumbnailUrl = thumbUrl;
                     userMedia.MediaTitle = request.Title;
                     userMedia.MediaDescription = request.Description ?? "";
                     userMedia.ContainerId = int.Parse(userContainerId);
@@ -564,9 +571,22 @@ namespace nxPinterest.Services
                         }
                         else
                         {
-                            var sb = new StringBuilder(imgSharp.Metadata.ExifProfile.GetValue(ExifTag.DateTimeOriginal).Value);
-                            //var sb = new StringBuilder(imgSharp.Metadata.ExifProfile.GetValue(ExifTag.DateTime).Value);
-                            takeDateString = sb.Replace(":", "/", 0, 10).ToString();
+                            var exif = imgSharp.Metadata.ExifProfile.GetValue(ExifTag.DateTimeOriginal)?.Value;
+                            if (string.IsNullOrEmpty(exif))
+                            {
+                                takeDateString = "";
+                            }
+                            else
+                            {
+                                var sb = new StringBuilder(imgSharp.Metadata.ExifProfile.GetValue(ExifTag.DateTimeOriginal).Value);
+                                //var sb = new StringBuilder(imgSharp.Metadata.ExifProfile.GetValue(ExifTag.DateTime).Value);
+                                takeDateString = sb.Replace(":", "/", 0, 10).ToString();
+                                //TODO yyyy/MM/dd HH:mm: というデータがきた
+                                if (takeDateString.Length < "1976/12/19 23:59:59".Length)
+                                {
+                                    takeDateString = takeDateString.TrimEnd() + "00";
+                                }
+                            }
                         }
                     }
                 }
@@ -614,8 +634,8 @@ namespace nxPinterest.Services
                     aitagsString = cv.GetImageTag_str(small_result.Result.Uri.ToString());
                     if (String.IsNullOrEmpty(aitagsString))
                     {
-                        // Computer Vision Error
-                        throw new Exception("Computer Vision による解析ができませんでした。ファイルは登録されません");
+                        // Computer Vision Error ⇒ 正常に解析されない写真もあり
+                        //throw new Exception("Computer Vision による解析ができませんでした。ファイルは登録されません");
                     }
 
                     // Get thumbnail data
@@ -800,6 +820,122 @@ namespace nxPinterest.Services
             catch (Exception)
             {
                 throw new Exception("SQL database への登録に失敗しました");
+            }
+        }
+        /// <summary>
+        /// Create UserMedia
+        /// </summary>
+        /// <param name="UserId">UserId current</param>
+        public void thumbnailRecovery(string UserId)
+        {
+            // Upload image file to Azure Blob
+            string ContainerName = dev_Settings.blob_containerName_image;
+            ////string ContainerNameThumb = dev_Settings.blob_containerName_thumb;
+
+            // Login User
+            var user = this._context.Users.Where(c => c.Id.Equals(UserId)).FirstOrDefault();
+            string userContainerId = user.container_id.ToString();
+
+            var noImageList = _context.UserMedia.Where(w => w.MediaThumbnailUrl.Contains("noimage") && w.ContainerId==user.container_id)
+                            .ToList();
+
+            // File Loop
+            foreach (var userMedia in noImageList)
+            {
+                string thumbUrl = "";
+                string thumbPath = String.Format("{0}/{1}/{2}", userContainerId, "thumb", userMedia.MediaFileName + "." + userMedia.MediaFileType);
+                string aitagsString = "";
+
+                // Get tags by Computer Vision API
+                try
+                {
+                    ComputerVisionService cv = new ComputerVisionService();
+
+                    aitagsString = cv.GetImageTag_str(userMedia.MediaSmallUrl);
+                    if (String.IsNullOrEmpty(aitagsString))
+                    {
+                        // Computer Vision Error ⇒ 正常に解析されない写真もあり
+                        //throw new Exception("Computer Vision による解析ができませんでした。ファイルは登録されません");
+                    }
+
+                    // Get thumbnail data
+                    var thumbnailStream = new MemoryStream();
+                    using var stream = cv.GetThumbnail(userMedia.MediaSmallUrl);
+                    stream.CopyTo(thumbnailStream);
+                    thumbnailStream.Seek(0, SeekOrigin.Begin);
+
+                    //サムネイル作成に失敗したらnoimageで登録しておく
+                    if (thumbnailStream != null)
+                    {
+                        // Upload file (thumbnai)
+                        var thumb_result = _blobService.UploadStreamBlobAsync(thumbPath, ContainerName, thumbnailStream);
+                        if (thumb_result == null)
+                            throw new Exception("Update thumbnail image fail!");
+
+                        thumbUrl = thumb_result.Result.Uri.ToString();
+                    }
+                    else
+                    {
+                        thumbUrl = "https://sozosya.blob.core.windows.net/pinterest/1/thumb/noimage.png";
+                    }
+                }
+                catch (Exception)
+                {
+                    // Computer Vision Error
+                    //throw new Exception("Computer Vision による解析ができませんでした。ファイルは登録されません");
+                }
+
+                try
+                {
+                    // Get tags by ProjectTags
+                    string originalTagsWithScore = "";
+                    string originalTags = "";
+                    if (!string.IsNullOrEmpty(userMedia.OriginalTags))
+                    {
+                        originalTags = userMedia.OriginalTags.Trim().Replace("|", ",");
+                        originalTagsWithScore = userMedia.OriginalTags.Trim().Replace(",", ":1.0:1|");
+                        originalTagsWithScore += ":1.0:1|";
+                    }
+
+                    if (!string.IsNullOrEmpty(userMedia.OriginalTags))
+                    {
+                        userMedia.Tags = originalTagsWithScore;
+                    }
+
+                    userMedia.AITags = string.Join(",", aitagsString.Split("|").Where(s => s != "").Select(s => s.Substring(0, s.IndexOf(":"))));
+                    userMedia.Tags += aitagsString;
+                    userMedia.MediaThumbnailUrl = thumbUrl;
+                    _context.Update(userMedia);
+
+                    // tagテーブル
+                    UserMediaTags userMediaTags = new UserMediaTags();
+
+                    //cv解析のtag
+                    foreach (var tag in aitagsString.Split("|")
+                                                .Where(x => x != "")
+                                                .Select(x => x.Split(":"))
+                                                .GroupBy(x => x[0])
+                                                .Select(x => new { Name = x.Key, Score = x.Max(m => m[1]) }))
+                    {
+                        //cv解析のtagはtype=2
+                        //if (tag == "") break;
+                        //var tagstr = tag.Split(":");
+                        userMediaTags = new UserMediaTags();
+                        userMediaTags.UserMediaName = userMedia.MediaFileName;
+                        userMediaTags.ContainerId = userMedia.ContainerId;
+                        userMediaTags.TagsType = 2;
+                        userMediaTags.Tag = tag.Name;
+                        userMediaTags.Confidence = double.Parse(tag.Score);
+                        userMediaTags.Created = DateTime.Now;
+                        _context.UserMediaTags.Add(userMediaTags);
+                    }
+                    // save
+                    _context.SaveChanges();
+                }
+                catch (Exception)
+                {
+                    throw new Exception("SQL database への登録に失敗しました");
+                }
             }
         }
     }

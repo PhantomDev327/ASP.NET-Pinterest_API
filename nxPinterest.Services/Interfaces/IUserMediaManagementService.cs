@@ -27,5 +27,6 @@ namespace nxPinterest.Services.Interfaces
         public void UploadMediaFile(ImageRegistrationRequests request, string UserId);
         public void UploadIndividualMediaFile(IndividualImageRegistrationRequests request, string UserId);
         public bool UpdateUserMedia(UserMedia userMedia);
+        public void thumbnailRecovery(string UserId);
     }
 }
