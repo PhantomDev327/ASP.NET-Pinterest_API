@@ -353,8 +353,10 @@ namespace nxPinterest.Web.Controllers
             // Validate param
             if (!ModelState.IsValid)
             {
+                //return View();
                 // To Do
-                TempData["Message"] = "Validate fails!";
+                //TempData["Message"] = "Validate fails!";
+                TempData["Message"] = "No title entered.";
                 return View("~/Views/Error/204.cshtml");
             }
 
@@ -365,10 +367,10 @@ namespace nxPinterest.Web.Controllers
                 {
                     return IndividualImageRegistration();
                 }
-                IndividualImageRegistrationRequests individual = new IndividualImageRegistrationRequests();
+                IndividualImageRegisterViewModel individual = new IndividualImageRegisterViewModel();
                 foreach (var file in request.Images)
                 {
-                    ImageInfo imageInfo = new ImageInfo();
+                    RegisterImageInfo imageInfo = new RegisterImageInfo();
                     imageInfo.Images = file;
                     imageInfo.Title = request.Title;
                     imageInfo.Description = request.Description;
@@ -395,13 +397,33 @@ namespace nxPinterest.Web.Controllers
         }
 
         /// <summary>
+        /// Create Media File
+        /// </summary>
+        /// <param name="request">Form Data</param>
+        /// <returns></returns>
+        public IActionResult thumbnailRecovery()
+        {
+            // Store
+            try
+            {
+                userMediaManagementService.thumbnailRecovery(UserId);
+            }
+            catch (Exception ex)
+            {
+                TempData["Message"] = ex.Message;
+                return View("~/Views/Error/204.cshtml");
+            }
+            return RedirectToAction("Index", "Home");
+        }
+
+        /// <summary>
         /// 個別編集
         /// </summary>
         /// <returns></returns>
         public IActionResult IndividualImageRegistration()
         {
             CreateImageDirectory();
-            Services.Models.Request.IndividualImageRegistrationRequests vm = new Services.Models.Request.IndividualImageRegistrationRequests();
+            IndividualImageRegisterViewModel vm = new IndividualImageRegisterViewModel();
             return this.View("~/Views/Shared/IndividualImageRegistration.cshtml", vm);
         }
 
@@ -463,7 +485,7 @@ namespace nxPinterest.Web.Controllers
         /// <param name="request">Form Data</param>
         /// <returns></returns>
         [HttpPost]
-        public IActionResult UploadImageFileHidden(IndividualImageRegistrationRequests request)
+        public IActionResult UploadImageFileHidden(IndividualImageRegisterViewModel request)
         {
             request.imageInfoListSize = request.ImageInfoList.Count;
 
@@ -472,7 +494,7 @@ namespace nxPinterest.Web.Controllers
             string path2 = "/images/temp/" + this.UserId + "/";
 
             for (int i = 0; i < request.imageInfoListSize; i++){
-                ImageInfo img = request.ImageInfoList[i];
+                RegisterImageInfo img = request.ImageInfoList[i];
 
                 if (img.Images != null)
                 {
