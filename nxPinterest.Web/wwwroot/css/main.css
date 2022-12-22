@@ -2,7 +2,6 @@ body {
   color: #ffffff;
   background-color: #000;
 }
-
 .certification-card {
   width: 80vw;
   max-width: 400px;
@@ -43,13 +42,11 @@ img.company-banner {
 .certification a:hover {
   color: #343a40;
 }
-
 .certification a h5 {
   padding-top: unset;
   font-size: 0.9rem;
   margin-top: 7%;
 }
-
 .btn-default {
   background-color: #343a40;
   border: none;
@@ -60,7 +57,6 @@ img.company-banner {
 .btn-default:hover {
   color: #eef2f7;
 }
-
 .btn-login,
 .btn-register,
 .btn-submit {
@@ -73,9 +69,8 @@ img.company-banner {
   border: 1px solid #dee2e6;
   border-radius: 3px;
   border: none;
-  height: 35px;
+  /*height: 35px;*/
 }
-
 .certification-card .certification.text-color-white {
   position: relative;
 }
@@ -102,7 +97,6 @@ input[type='email'] + .field-validation-error,
 .text-color-default {
   color: #343a40;
 }
-
 /* ===  修正＠画像アップロード画面[写真を投稿]ボタンhoverでボタン消える  =============== */
 input#upload_submit {
   border: 1px solid #fff;
@@ -111,14 +105,22 @@ input#upload_submit:hover {
   color: #131313;
   border: 1px solid #131313;
 }
-
 /* ===============  修正＠写真を多めにアップしようとするとはみ出てしまう  =============== */
-/* #image-registration-modal #dropzoneForm {
-  overflow-y: scroll;
-} */
-#image-registration-modal .scrollspy-example {
-  height: auto !important;
+#image-registration-modal #dropzoneForm {
+  overflow-y: scroll !important;
 }
+#image-registration-modal #dropzoneForm::-webkit-scrollbar {
+    width: 10px;
+}
+#image-registration-modal #dropzoneForm::-webkit-scrollbar-track {
+    background: #dfdfdf;
+}
+#image-registration-modal #dropzoneForm::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+}
+/* #image-registration-modal .scrollspy-example {
+  height: auto !important;
+} */
 /* ===============  修正＠文字と画像をセンター配置  =============== */
 #image-registration-modal #dropzoneForm .dz-message {
   width: calc(100% - 20px);

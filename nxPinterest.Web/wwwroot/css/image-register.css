@@ -41,12 +41,6 @@ h4 {
     opacity: 0.5;
 }
 
-.register-btn {
-    width: 100px;
-    background-color: #1c6de6c5;
-    border: 0px;
-}
-
 .img-thum {
     width: 100% !important;
 }
@@ -67,20 +61,20 @@ h4 {
     font-size: 12px;
 }
 
-    .tag_list.tag_list_hide {
-        display: none;
-    }
+.tag_list.tag_list_hide {
+    display: none;
+}
 
-    .tag_list span {
-        position: absolute;
-        right: 8px;
-        top: 10px;
-        cursor: pointer;
-    }
+.tag_list span {
+    position: absolute;
+    right: 8px;
+    top: 10px;
+    cursor: pointer;
+}
 /* Tag style */
 
-.btn-save, .btn-delete, .reigster-btn {
-    width: 100px;
+.btn-save, .btn-delete, .register-btn {
+    width: 200px;
     height: 50px;
 }
 
