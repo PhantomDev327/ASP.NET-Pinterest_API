@@ -74,4 +74,5 @@ $('#SearchKey').on('itemAdded', function (event) {
 });
 $('#SearchKey').on('itemRemoved', function (event) {
     changePlaceholderText();
+    searchByTags();
 });
