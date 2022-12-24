@@ -18,6 +18,8 @@ $(document).ready(function () {
             if (!typingInputValue) {
                 searchByTags();
                 return;
+            } else {
+                addTags(typingInputValue);
             }
         }
     });
