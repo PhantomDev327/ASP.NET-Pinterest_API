@@ -21,21 +21,30 @@ namespace nxPinterest.Web.Models
         {
             get
             {
-                return UserMediaDetail.OriginalTags.Split(",").Where(w => w != "").ToList();
+                if (!string.IsNullOrEmpty(UserMediaDetail.OriginalTags) &&  UserMediaDetail.OriginalTags.Split("|").Count() > 0)
+                    return UserMediaDetail.OriginalTags.Split(",").Where(w => w != "").ToList();
+                else
+                    return new List<string>();                
             }
         }
         public IList<string> AITagsList
         {
             get
             {
-                return UserMediaDetail.AITags.Split(",").Where(w => w != "").ToList();
+                if (!string.IsNullOrEmpty(UserMediaDetail.AITags) && UserMediaDetail.AITags.Split("|").Count() > 0)
+                    return UserMediaDetail.AITags.Split(",").Where(w => w != "").ToList();
+                else
+                    return new List<string>();                
             }
         }
         public IList<string> FullTagsList
         {
             get
             {
-                return UserMediaDetail.Tags.Split("|").Where(w => w != "").Select(str => str.Split(":")[0] + "(" + str.Split(":")[1] + ")").ToList();
+                if (!string.IsNullOrEmpty(UserMediaDetail.Tags) && UserMediaDetail.Tags.Split("|").Count() > 0 && UserMediaDetail.Tags.Contains(":"))
+                    return UserMediaDetail.Tags.Split("|").Where(w => w != "").Select(str => str.Split(":")[0] + "(" + str.Split(":")[1] + ")").ToList();
+                else
+                    return new List<string>();
             }
         }
     }
