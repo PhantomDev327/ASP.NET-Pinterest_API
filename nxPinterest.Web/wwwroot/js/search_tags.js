@@ -18,6 +18,8 @@ $(document).ready(function () {
             if (!typingInputValue) {
                 searchByTags();
                 return;
+            } else {
+                addTags(typingInputValue);
             }
         }
     });
@@ -72,4 +74,5 @@ $('#SearchKey').on('itemAdded', function (event) {
 });
 $('#SearchKey').on('itemRemoved', function (event) {
     changePlaceholderText();
+    searchByTags();
 });
