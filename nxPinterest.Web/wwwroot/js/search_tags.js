@@ -43,7 +43,10 @@ function getTagsinputEle() {
     return $('.navbar-header .bootstrap-tagsinput input[type=text]');
 }
 function addTags(value) {
-    $('#SearchKey').tagsinput('add', value);
+    var tags = value.split(/ |　/);
+    for (var tag of tags) {
+        $('#SearchKey').tagsinput('add', tag);
+    }
     searchByTags();
 }
 function searchByTags() {
