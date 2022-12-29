@@ -197,10 +197,12 @@ function multiSelect() {
             var multiSelectedImages = document.querySelectorAll(multiSelectedClass);
             window.selectedMediaIdList = [];
             window.selectedMediaSrcList = [];
+            window.selectedSmallMediaSrcList = [];
             window.selectedAlbumMediaList = [];
             for (var el of multiSelectedImages) {
                 var selectedMediaId;
                 var selectedMediaSrc;
+                var selectedSmallMediaSrc;
                 var albumImage = {};
                 if (el.id && !window.selectedMediaIdList.includes(el.id)) {
                     selectedMediaId = parseInt(el.id);
@@ -212,6 +214,9 @@ function multiSelect() {
                             && childNode.nodeName.toLowerCase() === "img"
                             && childNode.getAttribute("data-media-url")
                         ) {
+                            if (childNode.getAttribute("data-smallmedia-url")) {
+                                selectedSmallMediaSrc = childNode.getAttribute("data-smallmedia-url");
+                            }
                             selectedMediaSrc = childNode.getAttribute("data-media-url");
                             albumImage = { ...albumImage, MediaUrl: selectedMediaSrc, MediaThumbnailUrl: childNode.currentSrc, MediaFileName: childNode.alt };
                             break;
@@ -222,6 +227,9 @@ function multiSelect() {
                     window.selectedMediaIdList.push(selectedMediaId);
                     window.selectedMediaSrcList.push(selectedMediaSrc);
                     window.selectedAlbumMediaList.push(albumImage);
+                }
+                if (selectedMediaId && selectedSmallMediaSrc) {
+                    window.selectedSmallMediaSrcList.push(selectedSmallMediaSrc);
                 }
             }
             var selectedImageText = "";
@@ -323,10 +331,31 @@ function showDeleteConfirmDialog() {
     $('#deleteConfirmModal').modal('show');
 }
 
-function showPreviewImage(mediaUrl) {
-    if (!mediaUrl) {
+function showPreviewImage(mediaId, mediaUrl) {
+    if (!mediaId || !mediaUrl) {
         return;
     }
+    window.previewingMediaId = mediaId;
     $('#showPreviewImageModal').modal('show');
     $('#previewImage').attr('src', mediaUrl);
+}
+
+function showOtherPreviewImage(type) {
+    if (!window.selectedMediaIdList || !window.previewingMediaId) {
+        return;
+    }
+    var imgIndex = window.selectedMediaIdList.indexOf(window.previewingMediaId);
+    if (imgIndex == -1) {
+        return;
+    }
+    var newImgIndex = imgIndex;
+    if (type == 'previous') {
+        newImgIndex = imgIndex - 1;
+    } else if (type == 'next') {
+        newImgIndex = imgIndex + 1;
+    }
+    if (newImgIndex < 0 || window.selectedMediaIdList.length <= newImgIndex || window.selectedSmallMediaSrcList.length <= newImgIndex) {
+        return;
+    }
+    showPreviewImage(window.selectedMediaIdList[newImgIndex], window.selectedSmallMediaSrcList[newImgIndex]);
 }

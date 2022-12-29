@@ -65,7 +65,7 @@ figure.selection-border {
     min-width: 100px;
 }
 .range-area > * {
-    vertical-align: middle
+    vertical-align: middle;
 }
 #previewImageArea {
     padding: 5px;
@@ -80,5 +80,6 @@ figure.selection-border {
 }
 
 .thumbnail-container figure:hover .previewButton {
-    display: -webkit-box
+    display: -webkit-box;
+    z-index: 1;
 }
