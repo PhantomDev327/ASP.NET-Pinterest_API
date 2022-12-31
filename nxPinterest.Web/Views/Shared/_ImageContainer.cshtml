@@ -84,6 +84,14 @@
 </div>
 
 <div class="modal fade text-black" id="showPreviewImageModal" tabindex="-1" role="dialog" aria-labelledby="showPreviewImageModalTitle" aria-hidden="true">
+    <span class="carousel-control-prev" id="previousPreviewImage" onclick="showOtherPreviewImage('previous')" role="button" data-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+    </span>
+    <span class="carousel-control-next" id="nextPreviewImage" onclick="showOtherPreviewImage('next')" role="button" data-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="sr-only">Next</span>
+    </span>
     <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-body" id="previewImageArea">
@@ -171,7 +179,7 @@
     }
     function appendData(value) {
         var newImgEl = document.createElement('img');
-        var previewButtonEl = '<span class="previewButton" onclick="showPreviewImage(\'' + value.mediaSmallUrl  + '\')"><i class="bi bi-zoom-in fa-lg px-2"></i></span>';
+        var previewButtonEl = '<span class="previewButton" onclick="showPreviewImage(' + value.mediaId + ', \'' + value.mediaSmallUrl  + '\')"><i class="bi bi-zoom-in fa-lg px-2"></i></span>';
         newImgEl.addEventListener('load', function() {
             shortest = findShortestCol();
             shortest.append('<figure id="'+value.mediaId+'"><figcaption><p class="title">'+value.mediaTitle+'</p><p class="description">'+value.mediaDescription+'</p></figcaption></figure>');
