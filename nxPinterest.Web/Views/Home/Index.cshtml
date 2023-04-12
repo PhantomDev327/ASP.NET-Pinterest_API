@@ -124,7 +124,7 @@
                     });
                     if(result.data.albums.length >= 0 ){
                         document.getElementById("count__album").innerHTML = `${result.data.albums.length} 項目`;
-                        document.getElementById("album__date").innerHTML = dateToStr12H(new Date(result.data.albumCreateDate), 'Y年M月D日 h:m:s AP');
+                        document.getElementById("album__date").innerHTML = dateToStr24H(new Date(result.data.albumCreateDate), 'Y年M月D日 h:m:s');
                     }
                     window.pageAlbum = window.pageAlbum + 1;
                     hideLoader();
@@ -158,28 +158,24 @@
 
         function renderContentAlbum(albumName, albumUrl) {
             $(".content_album").empty();
-            $("#blockGallery").before(`<div class="row content_album" style="margin-left: 15px;">
+            $("#blockGallery").before(`<div class="row content_album" style="padding: 15px; style="margin-left: 15px;">
                                                             <h2><span id="album__name">${albumName}</span><span class="px-2 my-1" id="editMediaFolder"  style="font-size: 0.995rem; cursor: pointer;"><i class="bi bi-pencil-square"></i></span>
                                                     </h2>
-                                                            <p><strong id="album__date"></strong>&nbsp&nbsp・<strong id="count__album"></strong> <strong style="color:#0d6efd;">&nbsp&nbsp 共有する</strong> <i style="color:#0d6efd;cursor: pointer;" class="fa fa-copy" id="copyAlbum" data-albumurl="${albumUrl}" aria-hidden="true"></i></p>
+                                                            <p><strong id="album__date"></strong>&nbsp&nbsp<strong id="count__album"></strong> <strong style="color:#ffffff;">&nbsp&nbsp 共有する</strong> <i style="color:#ffffff;cursor: pointer;" class="fa fa-copy" id="copyAlbum" data-albumurl="${albumUrl}" aria-hidden="true"></i></p>
                                                        </div> <div id="tooltipAlbumCopy" data-toggle="tooltip" data-placement="top" title="コピーされました。"></div>`);
         }
 
-        function dateToStr12H(date, format) {
+        function dateToStr24H(date, format) {
             if (!format) {
-                format = 'Y/M/D h:m:s AP';
+                format = 'Y/M/D h:m:s';
             }
             var hours = date.getHours();
-            var ampm = hours < 12 ? 'AM' : 'PM';
-            hours = hours % 12;
-            hours = (hours != 0) ? hours : 12;
             format = format.replace(/Y/g, date.getFullYear());
             format = format.replace(/M/g, (date.getMonth() + 1));
             format = format.replace(/D/g, date.getDate());
             format = format.replace(/h/g, hours);
             format = format.replace(/m/g, date.getMinutes());
             format = format.replace(/s/g, date.getSeconds());
-            format = format.replace(/AP/g, ampm);
             return format;
         }
     </script>

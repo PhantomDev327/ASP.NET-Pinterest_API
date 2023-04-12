@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using nxPinterest.Data.Repositories;
 using nxPinterest.Data.Repositories.Interfaces;
 using nxPinterest.Data.ViewModels;
 using nxPinterest.Services.Interfaces;
@@ -20,4 +22,19 @@ public class UserAlbumMediaService : IUserAlbumMediaService
     {
         return await _userAlbumMediaRepository.GetListAlbumByIdAsync(albumId ,pageIndex, dev_Settings.displayMaxItems_search);
     }
+
+
+    public async Task<bool> RemoveMediaFromAlbum(int albumId, List<int> mediaList)
+    {
+        try
+        {
+            await _userAlbumMediaRepository.DeleteUserAlbumMediaAsync(albumId, mediaList);
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
 }

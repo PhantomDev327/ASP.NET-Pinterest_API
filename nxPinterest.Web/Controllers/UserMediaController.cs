@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using nxPinterest.Web.Models;
 using nxPinterest.Services.Interfaces;
+using nxPinterest.Services;
 
 namespace nxPinterest.Web.Controllers
 {
@@ -25,14 +26,17 @@ namespace nxPinterest.Web.Controllers
         private readonly IUserAlbumService userAlbumService;
         private readonly ApplicationDbContext _context;
         //private CosmosDbService _cosmosDbService;
+        private readonly IUserAlbumMediaService userAlbumMediaService;
 
         public UserMediaController(ApplicationDbContext context,
                                     IUserMediaManagementService mediaManagementService,
-                                    IUserAlbumService userAlbumService)
+                                    IUserAlbumService userAlbumService,
+                                    IUserAlbumMediaService userAlbumMediaService)
         {
             this._context = context;
             this.userMediaManagementService = mediaManagementService;
             this.userAlbumService = userAlbumService;
+            this.userAlbumMediaService = userAlbumMediaService;
         }
 
 
@@ -329,6 +333,31 @@ namespace nxPinterest.Web.Controllers
                 return Json(new { success = false, errMsg = ex.Message });
             }
         }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveMediaFromAlbumByIds(string albumName, string ids)
+        {
+            try
+            {
+                List<int> mediaList = new List<int>();
+                var albumId = await this.userAlbumService.GetAlbumIdByNameAsync(albumName);
+
+                foreach (var mediaId in ids?.Split(","))
+                {
+                    //UserMediaの取得 1件ずつ
+                    var media = await this.userMediaManagementService.GetUserMediaAsync(int.Parse(mediaId));
+                    mediaList.Add(media.MediaId);
+                }
+                
+                await this.userAlbumMediaService.RemoveMediaFromAlbum((int)albumId, mediaList);
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, errMsg = ex.Message });
+            }
+        }
+
         public IActionResult Privacy()
         {
             return View();

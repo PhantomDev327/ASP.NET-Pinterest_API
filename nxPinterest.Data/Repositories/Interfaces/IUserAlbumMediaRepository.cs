@@ -10,5 +10,7 @@ namespace nxPinterest.Data.Repositories.Interfaces
         Task<IEnumerable<SharedLinkAlbumMediaViewModel>> GetListAlbumByIdAsync(int albumId , int pageIndex, int pageSize);
 
         Task<bool> IsMediaExistAsync(int albumId,int mediaId);
+
+        Task<int> DeleteUserAlbumMediaAsync(int albumId, List<int> mediaList);
     }
 }
