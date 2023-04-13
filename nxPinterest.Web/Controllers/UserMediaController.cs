@@ -339,17 +339,17 @@ namespace nxPinterest.Web.Controllers
         {
             try
             {
-                List<int> mediaList = new List<int>();
+                List<int> mediaIdList = new List<int>();
                 var albumId = await this.userAlbumService.GetAlbumIdByNameAsync(albumName);
 
                 foreach (var mediaId in ids?.Split(","))
                 {
                     //UserMediaの取得 1件ずつ
                     var media = await this.userMediaManagementService.GetUserMediaAsync(int.Parse(mediaId));
-                    mediaList.Add(media.MediaId);
+                    mediaIdList.Add(media.MediaId);
                 }
                 
-                await this.userAlbumMediaService.RemoveMediaFromAlbum((int)albumId, mediaList);
+                await this.userAlbumMediaService.RemoveMediaFromAlbum((int)albumId, mediaIdList);
                 return Json(new { success = true });
             }
             catch (Exception ex)

@@ -45,10 +45,10 @@ namespace nxPinterest.Data.Repositories
                 .AnyAsync();
         }
 
-        public Task<int> DeleteUserAlbumMediaAsync(int albumId, List<int> mediaList)
+        public Task<int> DeleteUserAlbumMediaAsync(int albumId, List<int> mediaIdList)
         {
             var ret = Context.UserAlbumMedias
-                 .Where(x => x.AlbumId == albumId && mediaList.Contains(x.UserMediaId));
+                 .Where(x => x.AlbumId == albumId && mediaIdList.Contains(x.UserMediaId));
 
             Context.UserAlbumMedias.RemoveRange(ret);
             return Context.SaveChangesAsync();

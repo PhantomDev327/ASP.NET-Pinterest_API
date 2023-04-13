@@ -24,11 +24,11 @@ public class UserAlbumMediaService : IUserAlbumMediaService
     }
 
 
-    public async Task<bool> RemoveMediaFromAlbum(int albumId, List<int> mediaList)
+    public async Task<bool> RemoveMediaFromAlbum(int albumId, List<int> mediaIdList)
     {
         try
         {
-            await _userAlbumMediaRepository.DeleteUserAlbumMediaAsync(albumId, mediaList);
+            await _userAlbumMediaRepository.DeleteUserAlbumMediaAsync(albumId, mediaIdList);
             return true;
         }
         catch (Exception)
