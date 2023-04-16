@@ -1,11 +1,13 @@
 ﻿using nxPinterest.Data.Enums;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace nxPinterest.Data.Models;
 
 public class UserAlbum
 {
+    [Key]
     public int AlbumId { get; set; }
 
     public string AlbumName { get; set; }

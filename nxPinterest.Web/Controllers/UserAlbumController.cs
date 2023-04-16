@@ -142,5 +142,13 @@ namespace nxPinterest.Web.Controllers
             return Ok(new { Success = true, Data = result.AlbumName });
         }
 
+
+        [HttpPost]
+        public IActionResult Remove(string removeAlbumName)
+        {
+            var result = _userAlbumService.RemoveAlbum(removeAlbumName);
+
+            return Ok(new { Success = true, Data = result.AlbumName });
+        }
     }
 }

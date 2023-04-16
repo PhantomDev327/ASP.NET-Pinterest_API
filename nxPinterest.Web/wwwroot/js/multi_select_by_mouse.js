@@ -342,7 +342,6 @@ function deleteUserMediaFile(media_ids) {
         });
     }
 
-    window.location = '/';
 }
 
 function showDeleteConfirmDialog() {

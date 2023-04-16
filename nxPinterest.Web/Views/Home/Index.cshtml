@@ -55,6 +55,9 @@
 @{
     await Html.RenderPartialAsync("/Views/Shared/_EditAlbum.cshtml");
 }
+@{
+    await Html.RenderPartialAsync("/Views/Shared/_RemoveAlbum.cshtml");
+}
 @section Scripts{
 <script src="~/lib/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
 <script src="~/lib/bootstrap-datepicker/locales/bootstrap-datepicker.ja.min.js"></script>
@@ -100,7 +103,8 @@
             });
         }
 
-        function loadImgByName(albumname) {
+        var image_count = 0;
+        function loadImgByName(albumname) {            
             window.isFullImage = false;
             if (window.isLoadAlbum) return;
             window.isLoadAlbum = true;
@@ -123,8 +127,11 @@
                         appendData(value);
                     });
                     if(result.data.albums.length >= 0 ){
+                        image_count = result.data.albums.length;
+                        console.log('result.data.albums.length:' + image_count)
                         document.getElementById("count__album").innerHTML = `${result.data.albums.length} 項目`;
                         document.getElementById("album__date").innerHTML = dateToStr24H(new Date(result.data.albumCreateDate), 'Y年M月D日 h:m:s');
+                        renderContentIcon();
                     }
                     window.pageAlbum = window.pageAlbum + 1;
                     hideLoader();
@@ -159,10 +166,25 @@
         function renderContentAlbum(albumName, albumUrl) {
             $(".content_album").empty();
             $("#blockGallery").before(`<div class="row content_album" style="padding: 15px; style="margin-left: 15px;">
-                                                            <h2><span id="album__name">${albumName}</span><span class="px-2 my-1" id="editMediaFolder"  style="font-size: 0.995rem; cursor: pointer;"><i class="bi bi-pencil-square"></i></span>
-                                                    </h2>
-                                                            <p><strong id="album__date"></strong>&nbsp&nbsp<strong id="count__album"></strong> <strong style="color:#ffffff;">&nbsp&nbsp 共有する</strong> <i style="color:#ffffff;cursor: pointer;" class="fa fa-copy" id="copyAlbum" data-albumurl="${albumUrl}" aria-hidden="true"></i></p>
-                                                       </div> <div id="tooltipAlbumCopy" data-toggle="tooltip" data-placement="top" title="コピーされました。"></div>`);
+                                           <h2>
+                                                     <span id="album__name">${albumName}</span>
+                                           </h2>
+                                           <p><strong id="album__date"></strong>&nbsp&nbsp<strong id="count__album"></strong>
+                                           <strong style="color:#ffffff;">&nbsp&nbsp 共有する</strong>
+                                           <i style="color:#ffffff;cursor: pointer;" class="fa fa-copy" id="copyAlbum" data-albumurl="${albumUrl}" aria-hidden="true"></i></p>
+                                       </div> <div id="tooltipAlbumCopy" data-toggle="tooltip" data-placement="top" title="コピーされました。"></div>`);
+        }
+
+        function renderContentIcon() {
+            console.log('image_count:' + image_count);
+            let display = image_count === 0 ? '': 'display:none';
+            console.log('display:' + display)
+
+            if (image_count === 0){
+                $('#album__name').after(`<span class="px-1 my-1" id="removeFolder" style="font-size: 0.995rem; cursor: pointer; ${display}"><i class="bi bi-trash"></i></span>`);
+            } else {
+                $('#album__name').after(`<span class="px-2 my-1" id = "editMediaFolder"  style = "font-size: 0.995rem; cursor: pointer;" > <i class="bi bi-pencil-square" > </i></span >`);
+            }
         }
 
         function dateToStr24H(date, format) {

@@ -24,5 +24,7 @@ namespace nxPinterest.Services.Interfaces
         UserAlbum UpdateAlbumAsync(int albumId, UserAlbum model);
 
         Task<bool> IsAlbumNameExistAsync(string albumName);
+
+        UserAlbum RemoveAlbum(string albumName);
     }
 }

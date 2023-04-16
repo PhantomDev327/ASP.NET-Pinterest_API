@@ -182,5 +182,14 @@ namespace nxPinterest.Services
         {
             return await _userAlbumRepository.IsAlbumNameExist(albumName);
         }
+
+
+        public UserAlbum RemoveAlbum(string albumName)
+        {
+            var albumId = _userAlbumRepository.GetAlbumIdByName(albumName).Result;
+            var album = _userAlbumRepository.Delete(albumId);
+            this._unitOfWork.SaveChanges();
+            return album;
+        }
     }
 }
