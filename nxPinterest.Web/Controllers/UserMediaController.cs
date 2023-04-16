@@ -26,17 +26,14 @@ namespace nxPinterest.Web.Controllers
         private readonly IUserAlbumService userAlbumService;
         private readonly ApplicationDbContext _context;
         //private CosmosDbService _cosmosDbService;
-        private readonly IUserAlbumMediaService userAlbumMediaService;
 
         public UserMediaController(ApplicationDbContext context,
                                     IUserMediaManagementService mediaManagementService,
-                                    IUserAlbumService userAlbumService,
-                                    IUserAlbumMediaService userAlbumMediaService)
+                                    IUserAlbumService userAlbumService)
         {
             this._context = context;
             this.userMediaManagementService = mediaManagementService;
             this.userAlbumService = userAlbumService;
-            this.userAlbumMediaService = userAlbumMediaService;
         }
 
 
@@ -349,7 +346,7 @@ namespace nxPinterest.Web.Controllers
                     mediaIdList.Add(media.MediaId);
                 }
                 
-                await this.userAlbumMediaService.RemoveMediaFromAlbum((int)albumId, mediaIdList);
+                await this.userAlbumService.RemoveMediaFromAlbum((int)albumId, mediaIdList);
                 return Json(new { success = true });
             }
             catch (Exception ex)

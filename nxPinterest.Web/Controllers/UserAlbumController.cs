@@ -15,12 +15,9 @@ namespace nxPinterest.Web.Controllers
     {
         private readonly IUserAlbumService _userAlbumService;
 
-        private readonly IUserAlbumMediaService _userAlbumMediaService;
-
-        public UserAlbumController(IUserAlbumService userAlbumService, IUserAlbumMediaService userAlbumMediaService)
+        public UserAlbumController(IUserAlbumService userAlbumService)
         {
             this._userAlbumService = userAlbumService;
-            _userAlbumMediaService = userAlbumMediaService;
         }
 
         [HttpPost]
@@ -81,7 +78,7 @@ namespace nxPinterest.Web.Controllers
 
             if (albumId == 0) return Ok(new { StatusCode = 404, Data = "", Message= "アルバムが存在しません。" });
 
-            var data = await _userAlbumMediaService.GetListAlbumById(albumId, pageIndex);
+            var data = await _userAlbumService.GetListAlbumById(albumId, pageIndex);
 
             return Ok(new { StatusCode = 200, Data = data, Message = "" });
         }
@@ -98,7 +95,7 @@ namespace nxPinterest.Web.Controllers
 
             var createAlbumDate = await _userAlbumService.GetCreateDateAlbumNameAsync(albumId);
 
-            var data = await _userAlbumMediaService.GetListAlbumById(albumId, pageIndex);
+            var data = await _userAlbumService.GetListAlbumById(albumId, pageIndex);
 
             var albumVm = new HomeAlbumViewModel
             {

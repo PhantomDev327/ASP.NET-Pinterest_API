@@ -26,5 +26,9 @@ namespace nxPinterest.Services.Interfaces
         Task<bool> IsAlbumNameExistAsync(string albumName);
 
         UserAlbum RemoveAlbum(string albumName);
+
+        Task<IEnumerable<SharedLinkAlbumMediaViewModel>> GetListAlbumById(int albumId, int pageIndex);
+
+        Task<bool> RemoveMediaFromAlbum(int albumId, List<int> mediaIdList);
     }
 }
