@@ -5,6 +5,7 @@ using nxPinterest.Data.ViewModels;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Immutable;
 
 namespace nxPinterest.Data.Repositories
 {
@@ -37,11 +38,25 @@ namespace nxPinterest.Data.Repositories
             return data.Skip((pageIndex - 1) * pageSize).Take(pageSize);
         }
 
+        public async Task<int> GetAlmubMediaCount(int albumId)
+        {
+            return await Context.UserAlbumMedias.Where(x => x.AlbumId == albumId).CountAsync();
+        }
+
         public async Task<bool> IsMediaExistAsync(int albumId, int mediaId)
         {
             return await Context.UserAlbumMedias
                 .Where(x => x.AlbumId == albumId && x.UserMediaId == mediaId)
                 .AnyAsync();
+        }
+
+        public Task<int> DeleteUserAlbumMediaAsync(int albumId, List<int> mediaIdList)
+        {
+            var ret = Context.UserAlbumMedias
+                 .Where(x => x.AlbumId == albumId && mediaIdList.Contains(x.UserMediaId));
+
+            Context.UserAlbumMedias.RemoveRange(ret);
+            return Context.SaveChangesAsync();
         }
     }
 }

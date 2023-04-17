@@ -182,5 +182,34 @@ namespace nxPinterest.Services
         {
             return await _userAlbumRepository.IsAlbumNameExist(albumName);
         }
+
+
+        public UserAlbum RemoveAlbum(string albumName)
+        {
+            var albumId = _userAlbumRepository.GetAlbumIdByName(albumName).Result;
+            var album = _userAlbumRepository.Delete(albumId);
+            this._unitOfWork.SaveChanges();
+            return album;
+        }
+
+
+        public async Task<IEnumerable<SharedLinkAlbumMediaViewModel>> GetListAlbumById(int albumId, int pageIndex)
+        {
+            return await _userAlbumMediaRepository.GetListAlbumByIdAsync(albumId, pageIndex, dev_Settings.displayMaxItems_search);
+        }
+
+
+        public async Task<bool> RemoveMediaFromAlbum(int albumId, List<int> mediaIdList)
+        {
+            try
+            {
+                await _userAlbumMediaRepository.DeleteUserAlbumMediaAsync(albumId, mediaIdList);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }

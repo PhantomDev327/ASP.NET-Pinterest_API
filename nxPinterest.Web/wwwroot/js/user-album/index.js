@@ -114,6 +114,45 @@
             window.getSelection().removeAllRanges();
             return copyResult;
         });
+
+
+        $('body').on('click', '#removeFolder', function (e) {
+            e.preventDefault();
+            var $albumName = $('#album__name').text();
+            
+            $('#removeUserMediaFolderModal').modal('show');
+            
+            document.getElementById('album_name').innerHTML = $albumName + 'を削除します。よろしいですか？';
+
+        });
+        $('body').on('click', '#btnRemoveAlbum', function (e) {
+            e.preventDefault();
+            var $removeAlbumName = $('#album__name').text();
+            $.ajax({
+                url: "/UserAlbum/Remove",
+                type: "post",
+                dataType: "json",
+                data: {
+                    removeAlbumName: $removeAlbumName
+                },
+                cache: false,
+                success: function (result) {
+                    if (result.success) {
+                        document.getElementById('album__name').innerText = '';
+                        $('#removeUserMediaFolderModal').modal('hide');
+                        window.location = '/';
+                    } else {
+                        document.getElementById('error_album').innerText = result.message;
+                        $('#removeUserMediaFolderModal').modal('hide');
+                        
+                    }
+                },
+                error: function () {
+                    alert("保存できない.");
+                }
+            });
+        });
+
     };
 
     function mesageTooltipCopy() {

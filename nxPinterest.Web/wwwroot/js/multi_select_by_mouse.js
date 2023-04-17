@@ -315,16 +315,33 @@ function deleteUserMediaFile(media_ids) {
         return;
     }
     var media_ids = window.selectedMediaIdList.toString();
-    var deleteUrl = "/UserMedia/DeleteByIds?ids=" + media_ids;
-    $.ajax({
-        url: deleteUrl,
-        method: "POST",
-        processData: false,
-        contentType: false,
-        success: function (sResponse) {
-            window.location = '/';
-        }
-    });
+    if ($('#album__name').text() === '' || $('#album__name').text() === undefined) {
+        var deleteUrl = "/UserMedia/DeleteByIds?ids=" + media_ids;
+        $.ajax({
+            url: deleteUrl,
+            method: "POST",
+            processData: false,
+            contentType: false,
+            success: function (sResponse) {
+                window.location = '/';
+            }
+        });
+    } else {
+        console.log($('#album__name').text());
+        console.log(media_ids);
+        var removeUrl = "/UserMedia/RemoveMediaFromAlbumByIds?albumName=" + $('#album__name').text() + "&ids=" + media_ids;
+        console.log(removeUrl);
+        $.ajax({
+            url: removeUrl,
+            method: "POST",
+            processData: false,
+            contentType: false,
+            success: function (sResponse) {
+                window.location = '/';
+            }
+        });
+    }
+
 }
 
 function showDeleteConfirmDialog() {

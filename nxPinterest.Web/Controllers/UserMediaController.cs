@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using nxPinterest.Web.Models;
 using nxPinterest.Services.Interfaces;
+using nxPinterest.Services;
 
 namespace nxPinterest.Web.Controllers
 {
@@ -329,6 +330,31 @@ namespace nxPinterest.Web.Controllers
                 return Json(new { success = false, errMsg = ex.Message });
             }
         }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveMediaFromAlbumByIds(string albumName, string ids)
+        {
+            try
+            {
+                List<int> mediaIdList = new List<int>();
+                var albumId = await this.userAlbumService.GetAlbumIdByNameAsync(albumName);
+
+                foreach (var mediaId in ids?.Split(","))
+                {
+                    //UserMediaの取得 1件ずつ
+                    var media = await this.userMediaManagementService.GetUserMediaAsync(int.Parse(mediaId));
+                    mediaIdList.Add(media.MediaId);
+                }
+                
+                await this.userAlbumService.RemoveMediaFromAlbum((int)albumId, mediaIdList);
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, errMsg = ex.Message });
+            }
+        }
+
         public IActionResult Privacy()
         {
             return View();

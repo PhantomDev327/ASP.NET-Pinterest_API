@@ -32,7 +32,7 @@ public class UserAlbumConfiguration : IEntityTypeConfiguration<UserAlbum>
         builder.HasIndex(x => x.AlbumName)
             .IsUnique();
 
-        builder.Property(e => e.AlbumType).HasColumnName("album_type");
+        builder.Property(e => e.AlbumType).HasColumnName("album_type").HasColumnType("tinyint");
 
         builder.Property(e => e.ContainerId).HasColumnName("container_id");
 
