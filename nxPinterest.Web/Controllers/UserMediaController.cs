@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using nxPinterest.Web.Models;
 using nxPinterest.Services.Interfaces;
-using nxPinterest.Services;
 
 namespace nxPinterest.Web.Controllers
 {
@@ -99,7 +98,7 @@ namespace nxPinterest.Web.Controllers
         /// <param name="searchKey"></param>
         /// <param name="media_id"></param>
         /// <returns></returns>
-        public async Task<IActionResult> Details(string searchKey, int media_id, int pageIndex = 1)
+        public async Task<IActionResult> Details(string searchKey, int media_id, int pageIndex = 1, int sizeIndex = 3)
         {
             try
             {
@@ -130,6 +129,9 @@ namespace nxPinterest.Web.Controllers
                     vm.SearchKey = searchKey;
                     //vm.TotalRecords = totalRecordCount;
                     vm.Discriminator = user[0].Discriminator;
+                    vm.UserDispName = user[0].UserDispName;
+
+                    vm.SizeRange = sizeIndex;
 
                     ////ViewBag.MediaID = media_id;
                     ////ViewBag.PorjectTags = originalTags ?? null;
@@ -272,7 +274,7 @@ namespace nxPinterest.Web.Controllers
 
                 var ret = this.userMediaManagementService.UpdateUserMedia(userMedia);
                 //return Json(new { success = ret });
-                return RedirectToAction("Details", "UserMedia", new { searchKey = vm.SearchKey, media_id = vm.MediaId });
+                return RedirectToAction("Details", "UserMedia", new { searchKey = vm.SearchKey, media_id = vm.MediaId, sizeIndex = vm.SizeRange });
             }
             catch (Exception ex)
             {
@@ -345,7 +347,7 @@ namespace nxPinterest.Web.Controllers
                     var media = await this.userMediaManagementService.GetUserMediaAsync(int.Parse(mediaId));
                     mediaIdList.Add(media.MediaId);
                 }
-                
+
                 await this.userAlbumService.RemoveMediaFromAlbum((int)albumId, mediaIdList);
                 return Json(new { success = true });
             }
@@ -419,11 +421,11 @@ namespace nxPinterest.Web.Controllers
                 TempData["Message"] = ex.Message;
                 return View("~/Views/Error/204.cshtml");
             }
-            return RedirectToAction("Index","Home");
+            return RedirectToAction("Index", "Home");
         }
 
         /// <summary>
-        /// Create Media File
+        /// thumbnailRecovery
         /// </summary>
         /// <param name="request">Form Data</param>
         /// <returns></returns>
@@ -450,7 +452,7 @@ namespace nxPinterest.Web.Controllers
         {
             CreateImageDirectory();
             IndividualImageRegisterViewModel vm = new IndividualImageRegisterViewModel();
-            return this.View("~/Views/Shared/IndividualImageRegistration.cshtml", vm);
+            return this.View("~/Views/UserMedia/IndividualImageRegistration.cshtml", vm);
         }
 
         /// <summary>
@@ -479,7 +481,7 @@ namespace nxPinterest.Web.Controllers
                 string path = "./wwwroot/images/temp/" + this.UserId;
                 for (int i = 0; i < request.ImageInfoList.Count; i++)
                 {
-                    string pathImage = path +"/"+ request.ImageInfoList[i].imgName;
+                    string pathImage = path + "/" + request.ImageInfoList[i].imgName;
                     FileStream file = new FileStream(pathImage, FileMode.Open);
                     var ms = new MemoryStream();
                     file.CopyTo(ms);
@@ -519,27 +521,28 @@ namespace nxPinterest.Web.Controllers
             string path = "./wwwroot/images/temp/" + this.UserId;
             string path2 = "/images/temp/" + this.UserId + "/";
 
-            for (int i = 0; i < request.imageInfoListSize; i++){
+            for (int i = 0; i < request.imageInfoListSize; i++)
+            {
                 RegisterImageInfo img = request.ImageInfoList[i];
 
                 if (img.Images != null)
                 {
-                    
+
                     using (FileStream stream = new FileStream(Path.Combine(path, img.Images.FileName), FileMode.Create))
                     {
                         img.Images.CopyTo(stream);
                     }
-                    String fullPath = path +"/"+ img.Images.FileName;
+                    String fullPath = path + "/" + img.Images.FileName;
                     String imgNewWithouExt = Path.GetFileNameWithoutExtension(fullPath);
-                    String imgNewPath = fullPath.Replace(imgNewWithouExt, imgNewWithouExt + "_00"+i);
+                    String imgNewPath = fullPath.Replace(imgNewWithouExt, imgNewWithouExt + "_00" + i);
                     System.IO.File.Move(fullPath, imgNewPath);
                     System.IO.FileInfo imgInfo = new System.IO.FileInfo(imgNewPath);
                     request.ImageInfoList[i].imgName = imgInfo.Name;
                     request.ImageInfoList[i].url = path2 + imgInfo.Name;
                 }
             }
-            
-            return this.View("~/Views/Shared/IndividualImageRegistration.cshtml", request);
+
+            return this.View("~/Views/UserMedia/IndividualImageRegistration.cshtml", request);
         }
 
         /// <summary>
@@ -559,6 +562,106 @@ namespace nxPinterest.Web.Controllers
                 Directory.Delete(path);
             }
             Directory.CreateDirectory(path);
+        }
+
+        /// <summary>
+        /// Update SameTitle MediaFile
+        /// </summary>
+        /// <param name="request">Form Data</param>
+        /// <returns></returns>
+        public IActionResult UpdateSameTitleMediaFile(int mediaId)
+        {
+            var media = this.userMediaManagementService.GetUserMediaAsync(mediaId).Result;
+            if (media != null)
+            {
+                EditMultiSelectImageViewModel vm = new EditMultiSelectImageViewModel();
+                vm.DetailsMediaId = mediaId;
+                vm.UserMediaList = this.userMediaManagementService.GetUserMediaSameTitleMediasAsync(media).Result;
+
+                return View("~/Views/UserMedia/EditMultiSelectImage.cshtml", vm);
+            }
+            else
+            {
+                TempData["Message"] = "該当するイメージが見つかりませんでした。最初からやり直してください。";
+                return View("~/Views/Error/204.cshtml");
+            }
+        }
+        /// <summary>
+        /// Update MultiSelect MediaFile
+        /// </summary>
+        /// <param name="request">Form Data</param>
+        /// <returns></returns>
+        public IActionResult UpdateMultiSelectMediaFile(string mediaIds)
+        {
+            try
+            {
+                List<UserMedia> mediaList = new List<UserMedia>();
+                foreach (var mediaId in mediaIds?.Split(","))
+                {
+                    //UserMediaの取得 1件ずつ
+                    var media = this.userMediaManagementService.GetUserMediaAsync(int.Parse(mediaId)).Result;
+                    mediaList.Add(media);
+                }
+                if (mediaList.Count >= 1)
+                {
+                    EditMultiSelectImageViewModel vm = new EditMultiSelectImageViewModel();
+                    vm.UserMediaList = mediaList;
+
+                    return View("~/Views/UserMedia/EditMultiSelectImage.cshtml", vm);
+                }
+                else
+                {
+                    TempData["Message"] = "該当するイメージが見つかりませんでした。最初からやり直してください。";
+                    return View("~/Views/Error/204.cshtml");
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Message"] = string.Format("予期せぬエラ－が発生しました。最初からやり直してください。({0})", ex.Message);
+                return View("~/Views/Error/204.cshtml");
+            }
+        }
+        /// <summary>
+        /// Update MultiSelect MediaFile
+        /// </summary>
+        /// <param name="request">Form Data</param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> UpdateMultiSelectMediaFile(EditMultiSelectImageViewModel vm)
+        {
+            try
+            {
+                foreach (var media in vm.UserMediaList)
+                {
+                    //UserMediaの設定 todo 画面にない項目を取得しなおし
+                    var userMedia = await this.userMediaManagementService.GetUserMediaAsync(media.MediaId);
+                    userMedia.MediaTitle = media.MediaTitle;
+                    userMedia.MediaDescription = media.MediaDescription;
+                    userMedia.OriginalTags = media.OriginalTags;
+                    //userMedia.Tags = vm.Tags;
+                    //userMedia.AITags = vm.AITags;
+                    //userMedia.Created = vm.Created;
+                    //userMedia.Uploaded = vm.Uploaded;
+                    //userMedia.Modified = vm.Modified;
+                    //userMedia.Deleted = vm.Deleted;
+                    //userMedia.MediaUrl = vm.MediaUrl;
+                    //userMedia.MediaSmallUrl = vm.MediaSmallUrl;
+                    //userMedia.MediaThumbnailUrl = vm.MediaThumbnailUrl;
+                    //userMedia.Status = vm.Status;
+                    //userMedia.UserId = vm.UserId;
+                    //userMedia.ContainerId = vm.ContainerId;
+
+                    var ret = this.userMediaManagementService.UpdateUserMedia(userMedia);
+                }
+
+                return RedirectToAction("Details", "UserMedia", new { searchKey = vm.SearchKey, media_id = vm.DetailsMediaId, sizeIndex = vm.SizeRange });
+            }
+            catch (Exception ex)
+            {
+                TempData["Message"] = ex.Message;
+                //return Json(new { success = false, errMsg = ex.Message });
+                return View();
+            }
         }
     }
 }

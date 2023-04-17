@@ -63,7 +63,7 @@ namespace nxPinterest.Web.Controllers
             //int totalRecordCount = vm.UserMediaList.Count;
 
             //ViewBag.ItemCount = vm.UserMediaList.Count;
-            ViewBag.UserDispName = user[0].UserDispName;
+            //ViewBag.UserDispName = user[0].UserDispName;
 
             //vm.UserMediaList = vm.UserMediaList.Skip(skip).Take(pageSize).ToList();
 
@@ -72,6 +72,9 @@ namespace nxPinterest.Web.Controllers
             vm.SearchKey = searchKey;
             //vm.TotalRecords = totalRecordCount;
             vm.Discriminator = user[0].Discriminator;
+            vm.UserDispName = user[0].UserDispName;
+
+            vm.SizeRange = 3;
 
             //よく使用されているタグ候補
             vm.TagList = await this.userMediaManagementService.GetOftenUseTagsAsyc(user[0].container_id, searchKey, 30);
