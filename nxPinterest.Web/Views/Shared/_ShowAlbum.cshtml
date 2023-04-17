@@ -17,8 +17,8 @@
     <ul class="list-group" id="listalbum">
 
         @foreach (var item in Model) {
-            <li class="list-group-item list-group-item-action text-primary border-0" data-albumname="@item.AlbumName">
-                <img style="width: 20%;" src="@item.AlbumThumbnailUrl" class="rounded" /> @item.AlbumName
+            <li class="list-group-item list-group-item-action border-0" data-albumname="@item.AlbumName">
+                <img style="width: 20%;" src="@item.AlbumThumbnailUrl" class="rounded" /> @item.AlbumName (@item.ImageCount)
             </li>
         }
 

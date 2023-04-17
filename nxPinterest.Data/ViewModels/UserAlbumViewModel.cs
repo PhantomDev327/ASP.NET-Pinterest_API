@@ -15,6 +15,8 @@ namespace nxPinterest.Data.ViewModels
 
         public string AlbumUrl { get; set; }
 
+        public int ImageCount { get; set; } 
+
         public DateTime? AlbumCreatedat { get; set; }
 
         public string AlbumThumbnailUrl { get; set; }

@@ -12,9 +12,11 @@ namespace nxPinterest.Data.Repositories
     public class UserAlbumRepository : BaseRepository<UserAlbum>, IUserAlbumRepository
     {
         private IUserRepository _userRepository;
-        public UserAlbumRepository(ApplicationDbContext context, IUserRepository userRepository) : base(context)
+        private IUserAlbumMediaRepository _userAlbumMediaRepository;
+        public UserAlbumRepository(ApplicationDbContext context, IUserRepository userRepository, IUserAlbumMediaRepository userAlbumMediaRepository) : base(context)
         {
             _userRepository = userRepository;
+            _userAlbumMediaRepository = userAlbumMediaRepository;
         }
 
         public bool CheckExpiryDayAlbum(int albumId, DateTime? albumExpireDate)
@@ -50,6 +52,11 @@ namespace nxPinterest.Data.Repositories
                 AlbumType = (int)n.AlbumType,
                 AlbumThumbnailUrl = n.AlbumThumbnailUrl
             }).Where(n => n.ContainerId == user.container_id && n.AlbumType == (int)Data.Enums.AlbumType.Album).OrderByDescending(n => n.AlbumCreatedat).ToListAsync();
+
+            foreach ( var item in result )
+            {
+                item.ImageCount = await _userAlbumMediaRepository.GetAlmubMediaCount(item.AlbumId);
+            }
 
             return result != null ? result : new List<UserAlbumViewModel>();
         }

@@ -12,5 +12,7 @@ namespace nxPinterest.Data.Repositories.Interfaces
         Task<bool> IsMediaExistAsync(int albumId,int mediaId);
 
         Task<int> DeleteUserAlbumMediaAsync(int albumId, List<int> mediaList);
+
+        Task<int> GetAlmubMediaCount(int albumId);
     }
 }
