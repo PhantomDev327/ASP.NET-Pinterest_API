@@ -114,7 +114,13 @@
                 document.getElementById("createMediaFolder").className = "disabled-link";
                 document.getElementById("shareMedia").className = "disabled-link";
                 document.getElementById("downloadMedia").className = "disabled-link";
-                document.getElementById("deleteMedia").className = "disabled-link";
+                //権限によって削除見れない　※削除だけではなく他もあり得るか TODO
+                //document.getElementById("deleteMedia").className = "disabled-link";
+                var　targetElem = document.getElementById("deleteMedia");
+                //要素があれば差し込む
+                if (targetElem) {
+                    targetElem.className = "disabled-link"
+                }
             } 
             showLoader();
             $.ajax({

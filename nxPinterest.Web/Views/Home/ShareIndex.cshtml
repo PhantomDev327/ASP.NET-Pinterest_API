@@ -1,0 +1,70 @@
+﻿@using nxPinterest.Data.Models;
+@model HomeViewModel
+@{
+    ViewData["Title"] = "共有";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="image-viewer-modal" tabindex="-1">
+	<div id="blockGallery" class="multiImageSelect-noselect">
+        <div class="m-3">
+            <div class="content gallery" id="contentGallery">
+                <div class="thumbnail-container" id="thumbnail-container">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @{
+        await Html.RenderPartialAsync("/Views/Shared/_ImageContainer.cshtml");
+    }
+
+    <input hidden asp-for="@Model.SearchKey" name="SearchKey" />
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('nav').css('display', 'none');
+        $('#SearchKey').css('display', 'none');
+        $('#selectedImageNumberShow').css('display', 'none');
+        $('#createMediaFolder').css('display', 'none');
+        $('#shareMedia').css('display', 'none');
+        $('#deleteMedia').css('display', 'none');
+        $('.dropdown').css('display', 'none');
+        hideLoader();
+    });
+</script>
+
+@section Scripts{
+    <script>
+        function loadImg() {
+            //var media_id = $('#userMedia_MediaId').val();
+            $.ajax({
+                url: "@Url.Action("getMedia", "UserAlbum")",
+                method: "Post",
+                data: { searchKey: $('#SearchKey').val() },
+                success: function (sResult) {
+                    window.images.push( sResult.userMediaList );
+                    $.each(sResult.userMediaList, function(index, value) {
+                        appendData(value);
+                    });
+                    window.page = window.page + 1;
+                }
+            });
+        }
+        // 初期オプションパラメーターを設定
+        this.options = {
+            targetArea: "body",
+            elements: "img",
+            selectedClass: "is-selected",
+            holdKey: "ctrlKey"
+        };
+        this.targetArea = document.querySelector(this.options.targetArea);
+        this.targetArea.removeEventListener("dblclick", function (e) {
+            if (isClickPointImgEl(e)) {
+                var mediaId = e.target.parentElement.id;
+                window.location.href = "/UserMedia/Details?media_id=" + mediaId;
+            }
+        });
+    </script>
+    }

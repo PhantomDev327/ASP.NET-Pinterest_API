@@ -34,13 +34,21 @@
 							</button>
 							<div class="dropdown_body">
 								<ul class="dropdown_list">
+								@if (Model.Discriminator == "SysAdmin" || Model.Discriminator == "ContainerAdmin")
+								{
+									<li class="dropdown_item"><a href="" class="dropdown_item-link" id="dropdown_item-editg3">×プロパティ</a></li>
 									<li class="dropdown_item"><a href="/UserMedia/Edit?media_id=@userMedia.MediaId" class="dropdown_item-link" id="dropdown_item-edit">編集</a></li>
+									<li class="dropdown_item"><a href="/UserMedia/UpdateSameTitleMediaFile?mediaId=@userMedia.MediaId" class="dropdown_item-link" id="dropdown_item-editg">同名一括編集</a></li>
 									<li class="dropdown_item"><a href="javascript:deleteUserMedia(@userMedia.MediaId)" class="dropdown_item-link" id="dropdown_item-del">削除</a></li>
-									<li class="dropdown_item"><a href="@userMedia.MediaUrl" class="dropdown_item-link" id="dropdown_item-down">ダウンロード</a></li>
-									<li class="dropdown_item"><a href="" class="dropdown_item-link" id="dropdown_item-editg">×一括編集</a></li>
+								}
+								
+								<li class="dropdown_item"><a href="@userMedia.MediaUrl" class="dropdown_item-link" id="dropdown_item-down">ダウンロード</a></li>
+								
+								@if (Model.Discriminator == "SysAdmin" || Model.Discriminator == "ContainerAdmin" || Model.Discriminator == "ApplicationUser")
+								{
 									<li class="dropdown_item"><a href="" class="dropdown_item-link" id="dropdown_item-editg1">×共有</a></li>
 									<li class="dropdown_item"><a href="" class="dropdown_item-link" id="dropdown_item-editg2">×アルバムへ追加</a></li>
-									<li class="dropdown_item"><a href="" class="dropdown_item-link" id="dropdown_item-editg3">×プロパティ</a></li>
+								}
 								</ul>
 							</div>
 						</div>
