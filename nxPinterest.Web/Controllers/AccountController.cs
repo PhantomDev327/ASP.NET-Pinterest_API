@@ -1051,6 +1051,20 @@ namespace nxPinterest.Web.Controllers
                         TempData["custom-validation-message"] = "User Already Exit";
                         return this.View("~/Views/Account/NormalUserRegister.cshtml", vm);
                     }
+                    //権限変換
+                    string Discriminator;
+                    if (vm.Discriminator == "一般")
+					{
+                        Discriminator = "ApplicationUser";
+                    }
+                    else if (vm.Discriminator == "閲覧")
+                    {
+                        Discriminator = "BworseUser";
+                    }
+					else
+					{
+                        Discriminator = "ContainerAdmin";
+                    }
                     var result = await this._userManager.CreateAsync(new ApplicationUser()
                     {
                         UserName = vm.Email,
@@ -1058,7 +1072,7 @@ namespace nxPinterest.Web.Controllers
                         user_visibility = true,
                         container_id = vm.container_id,
                         PhoneNumber = vm.PhoneNumber,
-                        Discriminator = vm.Discriminator == "一般" ? "ApplicationUser" : "ContainerAdmin",
+                        Discriminator = Discriminator,
                         Email = vm.Email
                     });
 
