@@ -12,7 +12,7 @@
             e.preventDefault();
             var $albumMedias = window.selectedAlbumMediaList;
             if (!window.selectedAlbumMediaList || $albumMedias.length === 0) {
-                alert("please choose the image !");
+                alert("写真を選択してください。");
                 return;
             }
 
@@ -21,7 +21,7 @@
             var $chooseDate = new Date($getExpireDate);
 
             if (formatDate($chooseDate) < formatDate(currentDate)) {
-                alert("Cannot be selected less than current date");
+                alert("共有期限は未来の日付を設定してください。");
                 return;
             }
 
@@ -40,11 +40,11 @@
                         showHiddenFooterModalShare(true);
                         document.getElementById("shareUserMediaFileLink").readOnly = true;
                     } else {
-                        alert("保存できない.");
+                        alert("保存できませんでした。");
                     }
                 },
                 error: function () {
-                    alert("保存できない.");
+                    alert("エラーが発生し、保存できませんでした。");
                 }
             });
 
@@ -55,7 +55,7 @@
             $('#shareUserMediaFileModal').modal('show');
             showHiddenFooterModalShare(false);
             document.getElementById("shareUserMediaFileLink").value = "";
-            $("#expireDate").datepicker().datepicker("setDate", new Date());
+            $("#expireDate").datepicker().datepicker("setDate", (new Date()).getDate()+7);
         });
 
         $("body").on("click", "#copyLinkMedia", function(e) {
@@ -81,9 +81,8 @@
             $.fn.datepicker.defaults.language = "ja";
             if ($.fn.datepicker) {
                 $("#expireDate").datepicker({ todayHighlight: true });
-                $("#expireDate").datepicker().datepicker("setDate", new Date());
+                $("#expireDate").datepicker().datepicker("setDate", (new Date()).getDate() + 7);
             }
-
         });
     }
 
