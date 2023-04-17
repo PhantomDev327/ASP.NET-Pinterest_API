@@ -9,7 +9,7 @@
                         <div class="boder-form-dropzone ">
                             <div class="scrollspy-example scrollbar-dropzone" data-bs-spy="scroll">
                                 <!-- Dropzone Start -->
-                                <form asp-action="UploadMediaFile" asp-controller="UserMedia" method="post" enctype="multipart/form-data"  class="form-horizontal dropzone h-100 " name="dropzoneForm" id="dropzoneForm">
+                                <form asp-action="UploadMediaFile" asp-controller="UserMedia" method="post" enctype="multipart/form-data" class="form-horizontal dropzone h-100 " name="dropzoneForm" id="dropzoneForm">
                                     <div class="form-group form-actions">
                                         <div class="fallback "></div>
                                         <input type="file" name="Images" id="upfiles" style="display: none;" multiple/>
@@ -25,27 +25,28 @@
                     </div>
 
                     <div class="col-12 col-md-6">
-                        <input type="text" class="form-control input-control input-title px-0" placeholder="写真のタイトル" asp-for="Title" />
+                        <input type="text" class="form-control input-control input-title px-0" placeholder="写真のタイトル" asp-for="Title" />                        
                         <div class="form-text text-danger mt-4">
                             @Html.ValidationMessageFor(c => c.Title)
-                        </div>
-                        @*<textarea rows="3" class="form-control input-control input-title px-0" placeholder="説明" asp-for="Description" />*@
-                        <input type="text" class="form-control input-control input-title px-0" placeholder="説明" asp-for="Description" />
+                        </div>                        
+                        <textarea rows="2" class="form-control input-control input-title px-0" placeholder="説明" asp-for="Description"></textarea>
+                        @*<input type="text" class="form-control input-control input-title px-0" placeholder="説明" asp-for="Description" />*@
                         <div class="form-text text-danger mt-4">
                             @Html.ValidationMessageFor(c => c.Description)
                         </div>
 
                         <div class="tag-control-container" id="style">
-                            <p class="tag-text" style="color: #adb5bd; ">タグ</p>
-                            <input data-role="tagsinput" asp-for="OriginalTags" />
-                            <div class="original_tags" style="margin-top:10px;">
+                            <div style="color: #4d4d4d; margin-top:10px;"><i class="bi bi bi-tag"></i>よく使うタグ</div>
+                            <div class="original_tags" style="margin-bottom:10px;">
                                 @if(Model.SuggestTagsList != null)
                                 {
                                     @foreach (var tag in @Model.SuggestTagsList){
-			                            <div onclick=inputTags("@tag") style="display:inline-block;color:#4d4d4d;background-color: #F7F7F7;padding:10px 20px 10px 20px;border-radius:3px;margin-right:7px;margin-bottom:7px;">@tag</div>
+			                            <div onclick=inputTags("@tag") style="display:inline-block;color:#4d4d4d;border-radius:3px;padding:3px;margin:1px 3px;">#@tag</div>
 		                            }
                                 }
 	                        </div>
+                            @*<p class="tag-text" style="color: #adb5bd; ">タグ</p>*@
+                            <input data-role="tagsinput" asp-for="OriginalTags" />
                         </div>
 @*
                         <input hidden asp-for="PhotoTags" />
