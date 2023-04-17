@@ -35,7 +35,6 @@ namespace nxPinterest.Services
         #region Field
         public ApplicationDbContext _context;
         private StorageBlobService _blobService;
-        private CosmosDbService _cosmosDbService;
         #endregion
 
         public UserMediaManagementService(ApplicationDbContext context,
@@ -43,7 +42,6 @@ namespace nxPinterest.Services
         {
             _context = context;
             _blobService = new StorageBlobService();
-            _cosmosDbService = new CosmosDbService();
             _logger = logger;
         }
 
