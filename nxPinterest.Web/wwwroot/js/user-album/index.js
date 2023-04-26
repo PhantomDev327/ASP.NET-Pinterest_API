@@ -87,6 +87,13 @@
 
         });
 
+        $('body').on('click', '#editMultiMedia, .editMultiMedia', function (e) {
+            e.preventDefault();
+            var media_id = window.selectedMediaIdList.toString();
+            var url = "/UserMedia/UpdateSameTitleMediaFile?mediaId=" + media_id;
+            window.location.href = url;
+        });
+
         $("body").on("click", "#listalbum .list-group-item", function(e) {
                 e.preventDefault();
                 var $valueAlbumName = $(this).data("albumname");

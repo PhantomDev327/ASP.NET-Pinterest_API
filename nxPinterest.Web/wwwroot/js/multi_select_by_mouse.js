@@ -238,13 +238,13 @@ function multiSelect() {
                 document.getElementById("createMediaFolder").className = "active-link";
                 document.getElementById("shareMedia").className = "active-link";
                 document.getElementById("downloadMedia").className = "active-link";
-                document.getElementById("editMedia").className = "active-link";
+                document.getElementById("editMultiMedia").className = "active-link";
                 document.getElementById("deleteMedia").className = "active-link";
             } else {
                 document.getElementById("createMediaFolder").className = "disabled-link";
                 document.getElementById("shareMedia").className = "disabled-link";
                 document.getElementById("downloadMedia").className = "disabled-link";
-                document.getElementById("editMedia").className = "disabled-link";
+                document.getElementById("editMultiMedia").className = "disabled-link";
                 document.getElementById("deleteMedia").className = "disabled-link";
             }
             document.getElementById("selectedImageNumberShow").innerText = selectedImageText;
