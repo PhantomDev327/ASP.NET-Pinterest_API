@@ -104,24 +104,41 @@
         }
 
         var image_count = 0;
-        function loadImgByName(albumname) {            
+        function loadImgByName(albumname) {
             window.isFullImage = false;
             if (window.isLoadAlbum) return;
             window.isLoadAlbum = true;
             window.fullAlbumName = albumname;
             window.selectedMediaIdList = [];
             if (window.selectedMediaIdList.length === 0) {
-                document.getElementById("createMediaFolder").className = "disabled-link";
-                document.getElementById("shareMedia").className = "disabled-link";
-                document.getElementById("downloadMedia").className = "disabled-link";
+                // 要素を取得
+                var createMediaFolder = document.getElementById("createMediaFolder");
+
+                // 要素が存在するかどうかをチェック
+                if (createMediaFolder) {
+                    // 要素が存在する場合、classNameを変更
+                    createMediaFolder.className = "disabled-link";
+                }
+
+                // 同様のチェックを shareMedia と downloadMedia にも適用
+                var shareMedia = document.getElementById("shareMedia");
+                if (shareMedia) {
+                    shareMedia.className = "disabled-link";
+                }
+
+                var downloadMedia = document.getElementById("downloadMedia");
+                if (downloadMedia) {
+                    downloadMedia.className = "disabled-link";
+                }
+
                 //権限によって削除見れない　※削除だけではなく他もあり得るか TODO
                 //document.getElementById("deleteMedia").className = "disabled-link";
-                var　targetElem = document.getElementById("deleteMedia");
+                var targetElem = document.getElementById("deleteMedia");
                 //要素があれば差し込む
                 if (targetElem) {
                     targetElem.className = "disabled-link"
                 }
-            } 
+            }
             showLoader();
             $.ajax({
                 url: "@Url.Action("GetSelectedAlbums", "UserAlbum")",

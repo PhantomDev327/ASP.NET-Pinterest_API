@@ -235,19 +235,69 @@ function multiSelect() {
             var selectedImageText = "";
             if (window.selectedMediaIdList.length > 0) {
                 selectedImageText = window.selectedMediaIdList.length + "項目を選択中";
-                document.getElementById("createMediaFolder").className = "active-link";
-                document.getElementById("shareMedia").className = "active-link";
-                document.getElementById("downloadMedia").className = "active-link";
-                document.getElementById("editMultiMedia").className = "active-link";
-                document.getElementById("deleteMedia").className = "active-link";
+                console.log(selectedImageText);
+                 // 要素を取得
+                var createMediaFolder = document.getElementById("createMediaFolder");
+
+                // 要素が存在するかどうかをチェック
+                if (createMediaFolder) {
+                    // 要素が存在する場合、classNameを変更
+                    createMediaFolder.className = "active-link";
+                }
+                // 同様のチェックを shareMedia、downloadMedia、editMultiMedia、deleteMedia にも適用
+                var shareMedia = document.getElementById("shareMedia");
+                if (shareMedia) {
+                    shareMedia.className = "active-link";
+                }
+                var downloadMedia = document.getElementById("downloadMedia");
+                if (downloadMedia) {
+                    downloadMedia.className = "active-link";
+                }
+                var editMultiMedia = document.getElementById("editMultiMedia");
+                if (editMultiMedia) {
+                    editMultiMedia.className = "active-link";
+                }
+                var deleteMedia = document.getElementById("deleteMedia");
+                if (deleteMedia) {
+                    deleteMedia.className = "active-link";
+                }
+
             } else {
-                document.getElementById("createMediaFolder").className = "disabled-link";
-                document.getElementById("shareMedia").className = "disabled-link";
-                document.getElementById("downloadMedia").className = "disabled-link";
-                document.getElementById("editMultiMedia").className = "disabled-link";
-                document.getElementById("deleteMedia").className = "disabled-link";
+                // 要素を取得
+                var createMediaFolder = document.getElementById("createMediaFolder");
+
+                // 要素が存在するかどうかをチェック
+                if (createMediaFolder) {
+                    // 要素が存在する場合、classNameを変更
+                    createMediaFolder.className = "disabled-link";
+                }
+                // 同様のチェックを shareMedia、downloadMedia、editMultiMedia、deleteMedia にも適用
+                var shareMedia = document.getElementById("shareMedia");
+                if (shareMedia) {
+                    shareMedia.className = "disabled - link";
+                }
+                var downloadMedia = document.getElementById("downloadMedia");
+                if (downloadMedia) {
+                    downloadMedia.className = "disabled - link";
+                }
+                var editMultiMedia = document.getElementById("editMultiMedia");
+                if (editMultiMedia) {
+                    editMultiMedia.className = "disabled - link";
+                }
+                var deleteMedia = document.getElementById("deleteMedia");
+                if (deleteMedia) {
+                    deleteMedia.className = "disabled - link";
+                }
             }
-            document.getElementById("selectedImageNumberShow").innerText = selectedImageText;
+            // 要素を取得
+            var selectedImageNumberShow = document.getElementById("selectedImageNumberShow");
+
+            // 要素が存在するかどうかをチェック
+            if (selectedImageNumberShow) {
+                // 要素が存在する場合、classNameを変更
+                selectedImageNumberShow.className = selectedImageText;
+            }
+           
         },
     });
 }
