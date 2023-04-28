@@ -39,6 +39,7 @@
             });
 
         });
+
         $('body').on('click', '#editMediaFolder', function (e) {
             e.preventDefault();
             $('#editUserMediaFolderModal').modal('show');
@@ -47,8 +48,13 @@
                 document.getElementById('oldAlbumName').value = $albumName;
                 document.getElementById('newAlbumName').value = $albumName;
             }
-          
-        });
+            var deleteButton = document.getElementById('removeFolder');
+            if (image_count == 0) {
+                deleteButton.removeAttribute('disabled');
+            } else {                
+                deleteButton.setAttribute('disabled', 'disabled');
+            }
+         });
 
         $('body').on('click', '#btnEditAlbum', function (e) {
             e.preventDefault();

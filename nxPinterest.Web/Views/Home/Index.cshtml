@@ -199,15 +199,8 @@
         }
 
         function renderContentIcon() {
-            console.log('image_count:' + image_count);
-            let display = image_count === 0 ? '': 'display:none';
-            console.log('display:' + display)
-
-            if (image_count === 0){
-                $('#album__name').after(`<span class="px-1 my-1" id="removeFolder" style="font-size: 0.995rem; cursor: pointer; ${display}"><i class="bi bi-trash"></i></span>`);
-            } else {
-                $('#album__name').after(`<span class="px-2 my-1" id = "editMediaFolder"  style = "font-size: 0.995rem; cursor: pointer;" > <i class="bi bi-pencil-square" > </i></span >`);
-            }
+        
+            $('#album__name').after(`<span class="px-2 my-1" id = "editMediaFolder"  style = "font-size: 0.995rem; cursor: pointer;" > <i class="bi bi-pencil-square" > </i></span >`);
         }
 
         function dateToStr24H(date, format) {
