@@ -69,7 +69,7 @@
 		});
 
 		$('body').on('change', '#changeZoomRange', function (e) {
-			e.preventDefault();			
+			e.preventDefault();
 			changeZoom();
 
 		});
@@ -112,7 +112,11 @@
 			var paddingItem = 4;
 			var padding = paddingItem * 2;
 			var leftSize = ((itemWidth - paddingItem) * (i - 1) + space);
-			$('#thumbnail-container').append('<div id="column-' + i + '" class="image-col" style="position:absolute; width:' + itemWidth + 'px; padding:' + padding + 'px;left:' + leftSize + 'px;"></div>');
+			// $('#thumbnail-container').append('<div id="column-' + i + '" class="image-col" style="position:absolute; width:' + itemWidth + 'px; padding:' + padding + 'px;left:' + leftSize + 'px;"></div>');
+			if (window.innerWidth > 550)
+				$('#thumbnail-container').append('<div id="column-' + i + '" class="image-col" style="position:absolute; width:' + itemWidth + 'px; padding:' + padding + 'px;left:' + leftSize + 'px;"></div>');
+			else
+				$('#thumbnail-container').append('<div id="column-' + i + '" class="image-col" style="position:absolute; width:100%; padding:' + padding + 'px;left:0;display:flex;flex-wrap:wrap"></div>');
 		}
 	}
 
@@ -429,7 +433,7 @@
 					$.each(result.data, function (index, value) {
 						appendData(value);
 					});
-					
+
 				} else {
 					document.getElementById("content__error").innerText = result.message;
 					document.getElementById("error").innerText = "メッセージ";

@@ -252,6 +252,10 @@ figure.selection-border {
     display: none;
 }
 
+.thumbnail-container figure .previewButton {
+    display: block !important;
+}
+
 .thumbnail-container figure:hover .previewButton {
     display: -webkit-box
 }
@@ -260,4 +264,26 @@ figure.selection-border {
     left: 50%;
     top: 45%;
     z-index: 99999;
+}
+
+@media (max-width: 768px) {
+    body {
+        cursor: zoom-in !important;
+    }
+    .container-fluid .form-inline {
+        display: none !important;
+    }
+
+}
+
+@media (max-width:550px) {
+    .thumbnail-container figure {
+        width: 50% !important;
+        padding: 0 7px !important;
+        border-radius: 0 !important;
+    }
+
+    .thumbnail-container figure img {
+        border-radius: 5px !important;
+    }
 }
