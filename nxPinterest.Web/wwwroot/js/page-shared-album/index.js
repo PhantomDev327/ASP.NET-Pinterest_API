@@ -1,14 +1,38 @@
-﻿var pageSharedAlbumController = function () {
+﻿const image = new Image();
+const MAX_SCALE = 5;
+const SCALE_STEP = 0.2;
+let imageScale = 1, imageScaleIndex = 0, prevImageScaleIndex = 0, imageLoaded = false;
+
+// マウス関連
+let mouseX, mouseY, press = false;
+let mouseMoveX, mouseMoveY, mouseDragX, mouseDragY;
+
+// 拡大・縮小後の画像表示領域
+let zoomWidth, zoomHeight, zoomLeft = 0, prevZoomLeft = 0, zoomTop = 0, prevZoomHeight = 0;
+let zoomLeftBuf = 0, zoomTopBuf = 0;
+
+const animationDuration = 500; // Duration of the zoom animation in milliseconds
+let startTime; // Start time of the animation
+
+var pageSharedAlbumController = function () {
 
 	window.page = 1;
 	window.itemWidth = 250;
 	window.images = new Array();
 	window.isLoadImage = false;
 	var pathSharedUrl = window.location.pathname.split("/").pop();
+	var timer = null;
 
 	this.initialize = function () {
 		registerEvents();
 	};
+
+	function handleResizeOrientation() {
+		clearTimeout(timer);
+		timer = setTimeout(function () {
+			reloadImage();
+		}, 300);
+	}
 
 	function registerEvents() {
 
@@ -21,20 +45,35 @@
 					loadImgaeAlbum(pathSharedUrl);
 				}
 			});
-			var timer = null;
+
 			$(window).on('resize', function () {
-				clearTimeout(timer);
-				timer = setTimeout(function () {
-					reloadImage();
-				}, 300);
+				if ($(window).width() >= 415) {
+					handleResizeOrientation();
+				}
+			});
+
+			$(window).on('orientationchange', function () {
+				handleResizeOrientation();
 			});
 		});
 		$('body').on('click', '.previewButton', function (e) {
 			e.preventDefault();
 			var mediaUrl = $(this).data('mediaurl');
-			$('#showPreviewImageModal').modal('show');
-			$('#previewImage').attr('src', mediaUrl);
+			var mediaId = $(this).closest('figure').attr('id');
+			showPreviewImage(mediaId, mediaUrl);
 
+			$('#showPreviewImageModal').prepend(
+				`<span class="carousel-control-next" id="nextPreviewImage" data-slide="next">
+					<span class="carousel-control-next-icon" aria-hidden="true" onclick="showOtherPreviewImage('next')" role="button"></span>
+					<span class="sr-only">Next</span>
+				</span>`
+			);
+			$('#showPreviewImageModal').prepend(
+				`<span class="carousel-control-prev" id="previousPreviewImage" data-slide="prev">
+        	<span class="carousel-control-prev-icon" aria-hidden="true" onclick="showOtherPreviewImage('previous')" role="button"></span>
+        	<span class="sr-only">Previous</span>
+    		</span>`
+			);
 		});
 
 
@@ -87,7 +126,6 @@
 		var rangeWidth = 50;
 		window.itemWidth = 100 + rangeWidth * zoomSize;
 
-		var timer = null;
 		clearTimeout(timer);
 		timer = setTimeout(function () {
 			reloadImage();
@@ -309,6 +347,7 @@
 				var multiSelectedImages = document.querySelectorAll(multiSelectedClass);
 				window.selectedMediaIdList = [];
 				window.selectedMediaSrcList = [];
+				window.selectedSmallMediaSrcList = [];
 				window.selectedAlbumMediaList = [];
 				for (var el of multiSelectedImages) {
 					var selectedMediaId;
@@ -323,17 +362,15 @@
 					}
 					if (el.childNodes) {
 						for (var childNode of el.childNodes) {
-							if (childNode.nodeName &&
-								childNode.nodeName.toLowerCase() === "img" &&
-								childNode.getAttribute("data-media-url")
+							if (childNode.nodeName
+								&& childNode.nodeName.toLowerCase() === "img"
+								&& childNode.getAttribute("data-media-url")
 							) {
+								if (childNode.getAttribute("data-smallmedia-url")) {
+									selectedSmallMediaSrc = childNode.getAttribute("data-smallmedia-url");
+								}
 								selectedMediaSrc = childNode.getAttribute("data-media-url");
-								albumImage = {
-									...albumImage,
-									MediaUrl: selectedMediaSrc,
-									MediaThumbnailUrl: childNode.currentSrc,
-									MediaFileName: childNode.alt
-								};
+								albumImage = { ...albumImage, MediaUrl: selectedMediaSrc, MediaThumbnailUrl: childNode.currentSrc, MediaFileName: childNode.alt };
 								break;
 							}
 						}
@@ -342,6 +379,9 @@
 						window.selectedMediaIdList.push(selectedMediaId);
 						window.selectedMediaSrcList.push(selectedMediaSrc);
 						window.selectedAlbumMediaList.push(albumImage);
+					}
+					if (selectedMediaId && selectedSmallMediaSrc) {
+						window.selectedSmallMediaSrcList.push(selectedSmallMediaSrc);
 					}
 				}
 				if (window.selectedMediaIdList.length > 0) {
@@ -455,4 +495,293 @@
 		});
 	}
 
+}
+
+function showPreviewImage(mediaId, mediaUrl) {
+	if (!mediaId || !mediaUrl) return;
+
+	window.previewingMediaId = mediaId;
+	$('#showPreviewImageModal').modal('show');
+	$('#previewImage').attr('src', mediaUrl);
+	$('#previewImage').hide();
+
+	$('#myCanvas').remove();
+	$('#canvasMinusButton').remove();
+	$('#canvasPlusButton').remove();
+	initCanvasVariable();
+
+	image.src = mediaUrl;
+	image.onload = () => {
+		$('#myCanvas').attr('width', image.naturalWidth);
+		$('#myCanvas').attr('height', image.naturalHeight);
+		imageLoaded = true;
+		draw();
+	}
+	$('#previewImage').closest("#previewImageArea").append("<canvas id='myCanvas'>Test</canvas>");
+	$('#previewImage').closest("#previewImageArea").append("<button id='canvasPlusButton'>+</button>");
+	$('#previewImage').closest("#previewImageArea").append("<button id='canvasMinusButton'>-</button>");
+
+	checkImageScaleForButtonValidation();
+
+	function checkImageScaleForButtonValidation() {
+		$('#canvasPlusButton').removeClass("disabled");
+		$('#canvasMinusButton').removeClass("disabled");
+		if (imageScale >= MAX_SCALE) {
+			$('#canvasPlusButton').addClass("disabled");
+		} else if (imageScale <= 1) {
+			$('#canvasMinusButton').addClass("disabled");
+		}
+	}
+
+	const minusButton = document.getElementById('canvasMinusButton');
+	minusButton.addEventListener('click', function () {
+		decreaseZoomIndex($('#previewImageArea').width() / 2, $('#previewImageArea').height() / 2);
+	});
+	const plusButton = document.getElementById('canvasPlusButton');
+	plusButton.addEventListener('click', function () {
+		increaseZoomIndex($('#previewImageArea').width() / 2, $('#previewImageArea').height() / 2);
+	});
+
+	const canvas = document.getElementById('myCanvas');
+
+	canvas.addEventListener('mousewheel', canvasZoom);
+	canvas.addEventListener('mouseover', disableScroll);
+	canvas.addEventListener('mouseout', enableScroll);
+
+	// ドラッグ操作用
+	canvas.addEventListener('mousedown', function () {
+		// マウスが押下された瞬間の情報を記録
+		zoomLeftBuf = zoomLeft;
+		zoomTopBuf = zoomTop;
+		press = true;
+	});
+	canvas.addEventListener('mouseup', function () { press = false; });
+	canvas.addEventListener('mouseout', function () { press = false; });
+	canvas.addEventListener('mousemove', mouseMove);
+
+	function initCanvasVariable() {
+		imageScale = 1;
+		imageScaleIndex = 0;
+		prevImageScaleIndex = 0;
+		imageLoaded = false;
+		zoomLeft = 0;
+		zoomTop = 0;
+		zoomLeftBuf = 0;
+		zoomTopBuf = 0;
+		checkImageScaleForButtonValidation();
+	}
+
+	function draw() {
+		const ctx = canvas.getContext('2d');
+		if (imageLoaded) {
+			ctx.drawImage(image, zoomLeft, zoomTop, canvas.width / imageScale, canvas.height / imageScale, 0, 0, canvas.width, canvas.height);
+		};
+	}
+
+	function zoomInDraw(mouseX, mouseY) {
+		const ctx = canvas.getContext('2d');
+		if (imageLoaded) {
+			if (!startTime) {
+				startTime = performance.now();
+			}
+
+			// Calculate the elapsed time since the start of the animation
+			const currentTime = performance.now();
+			const elapsedTime = currentTime - startTime;
+			// Calculate the progress of the animation from 0 to 1
+			const animationProgress = Math.min(elapsedTime / animationDuration, 1);
+			// Apply easing function to the animation progress
+			const easingProgress = ease(animationProgress);
+			// Calculate the current zoom level based on the easing progress
+			const currentZoomLevel = 1 * easingProgress;
+
+			imageScaleIndex = prevImageScaleIndex + currentZoomLevel;
+			imageScale = 1 + imageScaleIndex * SCALE_STEP;
+			checkImageScaleForButtonValidation();
+			let realImageScale = 1 + (prevImageScaleIndex + 1) * SCALE_STEP;
+			if (zoomLeft == undefined) {
+				prevZoomLeft = 0;
+			}
+			if (zoomTop == undefined) {
+				prevZoomTop = 0;
+			}
+			if (imageScale > MAX_SCALE) {
+				imageScale = MAX_SCALE;
+				checkImageScaleForButtonValidation();
+				imageScaleIndex = 20;
+			} else {
+				zoomWidth = canvas.width / imageScale;
+				zoomHeight = canvas.height / imageScale;
+
+				zoomLeft = prevZoomLeft + mouseX * SCALE_STEP / (realImageScale * (realImageScale - SCALE_STEP)) * easingProgress;
+				zoomLeft = Math.max(0, Math.min(canvas.width - zoomWidth, zoomLeft));
+
+				zoomTop = prevZoomTop + mouseY * SCALE_STEP / (realImageScale * (realImageScale - SCALE_STEP)) * easingProgress;
+				zoomTop = Math.max(0, Math.min(canvas.height - zoomHeight, zoomTop));
+			}
+
+			ctx.drawImage(image, zoomLeft, zoomTop, canvas.width / imageScale, canvas.height / imageScale, 0, 0, canvas.width, canvas.height);
+
+			// Request the next animation frame if the animation is not finished
+			if (animationProgress < 1) {
+				requestAnimationFrame(() => zoomInDraw(mouseX, mouseY));
+			}
+		};
+	}
+
+	function zoomOutDraw(mouseX, mouseY) {
+		const ctx = canvas.getContext('2d');
+		if (imageLoaded) {
+			if (!startTime) {
+				startTime = performance.now();
+			}
+
+			// Calculate the elapsed time since the start of the animation
+			const currentTime = performance.now();
+			const elapsedTime = currentTime - startTime;
+			// Calculate the progress of the animation from 0 to 1
+			const animationProgress = Math.min(elapsedTime / animationDuration, 1);
+			// Apply easing function to the animation progress
+			const easingProgress = ease(animationProgress);
+			// Calculate the current zoom level based on the easing progress
+			const currentZoomLevel = 1 * easingProgress;
+
+			imageScaleIndex = prevImageScaleIndex - currentZoomLevel;
+			imageScale = 1 + imageScaleIndex * SCALE_STEP;
+			checkImageScaleForButtonValidation();
+			let realImageScale = 1 + (prevImageScaleIndex - 1) * SCALE_STEP;
+			if (imageScale < 1) {
+				imageScale = 1;
+				checkImageScaleForButtonValidation();
+				realImageScale = 1;
+				zoomLeft = 0;
+				zoomTop = 0;
+				imageScaleIndex = 0;
+			} else {
+				zoomWidth = canvas.width / imageScale;
+				zoomHeight = canvas.height / imageScale;
+
+				zoomLeft = prevZoomLeft - mouseX * SCALE_STEP / (realImageScale * (realImageScale - SCALE_STEP)) * easingProgress;
+				zoomLeft = Math.max(0, Math.min(canvas.width - zoomWidth, zoomLeft));
+
+				zoomTop = prevZoomTop - mouseY * SCALE_STEP / (realImageScale * (realImageScale - SCALE_STEP)) * easingProgress;
+				zoomTop = Math.max(0, Math.min(canvas.height - zoomHeight, zoomTop));
+			}
+
+			ctx.drawImage(image, zoomLeft, zoomTop, canvas.width / imageScale, canvas.height / imageScale, 0, 0, canvas.width, canvas.height);
+
+			// Request the next animation frame if the animation is not finished
+			if (animationProgress < 1) {
+				requestAnimationFrame(() => zoomOutDraw(mouseX, mouseY));
+			}
+		};
+	}
+
+	// Easing function (You can use a different easing function for different animation effects)
+	function ease(progress) {
+		// You can experiment with different easing functions here
+		// progress /= 0.5;
+		// if (progress < 1) {
+		// 	return 0.5 * progress * progress;
+		// }
+		// progress--;
+		// return -0.5 * (progress * (progress - 2) - 1);
+		return progress;
+	}
+
+	function increaseZoomIndex(mouseX, mouseY) {
+		prevImageScaleIndex = imageScaleIndex;
+		prevZoomLeft = zoomLeft;
+		prevZoomTop = zoomTop;
+		startTime = performance.now();
+		requestAnimationFrame(() => zoomInDraw(mouseX, mouseY));
+	}
+
+	function decreaseZoomIndex(mouseX, mouseY) {
+		prevImageScaleIndex = imageScaleIndex;
+		prevZoomLeft = zoomLeft;
+		prevZoomTop = zoomTop;
+		startTime = performance.now();
+		requestAnimationFrame(() => zoomOutDraw(mouseX, mouseY));
+	}
+
+	function canvasZoom(e) {
+		// Canvas上マウス座標の取得
+		let rect = e.target.getBoundingClientRect();
+		mouseX = e.clientX - rect.left;
+		mouseY = e.clientY - rect.top;
+
+		if (e.wheelDelta > 0) {
+			increaseZoomIndex(mouseX, mouseY);
+		} else {
+			decreaseZoomIndex(mouseX, mouseY);
+		}
+	}
+
+	// マウス移動時の処理
+	function mouseMove(e) {
+		let rect = e.target.getBoundingClientRect();
+		if (press) {
+			// ドラッグ処理
+			mouseDragX = e.clientX - rect.left;
+			mouseDragY = e.clientY - rect.top;
+
+			zoomLeft = zoomLeftBuf + (mouseMoveX - mouseDragX) / imageScale;
+			zoomLeft = Math.max(0, Math.min(canvas.width - zoomWidth, zoomLeft));
+
+			zoomTop = zoomTopBuf + (mouseMoveY - mouseDragY) / imageScale;
+			zoomTop = Math.max(0, Math.min(canvas.height - zoomHeight, zoomTop));
+			draw();
+		} else {
+			// 移動座標の記録
+			mouseMoveX = e.clientX - rect.left;
+			mouseMoveY = e.clientY - rect.top;
+		}
+	}
+
+	// Canvas上ではブラウザのスクロールを無効に
+	function disableScroll() {
+		document.addEventListener("mousewheel", scrollControl, { passive: false });
+	}
+	function enableScroll() {
+		document.removeEventListener("mousewheel", scrollControl, { passive: false });
+	}
+	function scrollControl(e) {
+		e.preventDefault();
+	}
+
+	draw();
+}
+
+function showOtherPreviewImage(type) {
+	const figureIds = [];
+	const cols = $(".image-col");
+
+	for (let i = 0; i < cols.length; i++) {
+		const figures = cols.eq(i).find("figure");
+		figures.each(function (index) {
+			const id = $(this).attr("id");
+			figureIds[index * cols.length + i] = id;
+		});
+	}
+
+	if (!figureIds || !window.previewingMediaId) {
+		return;
+	}
+	var imgIndex = figureIds.indexOf(window.previewingMediaId);
+	if (imgIndex == -1) {
+		return;
+	}
+
+	var newImgIndex = imgIndex;
+	if (type == 'previous') {
+		newImgIndex = imgIndex - 1;
+	} else if (type == 'next') {
+		newImgIndex = imgIndex + 1;
+	}
+	if (newImgIndex < 0 || figureIds.length <= newImgIndex) {
+		return;
+	}
+	const figureSrcList = $('#' + figureIds[newImgIndex] + ' img').attr('data-smallmedia-url');
+	showPreviewImage(figureIds[newImgIndex], figureSrcList);
 }

@@ -426,7 +426,7 @@ img.company-banner {
 
 .indicator-loader {
     position: absolute;
-    left: 50%;
+    left: calc(50% - 15px);
     top: 45%;
     z-index: 99999;
 }
