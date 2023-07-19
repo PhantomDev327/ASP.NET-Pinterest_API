@@ -1,4 +1,4 @@
-﻿.modal-image-viewer {
+.modal-image-viewer {
     width: 872px;
     margin: auto;
     user-select: none;
@@ -18,7 +18,7 @@
 
 
     .modal-image-viewer .image-uploader-wrapper {
-        width: 420px;
+        /*width: 420px;*/
         border-radius: 3%;
         padding: 1%;
     }
@@ -95,6 +95,8 @@
 
 .left-arrow-container {
     position: fixed;
+    top: 74px;
+    left: 10px;
 }
 
     .left-arrow-container a,
@@ -121,6 +123,8 @@ h5, .h5 {
 @media screen and (max-width: 640px){
     .arrow-key{
         position: unset;
+        padding-left: 10px;
+        padding-top: 10px;
     }
 }
 @media screen and (max-width: 929px) {

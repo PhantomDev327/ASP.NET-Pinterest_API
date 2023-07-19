@@ -74,6 +74,7 @@ figure.selection-border {
     padding: 5px;
     padding-bottom: 0px;
     background-color: black;
+    max-height: 80vh !important;
 }
 .previewButton {
     position: absolute;
@@ -99,8 +100,8 @@ figure.selection-border {
     height: 100% !important;
 }
 figure #myCanvas {
-    width: inherit !important;
-    height: inherit !important;
+    /*width: inherit !important;*/
+    /*height: inherit !important;*/
     max-width: 860px;
     border-radius: 3%;
     object-fit: cover;

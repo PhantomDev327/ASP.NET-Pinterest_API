@@ -158,3 +158,86 @@ width: 170px;
 /* ==========  修正＠ファイルアップロード画面高さ  ========== */
 
 /* ===============  ダークモード修正  =============== */
+
+#tagArea div p {
+  margin-bottom: 0.5rem;
+}
+
+/** TODO: need specific class name for this */
+.content-wrapper {
+  margin-top: 64px !important;
+}
+
+@media only screen and (max-width: 599px) {
+  .content-wrapper {
+    margin-top: 96px !important;
+  }
+
+  .navbar-header .container-fluid {
+    display: initial !important;
+  }
+
+  /*.navbar-header .container-fluid > div:first-child {*/
+  /*  width: 100% !important;*/
+  /*}*/
+}
+
+@media only screen and (max-width:319px) {
+  .thumbnail-container .image-col {
+    padding: 4px !important;
+  }
+
+  .modal-image-viewer {
+    width: 100% !important;
+  }
+}
+
+@media only screen and (min-width: 320px) and (max-width: 359px) {
+  .thumbnail-container .image-col {
+    padding: 4px !important;
+  }
+
+  .modal-image-viewer {
+    width: 100% !important;
+  }
+}
+
+@media only screen and (min-width: 360px) and (max-width: 499px) {
+  .thumbnail-container .image-col {
+    padding: 4px !important;
+  }
+
+  .modal-image-viewer {
+    width: 100% !important;
+  }
+}
+
+@media only screen and (min-width: 500px) and (max-width: 599px) {
+  .thumbnail-container .image-col {
+    padding: 6px !important;
+  }
+}
+
+@media only screen and (min-width: 600px) and (max-width: 740px) {
+}
+
+@media only screen and (min-width: 740px) and (max-width: 1023px) {
+}
+
+.company-banner {
+  object-fit: cover;
+  max-width: 100%;
+}
+
+#showPreviewImageModal .modal-dialog {
+  max-width: initial;
+}
+
+#showPreviewImageModal .modal-dialog .modal-content {
+  width: initial;
+  margin: 0 auto;
+}
+
+#showPreviewImageModal #myCanvas {
+  max-height: calc(80vh - 10px) !important;
+}
