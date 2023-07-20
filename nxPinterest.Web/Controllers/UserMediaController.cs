@@ -46,7 +46,7 @@ namespace nxPinterest.Web.Controllers
 
             int skip = (pageIndex - 1) * pageSize;
 
-            vm.UserMediaList = await this.userMediaManagementService.SearchUserMediaAsync(searchKey, user[0].container_id, skip);
+            vm.UserMediaList = await this.userMediaManagementService.SearchUserMediaAsync(searchKey, this.container_id, skip);
 
             int totalPages = (int)System.Math.Ceiling((decimal)(vm.UserMediaList.Count / (decimal)pageSize));
             int totalRecordCount = vm.UserMediaList.Count;
@@ -139,10 +139,10 @@ namespace nxPinterest.Web.Controllers
                     ////ViewBag.RelatedUserMediaList = JsonConvert.SerializeObject(vm.RelatedUserMediaList);
 
                     //よく使用されているタグ候補
-                    vm.TagList = await this.userMediaManagementService.GetOftenUseTagsAsyc(user[0].container_id, searchKey, 30);
+                    vm.TagList = await this.userMediaManagementService.GetOftenUseTagsAsyc(this.container_id, searchKey, 30);
 
                     //よく使用されているアルバムの一覧 TODO
-                    var album = await userAlbumService.GetAlbumUserByContainer(user[0].Id);
+                    var album = await userAlbumService.GetAlbumUserByContainer(this.container_id);
                     vm.AlbumList = album.Select(n => new nxPinterest.Data.ViewModels.UserAlbumViewModel
                     {
                         AlbumName = n.AlbumName,
@@ -221,7 +221,7 @@ namespace nxPinterest.Web.Controllers
                 vm.AITags = media.AITags;
                 vm.OriginalTags = media.OriginalTags;
                 vm.Created = media.Created;
-                vm.Uploaded = media.Uploaded;
+                vm.Uploaded = media.Uploaded ?? DateTime.Now;
                 vm.Modified = media.Modified;
                 vm.Deleted = media.Deleted;
                 vm.MediaUrl = media.MediaUrl;

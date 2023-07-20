@@ -33,15 +33,11 @@ namespace nxPinterest.Data.Repositories
             return diff.Days > 0;
         }
 
-        public async Task<IEnumerable<UserAlbumViewModel>> GetAlbumUserByContainer(string userId)
+        public async Task<IEnumerable<UserAlbumViewModel>> GetAlbumUserByContainer(int container_id)
         {
 
-            if (string.IsNullOrEmpty(userId)) return new List<UserAlbumViewModel>();
+            if (container_id == 0) return new List<UserAlbumViewModel>();
 
-            var user = _userRepository.GetSingleById(userId);
-
-            if (user is null) return new List<UserAlbumViewModel>();
-            
             var result = await Context.UserAlbums.Select(n => new UserAlbumViewModel
             {
                 ContainerId = n.ContainerId,
@@ -51,7 +47,7 @@ namespace nxPinterest.Data.Repositories
                 AlbumUrl = n.AlbumUrl,
                 AlbumType = (int)n.AlbumType,
                 AlbumThumbnailUrl = n.AlbumThumbnailUrl
-            }).Where(n => n.ContainerId == user.container_id && n.AlbumType == (int)Data.Enums.AlbumType.Album).OrderByDescending(n => n.AlbumCreatedat).ToListAsync();
+            }).Where(n => n.ContainerId == container_id && n.AlbumType == (int)Data.Enums.AlbumType.Album).OrderByDescending(n => n.AlbumCreatedat).ToListAsync();
 
             foreach ( var item in result )
             {

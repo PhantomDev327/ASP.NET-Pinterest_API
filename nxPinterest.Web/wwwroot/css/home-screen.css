@@ -498,3 +498,10 @@ img.company-banner {
 .navbar-header {
     user-select: none;
 }
+
+/* Header new a link styles
+-------------------------------------------------------- */
+.header-item, .header-item:hover {
+    color: var(--bs-dropdown-link-color);
+    text-decoration: none;
+}

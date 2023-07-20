@@ -33,7 +33,7 @@ namespace nxPinterest.Web.Controllers
 
         public async Task<IActionResult> GetAlbums()
         {
-            var model = await _userAlbumService.GetAlbumUserByContainer(UserId);
+            var model = await _userAlbumService.GetAlbumUserByContainer(this.container_id);
 
             return PartialView("/Views/Shared/_ShowAlbum.cshtml", model);
         }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using nxPinterest.Data.Models;
 using nxPinterest.Data.ViewModels;
 
 namespace nxPinterest.Web.Models
@@ -12,6 +13,7 @@ namespace nxPinterest.Web.Models
         public string Discriminator { get; set; }
         public string UserDispName { get; set; }
         public int SizeRange { get; set; }
+        public IList<UserContainer> UserContainers { get; set; }
 
 
     }

@@ -38,9 +38,18 @@ namespace nxPinterest.Web
             })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+            
 
             services.AddControllersWithViews()
                 .AddRazorRuntimeCompilation();
+
+            services.AddDistributedMemoryCache();
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromSeconds(10);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
 
             services.ConfigureApplicationCookie(options =>
             {
@@ -72,6 +81,8 @@ namespace nxPinterest.Web
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseSession();
 
             app.UseEndpoints(endpoints =>
             {

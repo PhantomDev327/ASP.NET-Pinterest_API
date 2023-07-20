@@ -120,24 +120,46 @@
                             <i class="bi bi-trash fa-lg px-2"></i>
                         </span>
                 }
-
-                <div class="dropdown px-2">
+                <span role="button" id="downloadMedia" title="パスワード変更">
+                    <a class="header-item" href='@Url.Action("ChangePassword", "account")'>
+                        <i class="bi bi-key fa-lg px-2"></i>
+                    </a>
+                </span>
+                <span role="button" id="downloadMedia" title="ログアウト">
+                    <a class="header-item" href='@Url.Action("LogOut", "account")'>
+                        <i class="bi bi-box-arrow-right fa-lg px-2"></i>
+                    </a>
+                </span>
+                <div class="dropdown">
                     <div data-bs-toggle="dropdown" aria-expanded="false">
-                        <span class="px-1">@Model.UserDispName</span>
-                        <i class="bi bi-chevron-down"></i>
+                        <i class="bi bi-grid fa-lg px-2"></i>
                     </div>
                     <ul class="dropdown-menu dropdown-menu-end">
-
-                        @if (Model.Discriminator == "SysAdmin")
+                        @foreach(var container in Model.UserContainers)
                         {
-                                <li>
-                                    <a class="dropdown-item" href="@Url.Action("UserContainerList", "account")">
-                                        <i class="bi bi-bag-check" data-toggle="tooltip" data-placement="bottom" title="コンテナを登録" style=""></i> コンテナ管理
-                                    </a>
-                                </li>
+                            <li>
+                                <a class="dropdown-item" href="@Url.Action("Index", "home", new { container = container.container_id })">
+                                    <i class="bi bi-card-checklist" data-toggle="tooltip" data-placement="bottom" title="@container.container_name" style=""></i> @container.container_name
+                                </a>
+                            </li>
                         }
-                        @if (Model.Discriminator == "SysAdmin" || Model.Discriminator == "ContainerAdmin")
-                        {
+                    </ul>
+                </div>
+                @if (Model.Discriminator == "SysAdmin" || Model.Discriminator == "ContainerAdmin")
+                {
+                    <div class="dropdown">
+                        <div data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-list fa-lg px-2"></i>
+                        </div>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            @if (Model.Discriminator == "SysAdmin")
+                            {
+                                    <li>
+                                        <a class="dropdown-item" href="@Url.Action("UserContainerList", "account")">
+                                            <i class="bi bi-bag-check" data-toggle="tooltip" data-placement="bottom" title="コンテナを登録" style=""></i> コンテナ管理
+                                        </a>
+                                    </li>
+                            }
                             <li>
                                 <a class="dropdown-item" href="@Url.Action("NormalUserList", "account")">
                                     <i class="bi bi-card-checklist" data-toggle="tooltip" data-placement="bottom" title="ユーザ一を登録" style=""></i> ユーザ管理
@@ -148,11 +170,9 @@
                                     <i class="bi bi-hospital" data-toggle="tooltip" data-placement="bottom" title="リカバリ" style=""></i> サムネイル修復
                                 </a>
                             </li>
-                        }
-                        <li><a class="dropdown-item" href="@Url.Action("ChangePassword", "account")">パスワード変更</a></li>
-                        <li><a class="dropdown-item" href="@Url.Action("LogOut", "account")">ログアウト</a></li>
-                    </ul>
-                </div>
+                        </ul>
+                    </div>
+                }
             </div>
         </div>
     </div>

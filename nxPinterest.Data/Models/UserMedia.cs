@@ -22,7 +22,7 @@ namespace nxPinterest.Data.Models
         public string SearchText { get; set; } = "";
         public int ContainerId { get; set; }
         public DateTime? Created { get; set; }
-        public DateTime Uploaded { get; set; }
+        public DateTime? Uploaded { get; set; }
         public DateTime? Modified { get; set; }
         public DateTime? Deleted { get; set; }
         public byte Status { get; set; }

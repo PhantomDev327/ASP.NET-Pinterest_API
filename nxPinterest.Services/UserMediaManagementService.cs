@@ -66,7 +66,7 @@ namespace nxPinterest.Services
             try
             {
                 var query = this._context.UserMedia.AsNoTracking()
-                                     .Where(c => c.ContainerId.Equals(container_id) && c.Status == 0 && c.Deleted == null);
+                                     .Where(c => c.ContainerId == container_id && c.Status == 0 && c.Deleted == null);
 
                 //todo tagテーブルで検索に変更したい？どっちが早いか
                 if (!String.IsNullOrEmpty(searchKey))

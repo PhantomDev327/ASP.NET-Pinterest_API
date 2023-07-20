@@ -12,7 +12,7 @@ namespace nxPinterest.Data.Repositories.Interfaces
 
         bool CheckExpiryDayAlbum(int albumId, DateTime? albumExpireDate);
 
-        Task<IEnumerable<UserAlbumViewModel>> GetAlbumUserByContainer(string userId);
+        Task<IEnumerable<UserAlbumViewModel>> GetAlbumUserByContainer(int container);
 
         Task<int> GetAlbumIdByPathUrl(string pathUrl);
 
