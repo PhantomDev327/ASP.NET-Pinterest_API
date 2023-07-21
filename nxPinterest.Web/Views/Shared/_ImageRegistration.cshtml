@@ -12,7 +12,7 @@
                                 <form asp-action="UploadMediaFile" asp-controller="UserMedia" method="post" enctype="multipart/form-data" class="form-horizontal dropzone h-100 " name="dropzoneForm" id="dropzoneForm">
                                     <div class="form-group form-actions">
                                         <div class="fallback "></div>
-                                        <input type="file" name="Images" id="upfiles" style="display: none;" multiple/>
+                                        <input type="file" name="Images" id="upfiles" style="display: none;" multiple />
                                         <input type="hidden" name="Title" id="title_image" />
                                         <input type="hidden" name="Description" id="description_image" />
                                         <input type="hidden" name="OriginalTags" id="project_tags_image" />
@@ -25,10 +25,10 @@
                     </div>
 
                     <div class="col-12 col-md-6">
-                        <input type="text" class="form-control input-control input-title px-0" placeholder="写真のタイトル" asp-for="Title" />                        
+                        <input type="text" class="form-control input-control input-title px-0" placeholder="写真のタイトル" asp-for="Title" />
                         <div class="form-text text-danger mt-4">
                             @Html.ValidationMessageFor(c => c.Title)
-                        </div>                        
+                        </div>
                         <textarea rows="2" class="form-control input-control input-title px-0" placeholder="説明" asp-for="Description"></textarea>
                         @*<input type="text" class="form-control input-control input-title px-0" placeholder="説明" asp-for="Description" />*@
                         <div class="form-text text-danger mt-4">
@@ -38,26 +38,27 @@
                         <div class="tag-control-container" id="style">
                             <div style="color: #4d4d4d; margin-top:10px;"><i class="bi bi bi-tag"></i>よく使うタグ</div>
                             <div class="original_tags" style="margin-bottom:10px;">
-                                @if(Model.SuggestTagsList != null)
+                                @if (Model.SuggestTagsList != null)
                                 {
-                                    @foreach (var tag in @Model.SuggestTagsList){
-			                            <div onclick=inputTags("@tag") style="display:inline-block;color:#4d4d4d;border-radius:3px;padding:3px;margin:1px 3px;">#@tag</div>
-		                            }
+                                    @foreach (var tag in @Model.SuggestTagsList)
+                                    {
+                                        <div onclick=inputTags("@tag") style="display:inline-block;color:#4d4d4d;border-radius:3px;padding:3px;margin:1px 3px;">#@tag</div>
+                                    }
                                 }
-	                        </div>
+                            </div>
                             @*<p class="tag-text" style="color: #adb5bd; ">タグ</p>*@
                             <input data-role="tagsinput" asp-for="OriginalTags" />
                         </div>
-@*
+                        @*
                         <input hidden asp-for="PhotoTags" />
                         <input hidden asp-for="UserCreated" />
                         <input hidden asp-for="Uploaded" />
-*@                        
+                        *@
                         <div class="text-center">
                             <input type="button" value="写真を投稿" class="btn btn-default btn-save" id="upload_submit" form="dropzoneForm" />
                         </div> <br>
                         <div class="text-center" style="margin-top:10px;margin-bottom:10px">
-                            <input type="button" value="個別編集" id="kobetsu_submit" form="dropzoneForm" style="border-style: none; background: #fff; font-weight: bold;"/>
+                            <input type="button" value="個別編集" id="kobetsu_submit" form="dropzoneForm" style="border-style: none; background: #fff; font-weight: bold;" />
                         </div>
                     </div>
                 </div>
@@ -100,7 +101,23 @@
                 $("#description_image").val($("#Description").val());
                 $("#project_tags_image").val($("#OriginalTags").val());
                 $("#btn_name").val("upload");
-                $('#dropzoneForm').submit();
+
+
+                if ($("#upfiles").val() == "") {
+                    alert("写真を選択してください。");
+                    hideLoadingIndicator();
+                    this.disabled = false;
+                    return false;
+                }
+                else if ($("#title_image").val() == "") {
+                    alert("写真のタイトルを入力してください。");
+                    hideLoadingIndicator();
+                    this.disabled = false;
+                    return false;
+                }
+                else {
+                    $('#dropzoneForm').submit();
+                }
             });
 
             $("#kobetsu_submit").click(function (e) {
@@ -124,7 +141,20 @@
                 $("#description_image").val($("#Description").val());
                 $("#project_tags_image").val($("#OriginalTags").val());
                 $("#btn_name").val("kobetsu");
-                $('#dropzoneForm').submit();
+
+                if ($("#upfiles").val() == "") {
+                    alert("写真を選択してください。");
+                    hideLoadingIndicator();
+                    return false;
+                }
+                else if ($("#title_image").val() == "") {
+                    alert("写真のタイトルを入力してください。");
+                    hideLoadingIndicator();
+                    return false;
+                }
+                else {
+                    $('#dropzoneForm').submit();
+                }
             });
         },
         accept: function (file, done) {

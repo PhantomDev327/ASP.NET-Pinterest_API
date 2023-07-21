@@ -49,18 +49,14 @@
                 <div id="footerUserMediaLink">
                     <div class="clearfix"></div>
                     <hr class="mb-5">
-                    <div class="d-flex justify-content-center mt-3">
+                    <div class="input-group">
                         <input type="text" class="form-control" id="shareUserMediaFileLink">
+                        <button type="button" id="copyLinkMedia" class="btn btn-outline-secondary btn-md text-center" data-toggle="tooltip" data-placement="top" title="コピーする">
+                            <i class="fa fa-copy" aria-hidden="true"></i>
+                        </button>
                     </div>
                     <div class="d-flex justify-content-center mt-3">
-                        <div class="btn-group mr-4" style="margin-right:50px">
-                            <button type="button" id="copyLinkMedia" class="btn btn-outline-secondary btn-md text-center" data-toggle="tooltip" data-placement="top" title="コピーする">
-                                コピーする <i class="fa fa-copy" aria-hidden="true"></i>
-
-                            </button>
-                            <div id="tooltipCopy" data-toggle="tooltip" data-placement="top" title="リンクが共有されました。"></div>
-                        </div>
-
+                        <div id="tooltipCopy" data-toggle="tooltip" data-placement="top" title="リンクが共有されました。"></div>
                     </div>
                 </div>
             </div>
@@ -143,6 +139,9 @@
                 }
             },300);
         });
+
+        document.getElementById("changeZoomRange").value = localStorage.getItem("zoomSize");
+        changeZoom();
     });
     function getColNum(itemWidth) {
         var col_num = Math.floor($(window).width() / itemWidth);
@@ -257,6 +256,7 @@
                 reloadImageAlbum();
             }
         }, 300);
+        localStorage.setItem('zoomSize', zoomSize);
     }
 
     function changeZoomOut() {
