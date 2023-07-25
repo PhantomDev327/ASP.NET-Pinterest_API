@@ -9,7 +9,7 @@ namespace nxPinterest.Services.Interfaces
 {
     public interface IUserAlbumService
     {
-        Task<bool> Create(CreateUserAlbumRequest model, string userId);
+        Task<bool> Create(CreateUserAlbumRequest model, string userId, int container_id);
 
         Task<string> CreateAlbumShare(CreateUserAlbumSharedRequest model, string userId);
 
@@ -25,10 +25,14 @@ namespace nxPinterest.Services.Interfaces
 
         Task<bool> IsAlbumNameExistAsync(string albumName);
 
-        UserAlbum RemoveAlbum(string albumName);
+        Task<UserAlbum> RemoveAlbum(string albumName);
 
         Task<IEnumerable<SharedLinkAlbumMediaViewModel>> GetListAlbumById(int albumId, int pageIndex);
 
         Task<bool> RemoveMediaFromAlbum(int albumId, List<int> mediaIdList);
+
+        Task<IEnumerable<UserAlbumViewModel>> GetSharedAlbumByUser(string user_id);
+
+        Task<bool> DeleteAlbum(int albumId);
     }
 }

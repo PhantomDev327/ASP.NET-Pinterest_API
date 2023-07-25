@@ -19,5 +19,6 @@ namespace nxPinterest.Services.Models.Request
         public bool user_visibility { get; set; }
 
         public string UserDispName { get; set; }
+
     }
 }

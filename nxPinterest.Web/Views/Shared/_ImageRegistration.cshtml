@@ -10,6 +10,8 @@
                             <div class="scrollspy-example scrollbar-dropzone" data-bs-spy="scroll">
                                 <!-- Dropzone Start -->
                                 <form asp-action="UploadMediaFile" asp-controller="UserMedia" method="post" enctype="multipart/form-data" class="form-horizontal dropzone h-100 " name="dropzoneForm" id="dropzoneForm">
+                                    <div class="form-text text-danger mt-4" id="image-validation">
+                                    </div>
                                     <div class="form-group form-actions">
                                         <div class="fallback "></div>
                                         <input type="file" name="Images" id="upfiles" style="display: none;" multiple />
@@ -26,7 +28,7 @@
 
                     <div class="col-12 col-md-6">
                         <input type="text" class="form-control input-control input-title px-0" placeholder="写真のタイトル" asp-for="Title" />
-                        <div class="form-text text-danger mt-4">
+                        <div class="form-text text-danger mb-3" id="title-validation">
                             @Html.ValidationMessageFor(c => c.Title)
                         </div>
                         <textarea rows="2" class="form-control input-control input-title px-0" placeholder="説明" asp-for="Description"></textarea>
@@ -80,6 +82,24 @@
         uploadMultiple: true,
         init: function () {
             var myDropzone = this;
+            $('#dropzoneForm').click(e => {
+                $('#image-validation').text("");
+            });
+            $('#Title').keyup(e => {
+                if($('#Title').val() != ''){
+                    $('#title-validation').text("");
+                    $('#Title').css({
+                        "border": "none",
+                        "margin- bottom": "4%"
+                    });
+                } else {
+                    $('#title-validation').text("写真のタイトルを入力してください。");
+                    $('#Title').css({
+                        "border": "solid red 2px",
+                        "margin- bottom": "1px"
+                    });
+                }
+            });
             $("#upload_submit").click(function (e) {
                 showLoadingIndicator();
                 this.disabled = true;
@@ -104,13 +124,17 @@
 
 
                 if ($("#upfiles").val() == "") {
-                    alert("写真を選択してください。");
+                    $('#image-validation').text("写真を選択してください。");
                     hideLoadingIndicator();
                     this.disabled = false;
                     return false;
                 }
                 else if ($("#title_image").val() == "") {
-                    alert("写真のタイトルを入力してください。");
+                    $('#title-validation').text("写真のタイトルを入力してください。");
+                    $('#Title').css({
+                        "border": "solid red 2px",
+                        "margin- bottom": "1px"
+                    });
                     hideLoadingIndicator();
                     this.disabled = false;
                     return false;
@@ -143,13 +167,19 @@
                 $("#btn_name").val("kobetsu");
 
                 if ($("#upfiles").val() == "") {
-                    alert("写真を選択してください。");
+                    $('#image-validation').text("写真を選択してください。");
                     hideLoadingIndicator();
+                    this.disabled = false;
                     return false;
                 }
                 else if ($("#title_image").val() == "") {
-                    alert("写真のタイトルを入力してください。");
+                    $('#title-validation').text("写真のタイトルを入力してください。");
+                    $('#Title').css({
+                        "border": "solid red 2px",
+                        "margin- bottom": "1px"
+                    });
                     hideLoadingIndicator();
+                    this.disabled = false;
                     return false;
                 }
                 else {

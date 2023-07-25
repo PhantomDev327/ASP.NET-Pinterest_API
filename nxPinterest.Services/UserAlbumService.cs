@@ -27,7 +27,7 @@ namespace nxPinterest.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<bool> Create(CreateUserAlbumRequest model, string userId)
+        public async Task<bool> Create(CreateUserAlbumRequest model, string userId, int container_id)
         {
             try
             {
@@ -38,12 +38,11 @@ namespace nxPinterest.Services
                 }
 
                 var user = _userRepository.GetSingleByCondition(n => n.Id == userId);
-                var containerId = user.container_id;
-
+                
                 var userAlbum = new UserAlbum
                 {
                     AlbumName = model.AlbumName,
-                    ContainerId = containerId,
+                    ContainerId = container_id,
                     UserId = userId,
                     AlbumType = Data.Enums.AlbumType.Album,
                     AlbumUrl = model.AlbumUrl,
@@ -73,7 +72,7 @@ namespace nxPinterest.Services
                     var userAlbumMedia = new UserAlbumMedia
                     {
                         AlbumId = userAlbum.AlbumId,
-                        ContainerId = containerId,
+                        ContainerId = container_id,
                         UserMediaId = item.UserMediaId,
                         UserMediaName = item.MediaFileName,
                         AlbumMediaCreatedat = DateTime.Now
@@ -113,7 +112,8 @@ namespace nxPinterest.Services
                     AlbumThumbnailUrl = model.UserAlbumMedias[0].MediaThumbnailUrl,
                     AlbumVisibility = true,
                     AlbumCreatedat = DateTime.Now,
-                    AlbumExpireDate = model.AlbumExpireDate
+                    AlbumExpireDate = model.AlbumExpireDate,
+                    AlbumComment = model.AlbumComment
                 };
 
                 await _userAlbumRepository.Add(userAlbum);
@@ -184,12 +184,21 @@ namespace nxPinterest.Services
         }
 
 
-        public UserAlbum RemoveAlbum(string albumName)
+        public async Task<UserAlbum> RemoveAlbum(string albumName)
         {
             var albumId = _userAlbumRepository.GetAlbumIdByName(albumName).Result;
+            await _userAlbumMediaRepository.DeleteUserAlbumMediaAsyncById(albumId);
             var album = _userAlbumRepository.Delete(albumId);
             this._unitOfWork.SaveChanges();
             return album;
+        }
+
+        public async Task<bool> DeleteAlbum(int albumId)
+        {
+            await _userAlbumMediaRepository.DeleteUserAlbumMediaAsyncById(albumId);
+            var album = _userAlbumRepository.Delete(albumId);
+            this._unitOfWork.SaveChanges();
+            return album != null;
         }
 
 
@@ -210,6 +219,11 @@ namespace nxPinterest.Services
             {
                 return false;
             }
+        }
+
+        public async Task<IEnumerable<UserAlbumViewModel>> GetSharedAlbumByUser(string user_id)
+        {
+            return await _userAlbumRepository.GetSharedAlbumByUser(user_id);
         }
     }
 }

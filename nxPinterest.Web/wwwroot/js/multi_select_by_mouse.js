@@ -172,7 +172,8 @@ function MultiImageSelectByMouse(opts) {
     this.targetArea.addEventListener("dblclick", function (e) {
         if (isClickPointImgEl(e)) {
             var mediaId = e.target.parentElement.id;
-            window.location.href = "/UserMedia/Details?media_id=" + mediaId;
+            let sizeIndex = document.getElementById("changeZoomRange").value;
+            window.location.href = "/UserMedia/Details?media_id=" + mediaId + "&size_index=" + sizeIndex;
         }
     });
 

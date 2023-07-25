@@ -20,6 +20,8 @@
             var $getExpireDate = $("#expireDate").val();
             var $chooseDate = new Date($getExpireDate);
 
+            var comment = $("#comment").val();
+
             if (formatDate($chooseDate) < formatDate(currentDate)) {
                 alert("共有期限は未来の日付を設定してください。");
                 return;
@@ -31,7 +33,8 @@
                 dataType: "json",
                 data: {
                     AlbumExpireDate: formatDate($chooseDate.toLocaleString()),
-                    UserAlbumMedias: $albumMedias
+                    UserAlbumMedias: $albumMedias,
+                    AlbumComment: comment
                 },
                 cache: false,
                 success: function (result) {

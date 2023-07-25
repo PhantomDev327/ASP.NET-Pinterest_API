@@ -20,25 +20,24 @@
             </div>
             <div class="modal-body">
                 <div class="row g-3 align-items-center">
-                    <div class="col-auto">
-                        <label for="lblDate" class="col-form-label">
-                            共有期限
-                        </label>
-                    </div>
-                    <div class="col-auto mx-auto">
+                    <div class="col-9 mx-auto">
                         <div class="input-group input-medium date date-picker" data-provide="datepicker">
-                            <span class="input-group-btn" style="font-size: 0; white-space: nowrap;vert-align: middle">
+                            <span class="input-group-btn" style="font-size: 0; white-space: nowrap;vertical-align: middle;">
                                 <button class="btn default" type="button" style="color: #666; background-color: #e1e5ec; border-color: #e1e5ec;border-radius: 0 ">
                                     <i class="fa fa-calendar"></i>
                                 </button>
                             </span>
-                            <input type="text" class="form-control" id="expireDate" readonly="" style="border-color: #e1e5ec;border-radius: 0 ">
-
+                            <input type="text" class="form-control" id="expireDate" readonly="" style="border-color: #e1e5ec;border-radius: 0 " placeholder="共有期限">
                         </div>
                     </div>
                 </div>
+                <div class="row g-3 mt-2">
+                    <div class="col-9 mx-auto">
+                        <textarea class="form-control" rows="5" id="comment" name="comment" placeholder="コメント"></textarea>
+                    </div>
+                </div>
                 <div class="d-flex justify-content-center mt-3">
-                    <div class="btn-group mr-4" style="margin-right:85px">
+                    <div class="btn-group mx-4">
                         <button type="button" id="sharedAlbumMedia" class="btn btn-outline-secondary btn-md text-center">
                             共有する
                         </button>
@@ -139,7 +138,6 @@
                 }
             },300);
         });
-
         document.getElementById("changeZoomRange").value = localStorage.getItem("zoomSize");
         changeZoom();
     });

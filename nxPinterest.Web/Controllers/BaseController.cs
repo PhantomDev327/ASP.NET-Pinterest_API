@@ -9,8 +9,7 @@ namespace nxPinterest.Web.Controllers
     public abstract class BaseController : Controller
     {
         public const string SessionContainerName = "_Container";
-        public BaseController() { 
-        
+        public BaseController() {
         }
 
         protected string UserId

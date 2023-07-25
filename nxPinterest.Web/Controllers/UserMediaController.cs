@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using nxPinterest.Web.Models;
 using nxPinterest.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace nxPinterest.Web.Controllers
 {
@@ -137,7 +138,23 @@ namespace nxPinterest.Web.Controllers
                     ////ViewBag.PorjectTags = originalTags ?? null;
                     //////ViewBag.PhotoTags = string.Join(',', photo_tags_list.ToArray());
                     ////ViewBag.RelatedUserMediaList = JsonConvert.SerializeObject(vm.RelatedUserMediaList);
+                    // get user containers
+                    string container_ids = user[0].ContainerIds ?? "";
+                    string[] containerArray = container_ids.Split(',');
 
+                    if (containerArray.Length == 0 || containerArray[0] == "")
+                    {
+                        vm.UserContainers = await this._context.UserContainer.Where(c => c.container_id == user[0].container_id).ToListAsync();
+                    }
+                    else
+                    {
+                        var containerIds = containerArray
+                            .Where(x => int.TryParse(x, out _))
+                            .Select(int.Parse)
+                            .ToList();
+
+                        vm.UserContainers = await this._context.UserContainer.Where(c => containerIds.Contains(c.container_id)).ToListAsync();
+                    }
                     //よく使用されているタグ候補
                     vm.TagList = await this.userMediaManagementService.GetOftenUseTagsAsyc(this.container_id, searchKey, 30);
 
@@ -148,6 +165,8 @@ namespace nxPinterest.Web.Controllers
                         AlbumName = n.AlbumName,
                         AlbumUrl = n.AlbumUrl
                     }).ToList();
+
+                    vm.currentContainer = this.container_id;
 
                     //return PartialView("/Views/Home/Details.cshtml", vm);
                     return View("/Views/UserMedia/Details.cshtml", vm);
@@ -381,7 +400,7 @@ namespace nxPinterest.Web.Controllers
             // Validate param
             if (!ModelState.IsValid)
             {
-                //return View();
+                //return View(request);
                 // To Do
                 //TempData["Message"] = "Validate fails!";
                 TempData["Message"] = "No title entered.";
