@@ -58,5 +58,14 @@ namespace nxPinterest.Data.Repositories
             Context.UserAlbumMedias.RemoveRange(ret);
             return Context.SaveChangesAsync();
         }
+
+        public Task<int> DeleteUserAlbumMediaAsyncById(int albumId)
+        {
+            var ret = Context.UserAlbumMedias
+                 .Where(x => x.AlbumId == albumId);
+
+            Context.UserAlbumMedias.RemoveRange(ret);
+            return Context.SaveChangesAsync();
+        }
     }
 }

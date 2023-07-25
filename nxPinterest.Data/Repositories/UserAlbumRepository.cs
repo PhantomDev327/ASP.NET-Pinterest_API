@@ -123,5 +123,36 @@ namespace nxPinterest.Data.Repositories
                 .Where(x => x.AlbumName==albumName)
                 .AnyAsync();
         }
+
+        public async Task<IEnumerable<UserAlbumViewModel>> GetSharedAlbumByUser(string userId)
+        {
+
+            if (string.IsNullOrEmpty(userId)) return new List<UserAlbumViewModel>();
+
+            var user = _userRepository.GetSingleById(userId);
+
+            if (user is null) return new List<UserAlbumViewModel>();
+
+            var result = await Context.UserAlbums.Select(n => new UserAlbumViewModel
+            {
+                ContainerId = n.ContainerId,
+                AlbumName = n.AlbumName,
+                AlbumId = n.AlbumId,
+                AlbumCreatedat = n.AlbumCreatedat,
+                AlbumUrl = n.AlbumUrl,
+                AlbumType = (int)n.AlbumType,
+                AlbumThumbnailUrl = n.AlbumThumbnailUrl,
+                AlbumExpireDate = n.AlbumExpireDate,
+                UserId = n.UserId,
+                Comment = n.AlbumComment
+            }).Where(n => n.AlbumType == (int)Data.Enums.AlbumType.AlbumShare && n.UserId.Equals(userId)).OrderByDescending(n => n.AlbumCreatedat).ToListAsync();
+
+            foreach (var item in result)
+            {
+                item.ImageCount = await _userAlbumMediaRepository.GetAlmubMediaCount(item.AlbumId);
+            }
+
+            return result != null ? result : new List<UserAlbumViewModel>();
+        }
     }
 }

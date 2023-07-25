@@ -20,7 +20,10 @@ namespace nxPinterest.Data.ViewModels
         public DateTime? AlbumCreatedat { get; set; }
 
         public string AlbumThumbnailUrl { get; set; }
+        public DateTime? AlbumExpireDate { get; set; }
 
         public int AlbumType { get; set; }
+
+        public string? Comment { get; set; }
     }
 }

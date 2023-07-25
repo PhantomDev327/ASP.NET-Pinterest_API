@@ -92,6 +92,7 @@ var pageSharedAlbumController = function () {
 			}
 			document.getElementById("changeZoomRange").value = zoomSize - 1;
 			changeZoom();
+
 		});
 
 
@@ -129,8 +130,6 @@ var pageSharedAlbumController = function () {
 		timer = setTimeout(function () {
 			reloadImage();
 		}, 300);
-
-		console.log(zoomSize);
 	}
 	function getCurrentZoomRange() {
 		var changeZoomRange = document.getElementById("changeZoomRange");

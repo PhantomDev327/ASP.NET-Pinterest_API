@@ -88,7 +88,7 @@ namespace nxPinterest.Web.Controllers
             vm.TagList = await this.userMediaManagementService.GetOftenUseTagsAsyc(this.container_id, searchKey, 30);
 
             // get user containers
-            string container_ids = "";
+            string container_ids = user[0].ContainerIds ?? "";
             string[] containerArray = container_ids.Split(',');
 
             if (containerArray.Length == 0 || containerArray[0] == "")
@@ -115,6 +115,8 @@ namespace nxPinterest.Web.Controllers
                AlbumName = n.AlbumName,
                AlbumUrl = n.AlbumUrl
            }).ToList();
+
+            vm.currentContainer = this.container_id;
 
             //登録画面で使用されているタグ候補
             vm.ImageRegistrationVM.SuggestTagsList = vm.TagList;

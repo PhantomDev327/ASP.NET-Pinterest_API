@@ -28,5 +28,6 @@ namespace nxPinterest.Data.Models
         public virtual bool user_visibility { get; set; }
 
         public virtual string UserDispName { get; set; }
+        public virtual string ContainerIds { get; set; }
     }
 }

@@ -17,6 +17,7 @@ using System.Net;
 using System.IO;
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
+using nxPinterest.Services.Interfaces;
 using System.Configuration;
 using Microsoft.Extensions.Configuration;
 
@@ -27,9 +28,10 @@ namespace nxPinterest.Web.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly Services.Interfaces.IUserContainerManagementService userContainerManagementService;
+        private readonly IUserContainerManagementService userContainerManagementService;
         public const int pageSize = nxPinterest.Services.dev_Settings.pageSize_regist;
         private readonly ApplicationDbContext _context;
+        private readonly IUserAlbumService _userAlbumService;
         protected string UserId
         {
             get
@@ -39,11 +41,13 @@ namespace nxPinterest.Web.Controllers
         }
         public AccountController(UserManager<ApplicationUser> userManager,
                                 SignInManager<ApplicationUser> signInManager,
-                                Services.Interfaces.IUserContainerManagementService userContainerManagementService,
+                                IUserContainerManagementService userContainerManagementService,
+                                IUserAlbumService userAlbumService,
                                 ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _userAlbumService = userAlbumService;
             _context = context;
             this.userContainerManagementService = userContainerManagementService;
         }
@@ -994,6 +998,7 @@ namespace nxPinterest.Web.Controllers
             ViewBag.ItemCount = vm.ApplicationUserList.Count;
             //追加 ssa20220527
             ViewBag.UserDispName = user.UserDispName;
+            vm.Discriminator = user.Discriminator;
             //
             vm.ApplicationUserList = vm.ApplicationUserList.Skip(skip).Take(pageSize).ToList();
 
@@ -1001,7 +1006,6 @@ namespace nxPinterest.Web.Controllers
             vm.TotalPages = totalPages;
             vm.TotalRecords = totalRecordCount;
 
-            
             return this.View("~/Views/Account/NormalUserList.cshtml", vm);
         }
 
@@ -1022,8 +1026,10 @@ namespace nxPinterest.Web.Controllers
             int container_id3 = Int32.Parse(container_id2);
             Services.Models.Request.NormalUserRegistrationRequest vm = new Services.Models.Request.NormalUserRegistrationRequest();
             vm.container_id = container_id3;
+
             //追加 ssa20220527
             ViewBag.UserDispName = user.UserDispName;
+            vm.Discriminator = user.Discriminator;
             //
             return this.View("~/Views/Account/NormalUserRegister.cshtml", vm);
         }

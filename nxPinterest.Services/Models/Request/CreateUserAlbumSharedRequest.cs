@@ -15,4 +15,6 @@ public class CreateUserAlbumSharedRequest
 
     public List<UserAlbumMediaRequest> UserAlbumMedias { get; set; }
 
+    public string? AlbumComment { get; set; }
+
 }
