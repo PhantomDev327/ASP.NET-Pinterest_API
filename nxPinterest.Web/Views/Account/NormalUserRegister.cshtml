@@ -1,7 +1,7 @@
 ﻿@model nxPinterest.Services.Models.Request.NormalUserRegistrationRequest
 @{
     ViewData["Title"] = "ユーザ登録";
-    Layout = "~/Views/Shared/_UserLayout.cshtml";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 
@@ -35,7 +35,7 @@
             <div class="col-lg-12  mb-3 row">
                 <div class="col-lg-12 col-md-12 col-sm-12 mb-3">
                     <label for="username" style="margin-bottom: 0.5rem;">名前</label>
-                    <input type="text" class="form-control" asp-for="UserDispName">
+                    <input type="text" class="form-control" asp-for="UserDispName" value="">
                     <input type="hidden" class="form-control" asp-for="container_id">
                 </div>
             </div>

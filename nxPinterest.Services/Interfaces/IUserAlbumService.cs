@@ -31,7 +31,7 @@ namespace nxPinterest.Services.Interfaces
 
         Task<bool> RemoveMediaFromAlbum(int albumId, List<int> mediaIdList);
 
-        Task<IEnumerable<UserAlbumViewModel>> GetSharedAlbumByUser(string user_id);
+        Task<IEnumerable<UserAlbumViewModel>> GetSharedAlbumByUser(string user_id, string role);
 
         Task<bool> DeleteAlbum(int albumId);
     }

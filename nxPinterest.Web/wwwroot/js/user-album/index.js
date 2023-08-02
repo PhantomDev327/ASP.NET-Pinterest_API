@@ -15,7 +15,7 @@
             }
             var $albumName = $('#createUserMediaFolderName').val();
             if ($albumName === '' || $albumName == null) {
-                alert("アルバムは、必ず指定してください。 !");
+                alert("アルバム名を指定してください");
                 return;
             }
 
@@ -34,7 +34,7 @@
                     }
                 },
                 error: function () {
-                    alert("保存できない.");
+                    alert("保存に失敗しました");
                 }
             });
 
@@ -80,7 +80,7 @@
                         }
                     },
                     error: function () {
-                        alert("保存できない.");
+                        alert("保存に失敗しました");
                     }
                 });
             }
@@ -90,7 +90,6 @@
         $('body').on('click', '#createMediaFolder, .createMediaFolder', function (e) {
             e.preventDefault();
             LoadAlbums();
-
         });
 
         $('body').on('click', '#editMultiMedia, .editMultiMedia', function (e) {
@@ -161,7 +160,7 @@
                     }
                 },
                 error: function () {
-                    alert("保存できない.");
+                    alert("保存に失敗しました");
                 }
             });
         });

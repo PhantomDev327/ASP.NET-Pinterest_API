@@ -1,4 +1,4 @@
-﻿<div class="modal fade text-black" id="createUserMediaFolderModal" tabindex="-1" role="dialog" aria-labelledby="createUserMediaFolderModalTitle" aria-hidden="true">
+<div class="modal fade text-black" id="createUserMediaFolderModal" tabindex="-1" role="dialog" aria-labelledby="createUserMediaFolderModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header border-0">
@@ -113,23 +113,16 @@
         $(window).css('min-width', 500);
         initCol();
         if (window.isFullImage) {
-            loadImg();
+            loadAlbum();
         } else {
             loadImgByName(window.fullAlbumName);
         }
-        $(window).scroll(function() {
-            if($(window).scrollTop() + $(window).height() == $(document).height()) {
-                if (window.isFullImage) {
-                    loadImg();
-                } 
-            }
-        });
         var timer = null;
         $(window).on('resize', function(){
             clearTimeout(timer);
             timer = setTimeout(function() {
                 if (window.isFullImage) {
-                    reloadImage();
+                    loadAlbum();
                 } else {
                     reloadImageAlbum();
                 }
@@ -167,11 +160,33 @@
         initCol();
         window.imagesAlbum.forEach(function (data) {
             data.forEach(function (value) {
-                appendData(value);
+                appendAlbumData(value);
             });
         });
     }
     function appendData(value) {
+        var newDivEl = document.createElement('div');
+
+        var newImgEl = document.createElement('img');
+        var newTitleEl = document.createElement('h6');
+        newTitleEl.innerHTML = value.albumName + '(' + value.imageCount +')';
+        newTitleEl.classList.add('album-title');
+        newTitleEl.classList.add('text-truncate');
+        newImgEl.addEventListener('load', function () {
+            shortest = findShortestCol();
+            shortest.append('<div id="' + value.albumName + '"></div>');
+            var newDivEl = $('div[id="' + value.albumName + '"]');
+            newDivEl.append('<figure id="'+value.albumName+'" data-url="'+ value.albumUrl + '"><figcaption><p class="title">'+value.albumName+'</p></figcaption></figure>');
+            var figureItemEle = $('figure[id="' + value.albumName + '"]');
+                        
+            figureItemEle.append(newImgEl);
+            newDivEl.append(newTitleEl);
+        });
+        newImgEl.setAttribute('src', value.albumThumbnailUrl);
+        newImgEl.setAttribute('alt', value.albumName); 
+    }
+
+    function appendAlbumData(value) {
         var newImgEl = document.createElement('img');
         var previewButtonEl = '<span class="previewButton" onclick="showPreviewImage(' + value.mediaId + ', \'' + value.mediaSmallUrl  + '\')"><i class="bi bi-zoom-in fa-lg px-2"></i></span>';
         newImgEl.addEventListener('load', function() {
@@ -186,6 +201,7 @@
         newImgEl.setAttribute('data-media-url', value.mediaUrl);
         newImgEl.setAttribute('data-smallmedia-url', value.mediaSmallUrl);
     }
+
     function findShortestCol() {
         var count = $("#thumbnail-container").children().length;
         var shortest = $("#column-1");

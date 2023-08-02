@@ -1,7 +1,7 @@
 ﻿@model nxPinterest.Web.Models.UserListViewModel
 @{
     ViewData["Title"] = "ユーザ一覧";
-    Layout = "~/Views/Shared/_UserLayout.cshtml";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 
     bool hasNextPage = (Model.PageIndex < Model.TotalPages);
     bool hasPreviousPage = (Model.PageIndex > 1);

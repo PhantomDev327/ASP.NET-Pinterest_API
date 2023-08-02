@@ -27,7 +27,7 @@
                     </div>
 
                     <div class="col-12 col-md-6">
-                        <input type="text" class="form-control input-control input-title px-0" placeholder="写真のタイトル" asp-for="Title" />
+                        <input type="text" class="form-control input-control input-title px-0 mb-0" placeholder="写真のタイトル" asp-for="Title"/>
                         <div class="form-text text-danger mb-3" id="title-validation">
                             @Html.ValidationMessageFor(c => c.Title)
                         </div>

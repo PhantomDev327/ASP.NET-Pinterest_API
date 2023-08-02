@@ -32,6 +32,7 @@ namespace nxPinterest.Web.Controllers
         public const int pageSize = nxPinterest.Services.dev_Settings.pageSize_regist;
         private readonly ApplicationDbContext _context;
         private readonly IUserAlbumService _userAlbumService;
+        private readonly IUserMediaManagementService _userMediaManagementService;
         protected string UserId
         {
             get
@@ -43,11 +44,13 @@ namespace nxPinterest.Web.Controllers
                                 SignInManager<ApplicationUser> signInManager,
                                 IUserContainerManagementService userContainerManagementService,
                                 IUserAlbumService userAlbumService,
+                                IUserMediaManagementService userMediaManagementService,
                                 ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _userAlbumService = userAlbumService;
+            _userMediaManagementService = userMediaManagementService;
             _context = context;
             this.userContainerManagementService = userContainerManagementService;
         }
@@ -613,6 +616,9 @@ namespace nxPinterest.Web.Controllers
             //追加 ssa20220527
             ViewBag.UserDispName = user.UserDispName;
             Services.Models.Request.UserRegistrationRequest vm = new Services.Models.Request.UserRegistrationRequest();
+
+            vm.UserDispName = user.UserDispName;
+            vm.Discriminator = user.Discriminator;
   
             Task<IList<Data.Models.UserContainer>> list = this.userContainerManagementService.ListContainerAsyc();
             ViewBag.ContainerList = (list.Result != null) ? list.Result.Where(c => c.container_visibility.Equals(true)) : new List<Data.Models.UserContainer>();
@@ -831,6 +837,36 @@ namespace nxPinterest.Web.Controllers
             vm.TotalPages = totalPages;
             vm.TotalRecords = totalRecordCount;
             vm.CurrentPageName = "containerList";
+            vm.UserDispName = user.UserDispName;
+            vm.Discriminator = user.Discriminator;
+            vm.TagList = await _userMediaManagementService.GetOftenUseTagsAsyc(user.container_id, "", 30);
+
+            string container_ids = user.ContainerIds ?? "";
+            string[] containerArray = container_ids.Split(',');
+
+            if (containerArray.Length == 0 || containerArray[0] == "")
+            {
+                vm.UserContainers = await this._context.UserContainer.Where(c => c.container_id == user.container_id).ToListAsync();
+            }
+            else
+            {
+                var containerIds = containerArray
+                    .Where(x => int.TryParse(x, out _))
+                    .Select(int.Parse)
+                    .ToList();
+
+                vm.UserContainers = await this._context.UserContainer.Where(c => containerIds.Contains(c.container_id)).ToListAsync();
+            }
+
+            var album = await _userAlbumService.GetAlbumUserByContainer(user.container_id);
+            vm.AlbumList = album.Select(n=> new nxPinterest.Data.ViewModels.UserAlbumViewModel
+            {
+                AlbumName = n.AlbumName,
+                AlbumUrl = n.AlbumUrl
+            }).ToList();
+
+            vm.currentContainer = user.container_id;
+            
             //追加 ssa20220527
             ViewBag.UserDispName = user.UserDispName;
             return this.View("~/Views/Account/UserContainerList.cshtml", vm);
@@ -839,19 +875,50 @@ namespace nxPinterest.Web.Controllers
         /*
          * コンテナ情報の新規登録　初期画面
          */
-        public IActionResult UserContainerRegister()
+        public async Task<IActionResult> UserContainerRegister()
         {
             // システム管理者のみ利用可能な機能
-            var user = this._userManager.FindByIdAsync(this.UserId);
+            var user = await this._userManager.FindByIdAsync(this.UserId);
             //追加 ssa20220527
-            ViewBag.UserDispName = user.Result.UserDispName;
+            ViewBag.UserDispName = user.UserDispName;
 
-            if (user.Result.Discriminator != "SysAdmin")
+            if (user.Discriminator != "SysAdmin")
             {
                 TempData["Message"] = "Access Denied!";
                 return View("~/Views/Error/204.cshtml");
             }
             Services.Models.Request.UserContainerRegistrationRequest vm = new Services.Models.Request.UserContainerRegistrationRequest();
+
+            vm.CurrentPageName = "containerList";
+            vm.UserDispName = user.UserDispName;
+            vm.Discriminator = user.Discriminator;
+            vm.TagList = await _userMediaManagementService.GetOftenUseTagsAsyc(user.container_id, "", 30);
+
+            string container_ids = user.ContainerIds ?? "";
+            string[] containerArray = container_ids.Split(',');
+
+            if (containerArray.Length == 0 || containerArray[0] == "")
+            {
+                vm.UserContainers = await this._context.UserContainer.Where(c => c.container_id == user.container_id).ToListAsync();
+            }
+            else
+            {
+                var containerIds = containerArray
+                    .Where(x => int.TryParse(x, out _))
+                    .Select(int.Parse)
+                    .ToList();
+
+                vm.UserContainers = await this._context.UserContainer.Where(c => containerIds.Contains(c.container_id)).ToListAsync();
+            }
+
+            var album = await _userAlbumService.GetAlbumUserByContainer(user.container_id);
+            vm.AlbumList = album.Select(n=> new nxPinterest.Data.ViewModels.UserAlbumViewModel
+            {
+                AlbumName = n.AlbumName,
+                AlbumUrl = n.AlbumUrl
+            }).ToList();
+
+            vm.currentContainer = user.container_id;
             return this.View("~/Views/Account/UserContainerRegister.cshtml", vm);
         }
 
@@ -896,11 +963,11 @@ namespace nxPinterest.Web.Controllers
         /*
          * コンテナ情報の変更　初期画面
          */
-        public IActionResult UserContainerEdit(int container_id)
+        public async Task<IActionResult> UserContainerEdit(int container_id)
         {
             // システム管理者のみ利用可能な機能
-            var user = this._userManager.FindByIdAsync(this.UserId);
-            if (user.Result.Discriminator != "SysAdmin")
+            var user = await this._userManager.FindByIdAsync(this.UserId);
+            if (user.Discriminator != "SysAdmin")
             {
                 TempData["Message"] = "Access Denied!";
                 return View("~/Views/Error/204.cshtml");
@@ -915,9 +982,38 @@ namespace nxPinterest.Web.Controllers
                 vm.container_visibility = usr.container_visibility;
             }
 
-            //追加 ssa20220527
-            ViewBag.UserDispName = user.Result.UserDispName;
+            vm.CurrentPageName = "containerList";
+            vm.UserDispName = user.UserDispName;
+            vm.Discriminator = user.Discriminator;
+            vm.TagList = await _userMediaManagementService.GetOftenUseTagsAsyc(user.container_id, "", 30);
 
+            string container_ids = user.ContainerIds ?? "";
+            string[] containerArray = container_ids.Split(',');
+
+            if (containerArray.Length == 0 || containerArray[0] == "")
+            {
+                vm.UserContainers = await this._context.UserContainer.Where(c => c.container_id == user.container_id).ToListAsync();
+            }
+            else
+            {
+                var containerIds = containerArray
+                    .Where(x => int.TryParse(x, out _))
+                    .Select(int.Parse)
+                    .ToList();
+
+                vm.UserContainers = await this._context.UserContainer.Where(c => containerIds.Contains(c.container_id)).ToListAsync();
+            }
+
+            var album = await _userAlbumService.GetAlbumUserByContainer(user.container_id);
+            vm.AlbumList = album.Select(n=> new nxPinterest.Data.ViewModels.UserAlbumViewModel
+            {
+                AlbumName = n.AlbumName,
+                AlbumUrl = n.AlbumUrl
+            }).ToList();
+
+            vm.currentContainer = user.container_id;
+            vm.SizeRange = 3;
+            //追加 ssa2022052
             return this.View("~/Views/Account/UserContainerEdit.cshtml", vm);
         }
 
@@ -997,7 +1093,7 @@ namespace nxPinterest.Web.Controllers
 
             ViewBag.ItemCount = vm.ApplicationUserList.Count;
             //追加 ssa20220527
-            ViewBag.UserDispName = user.UserDispName;
+            vm.UserDispName = user.UserDispName;
             vm.Discriminator = user.Discriminator;
             //
             vm.ApplicationUserList = vm.ApplicationUserList.Skip(skip).Take(pageSize).ToList();
@@ -1005,6 +1101,36 @@ namespace nxPinterest.Web.Controllers
             vm.PageIndex = pageIndex;
             vm.TotalPages = totalPages;
             vm.TotalRecords = totalRecordCount;
+
+            vm.UserDispName = user.UserDispName;
+            vm.Discriminator = user.Discriminator;
+            vm.TagList = await _userMediaManagementService.GetOftenUseTagsAsyc(user.container_id, "", 30);
+
+            string container_ids = user.ContainerIds ?? "";
+            string[] containerArray = container_ids.Split(',');
+
+            if (containerArray.Length == 0 || containerArray[0] == "")
+            {
+                vm.UserContainers = await this._context.UserContainer.Where(c => c.container_id == user.container_id).ToListAsync();
+            }
+            else
+            {
+                var containerIds = containerArray
+                    .Where(x => int.TryParse(x, out _))
+                    .Select(int.Parse)
+                    .ToList();
+
+                vm.UserContainers = await this._context.UserContainer.Where(c => containerIds.Contains(c.container_id)).ToListAsync();
+            }
+
+            var album = await _userAlbumService.GetAlbumUserByContainer(user.container_id);
+            vm.AlbumList = album.Select(n=> new nxPinterest.Data.ViewModels.UserAlbumViewModel
+            {
+                AlbumName = n.AlbumName,
+                AlbumUrl = n.AlbumUrl
+            }).ToList();
+
+            vm.currentContainer = user.container_id;
 
             return this.View("~/Views/Account/NormalUserList.cshtml", vm);
         }
@@ -1030,6 +1156,35 @@ namespace nxPinterest.Web.Controllers
             //追加 ssa20220527
             ViewBag.UserDispName = user.UserDispName;
             vm.Discriminator = user.Discriminator;
+
+            vm.UserDispName = user.UserDispName;
+            vm.TagList = await _userMediaManagementService.GetOftenUseTagsAsyc(user.container_id, "", 30);
+
+            string container_ids = user.ContainerIds ?? "";
+            string[] containerArray = container_ids.Split(',');
+
+            if (containerArray.Length == 0 || containerArray[0] == "")
+            {
+                vm.UserContainers = await this._context.UserContainer.Where(c => c.container_id == user.container_id).ToListAsync();
+            }
+            else
+            {
+                var containerIds = containerArray
+                    .Where(x => int.TryParse(x, out _))
+                    .Select(int.Parse)
+                    .ToList();
+
+                vm.UserContainers = await this._context.UserContainer.Where(c => containerIds.Contains(c.container_id)).ToListAsync();
+            }
+
+            var album = await _userAlbumService.GetAlbumUserByContainer(user.container_id);
+            vm.AlbumList = album.Select(n=> new nxPinterest.Data.ViewModels.UserAlbumViewModel
+            {
+                AlbumName = n.AlbumName,
+                AlbumUrl = n.AlbumUrl
+            }).ToList();
+
+            vm.currentContainer = user.container_id;
             //
             return this.View("~/Views/Account/NormalUserRegister.cshtml", vm);
         }
@@ -1170,6 +1325,34 @@ namespace nxPinterest.Web.Controllers
             //追加 ssa20220527
             ViewBag.UserDispName = login.UserDispName;
 
+            vm.TagList = await _userMediaManagementService.GetOftenUseTagsAsyc(login.container_id, "", 30);
+
+            string container_ids = login.ContainerIds ?? "";
+            string[] containerArray = container_ids.Split(',');
+
+            if (containerArray.Length == 0 || containerArray[0] == "")
+            {
+                vm.UserContainers = await this._context.UserContainer.Where(c => c.container_id == login.container_id).ToListAsync();
+            }
+            else
+            {
+                var containerIds = containerArray
+                    .Where(x => int.TryParse(x, out _))
+                    .Select(int.Parse)
+                    .ToList();
+
+                vm.UserContainers = await this._context.UserContainer.Where(c => containerIds.Contains(c.container_id)).ToListAsync();
+            }
+
+            var album = await _userAlbumService.GetAlbumUserByContainer(login.container_id);
+            vm.AlbumList = album.Select(n=> new nxPinterest.Data.ViewModels.UserAlbumViewModel
+            {
+                AlbumName = n.AlbumName,
+                AlbumUrl = n.AlbumUrl
+            }).ToList();
+
+            vm.currentContainer = login.container_id;
+
             return this.View("~/Views/Account/NormalUserEdit.cshtml", vm);
         }
 
@@ -1197,7 +1380,7 @@ namespace nxPinterest.Web.Controllers
                         user.UserDispName = vm.UserDispName;
                         user.PhoneNumber = vm.PhoneNumber;
                         user.user_visibility = vm.user_visibility;
-                        user.Discriminator = vm.Discriminator == "一般" ? "ApplicationUser" : "ContainerAdmin";
+                        user.Discriminator = vm.Discriminator == "一般" ? "ApplicationUser" : (vm.Discriminator == "閲覧" ? "BrowseUser": "ContainerAdmin");
                     }
                     var update = await this._userManager.UpdateAsync(user);
                     if (update.Succeeded)

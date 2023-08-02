@@ -11,45 +11,32 @@
     //bool hasPagination = Model.TotalRecords > nxPinterest.Services.dev_Settings.pageSize_regist;
 }
 
-    <!-- Start Content-->
-    @*<div id="blockGallery">
-        <div class="m-3">
-             @RenderBody()
-        </div>
-    </div>
-*@
-
-@*    <div class="add-image-container">
-        <a onclick="RegiterUserMediaFile();">
-            <i class="fas fa-plus-circle fa-3x"></i>
-        </a>
-    </div>*@
 @section Styles {
     <link href="~/lib/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" />
     <link href="~/css/albums/index.css" rel="stylesheet" />
 }
 
-    <script>
-        function RegiterUserMediaFile() {
-            $('#image-viewer-modal').remove();
-            $('#image-registration-modal').modal('show');
-        }
-        document.getElementById("changeZoomRange").value = localStorage.getItem("zoomSize");
-    </script>
+<script>
+    function RegiterUserMediaFile() {
+        $('#image-viewer-modal').remove();
+        $('#image-registration-modal').modal('show');
+    }
+    document.getElementById("changeZoomRange").value = localStorage.getItem("zoomSize");
+</script>
 
-<div id="blockGallery" tabindex="0" class="multiImageSelect-noselect">
+<div id="blockGallery" tabindex="0">
     <div class="m-3">
         <div class="content gallery" id="contentGallery">
             <div class="thumbnail-container" id="thumbnail-container">
+
             </div>
         </div>
     </div>
 </div>
 
 @{
-    await Html.RenderPartialAsync("/Views/Shared/_ImageContainer.cshtml");
+    await Html.RenderPartialAsync("/Views/Shared/_AlbumContainer.cshtml", Model.ImageRegistrationVM);
 }
-
 @{
     await Html.RenderPartialAsync("/Views/Shared/_ImageRegistration.cshtml", Model.ImageRegistrationVM);
 }
@@ -59,42 +46,32 @@
 @{
     await Html.RenderPartialAsync("/Views/Shared/_RemoveAlbum.cshtml");
 }
+
 @section Scripts{
-<script src="~/lib/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
-<script src="~/lib/bootstrap-datepicker/locales/bootstrap-datepicker.ja.min.js"></script>
-<script src="~/js/user-album/index.js"></script>
-<script src="~/js/shared-user-album/index.js"></script>
+    <script src="~/lib/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
+    <script src="~/lib/bootstrap-datepicker/locales/bootstrap-datepicker.ja.min.js"></script>
+    <script src="~/js/user-album/index.js"></script>
+    <script src="~/js/shared-user-album/index.js"></script>
     <script>
         var album = new userAlbumController();
         var shareAlbum = new shareUserAlbumMediaController();
-           album.initialize();
-           shareAlbum.initialize();
-    </script>
-    <script>
-        $(document).ready(function () {
-            var uploadMediaButtonEle = document.getElementById("uploadMedia");
-            if (uploadMediaButtonEle) {
-                uploadMediaButtonEle.style.display = "unset";
-            }
-        });
-        function loadImg() {
+        album.initialize();
+        shareAlbum.initialize();
+        
+        function loadAlbum() {
             showLoader();
             window.isFullImage = true;
-            if (window.page == 1 ) {
-                window.images = [];
-            }
             $.ajax({
-                url: "@Url.Action("getMedia", "UserMedia")",
-                method: "Post",
-                data: { pageIndex: window.page, searchKey: $('#SearchKey').val()},
+                url: "@Url.Action("getAlbum", "Home")",
+                method: "get",
                 success: function (sResult) {
-                    window.page = window.page + 1;
-                    window.images.push( sResult.userMediaList);
+                    window.images = [];
+                    window.images.push( sResult.albumList);
                     window.images = [...new Set(window.images)];
-                    $.each(sResult.userMediaList, function(index, value) {
+                    $.each(sResult.albumList, function(index, value) {
                         appendData(value);
                     });
-                    hideLoader();
+                   hideLoader();
                 },
                 error: function () {
                     window.images.forEach(function (data) {
@@ -102,13 +79,12 @@
                             appendData(value);
                         });
                     });
-                    window.page = window.page + 1;
                     hideLoader();
                 }
             });
         }
+        
 
-        var image_count = 0;
         function loadImgByName(albumname) {
             window.isFullImage = false;
             if (window.isLoadAlbum) return;
@@ -153,28 +129,25 @@
             $.ajax({
                 url: "@Url.Action("GetSelectedAlbums", "UserAlbum")",
                 method: "Post",
-                data: { pageIndex: window.pageAlbum, albumName: albumname },
+                data: { pageIndex: 1, albumName: albumname },
                 success: function (result) {
                     window.imagesAlbum.push(result.data.albums);
                     $.each(result.data.albums, function (index, value) {
-                        appendData(value);
+                        appendAlbumData(value);
                     });
                     if(result.data.albums.length >= 0 ){
                         image_count = result.data.albums.length;
-                        console.log('result.data.albums.length:' + image_count)
                         document.getElementById("count__album").innerHTML = `${result.data.albums.length} 項目`;
                         document.getElementById("album__date").innerHTML = dateToStr24H(new Date(result.data.albumCreateDate), 'Y年M月D日 h:m:s');
                         renderContentIcon();
                     }
-                    window.pageAlbum = window.pageAlbum + 1;
                     hideLoader();
                     window.isLoadAlbum = false;
-
                 },
                 error: function () {
                     window.imagesAlbum.forEach(function (data) {
                         data.forEach(function (value) {
-                            appendData(value);
+                            appendAlbumData(value);
                         });
                     });
                     window.pageAlbum = window.pageAlbum + 1;
@@ -184,8 +157,26 @@
             });
         }
 
+        function renderContentIcon() {
+            $('#album__name').after(`<span class="px-2 my-1" id = "editMediaFolder"  style = "font-size: 0.995rem; cursor: pointer;" > <i class="bi bi-pencil-square" > </i></span >`);
+        }
+
+        function dateToStr24H(date, format) {
+            if (!format) {
+                format = 'Y/M/D h:m:s';
+            }
+            var hours = date.getHours();
+            format = format.replace(/Y/g, date.getFullYear());
+            format = format.replace(/M/g, (date.getMonth() + 1));
+            format = format.replace(/D/g, date.getDate());
+            format = format.replace(/h/g, hours);
+            format = format.replace(/m/g, date.getMinutes());
+            format = format.replace(/s/g, date.getSeconds());
+            return format;
+        }
+
+
         function selectedAlbum(albumName, albumUrl) {
-            window.pageAlbum = 1;
             window.imagesAlbum = new Array();
             initCol();
             renderContentAlbum(albumName,albumUrl);
@@ -207,24 +198,5 @@
                                            <i style="color:#ffffff;cursor: pointer;" class="fa fa-copy" id="copyAlbum" data-albumurl="${albumUrl}" aria-hidden="true"></i></p>
                                        </div> <div id="tooltipAlbumCopy" data-toggle="tooltip" data-placement="top" title="コピーされました。"></div>`);
         }
-
-        function renderContentIcon() {
-        
-            $('#album__name').after(`<span class="px-2 my-1" id = "editMediaFolder"  style = "font-size: 0.995rem; cursor: pointer;" > <i class="bi bi-pencil-square" > </i></span >`);
-        }
-
-        function dateToStr24H(date, format) {
-            if (!format) {
-                format = 'Y/M/D h:m:s';
-            }
-            var hours = date.getHours();
-            format = format.replace(/Y/g, date.getFullYear());
-            format = format.replace(/M/g, (date.getMonth() + 1));
-            format = format.replace(/D/g, date.getDate());
-            format = format.replace(/h/g, hours);
-            format = format.replace(/m/g, date.getMinutes());
-            format = format.replace(/s/g, date.getSeconds());
-            return format;
-        }
     </script>
-    }
+}

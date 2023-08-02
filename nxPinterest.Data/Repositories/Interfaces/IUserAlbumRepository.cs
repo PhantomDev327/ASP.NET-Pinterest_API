@@ -22,6 +22,8 @@ namespace nxPinterest.Data.Repositories.Interfaces
 
         Task<bool> IsAlbumNameExist(string albumName);
 
-        Task<IEnumerable<UserAlbumViewModel>> GetSharedAlbumByUser(string user_id);
+        Task<IEnumerable<UserAlbumViewModel>> GetSharedAlbumByUser(string user_id, string role);
+
+        Task<int> DeleteAlbumIdByID(int albumId);
     }
 }

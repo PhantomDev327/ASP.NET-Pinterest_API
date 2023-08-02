@@ -16,7 +16,7 @@ namespace nxPinterest.Web.Models
 
         //public int MediaId { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "写真のタイトルを入力してください。")]
         public string Title { get; set; }
         public string Description { get; set; }
 

@@ -14,6 +14,7 @@ using System.Diagnostics;
 using nxPinterest.Web.Models;
 using nxPinterest.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace nxPinterest.Web.Controllers
 {
@@ -24,16 +25,19 @@ namespace nxPinterest.Web.Controllers
         public const int pageSize = nxPinterest.Services.dev_Settings.displayMaxItems_search;
         private readonly IUserMediaManagementService userMediaManagementService;
         private readonly IUserAlbumService userAlbumService;
+        private readonly UserManager<ApplicationUser> userManager;
         private readonly ApplicationDbContext _context;
         //private CosmosDbService _cosmosDbService;
 
         public UserMediaController(ApplicationDbContext context,
                                     IUserMediaManagementService mediaManagementService,
+                                    UserManager<ApplicationUser> userManager,
                                     IUserAlbumService userAlbumService)
         {
             this._context = context;
             this.userMediaManagementService = mediaManagementService;
             this.userAlbumService = userAlbumService;
+            this.userManager = userManager;
         }
 
 
@@ -47,7 +51,7 @@ namespace nxPinterest.Web.Controllers
 
             int skip = (pageIndex - 1) * pageSize;
 
-            vm.UserMediaList = await this.userMediaManagementService.SearchUserMediaAsync(searchKey, this.container_id, skip);
+            vm.UserMediaList = await this.userMediaManagementService.SearchUserMediaAsync(searchKey, user[0].container_id, skip);
 
             int totalPages = (int)System.Math.Ceiling((decimal)(vm.UserMediaList.Count / (decimal)pageSize));
             int totalRecordCount = vm.UserMediaList.Count;
@@ -62,6 +66,7 @@ namespace nxPinterest.Web.Controllers
             vm.SearchKey = searchKey;
             vm.TotalRecords = totalRecordCount;
             vm.Discriminator = user[0].Discriminator;
+            vm.currentContainer = user[0].container_id;
 
             return Json(vm);
         }
@@ -104,8 +109,7 @@ namespace nxPinterest.Web.Controllers
             try
             {
                 DetailsViewModel vm = new DetailsViewModel();
-
-                List<ApplicationUser> user = this._context.Users.Where(c => c.Id.Equals(this.UserId)).ToList();
+                var user = await this.userManager.FindByIdAsync(this.UserId);
                 var media = await this.userMediaManagementService.GetUserMediaAsync(media_id);
                 if (media != null)
                 {
@@ -129,8 +133,8 @@ namespace nxPinterest.Web.Controllers
                     //vm.TotalPages = totalPages;
                     vm.SearchKey = searchKey;
                     //vm.TotalRecords = totalRecordCount;
-                    vm.Discriminator = user[0].Discriminator;
-                    vm.UserDispName = user[0].UserDispName;
+                    vm.Discriminator = user.Discriminator;
+                    vm.UserDispName = user.UserDispName;
 
                     vm.SizeRange = sizeIndex;
 
@@ -139,12 +143,12 @@ namespace nxPinterest.Web.Controllers
                     //////ViewBag.PhotoTags = string.Join(',', photo_tags_list.ToArray());
                     ////ViewBag.RelatedUserMediaList = JsonConvert.SerializeObject(vm.RelatedUserMediaList);
                     // get user containers
-                    string container_ids = user[0].ContainerIds ?? "";
+                    string container_ids = user.ContainerIds ?? "";
                     string[] containerArray = container_ids.Split(',');
 
                     if (containerArray.Length == 0 || containerArray[0] == "")
                     {
-                        vm.UserContainers = await this._context.UserContainer.Where(c => c.container_id == user[0].container_id).ToListAsync();
+                        vm.UserContainers = await this._context.UserContainer.Where(c => c.container_id == user.container_id).ToListAsync();
                     }
                     else
                     {
@@ -250,6 +254,38 @@ namespace nxPinterest.Web.Controllers
                 vm.UserId = media.UserId;
                 vm.ContainerId = media.ContainerId;
 
+                var user = await this.userManager.FindByIdAsync(this.UserId);
+
+                vm.UserDispName = user.UserDispName;
+                vm.Discriminator = user.Discriminator;
+                vm.TagList = await userMediaManagementService.GetOftenUseTagsAsyc(user.container_id, "", 30);
+
+                string container_ids = user.ContainerIds ?? "";
+                string[] containerArray = container_ids.Split(',');
+
+                if (containerArray.Length == 0 || containerArray[0] == "")
+                {
+                    vm.UserContainers = await this._context.UserContainer.Where(c => c.container_id == user.container_id).ToListAsync();
+                }
+                else
+                {
+                    var containerIds = containerArray
+                        .Where(x => int.TryParse(x, out _))
+                        .Select(int.Parse)
+                        .ToList();
+
+                    vm.UserContainers = await this._context.UserContainer.Where(c => containerIds.Contains(c.container_id)).ToListAsync();
+                }
+
+                var album = await userAlbumService.GetAlbumUserByContainer(user.container_id);
+                vm.AlbumList = album.Select(n=> new nxPinterest.Data.ViewModels.UserAlbumViewModel
+                {
+                    AlbumName = n.AlbumName,
+                    AlbumUrl = n.AlbumUrl
+                }).ToList();
+
+                vm.currentContainer = user.container_id;
+
                 return View(vm);
             }
             catch (Exception ex)
@@ -292,6 +328,7 @@ namespace nxPinterest.Web.Controllers
                 //userMedia.ContainerId = vm.ContainerId;
 
                 var ret = this.userMediaManagementService.UpdateUserMedia(userMedia);
+
                 //return Json(new { success = ret });
                 return RedirectToAction("Details", "UserMedia", new { searchKey = vm.SearchKey, media_id = vm.MediaId, sizeIndex = vm.SizeRange });
             }
@@ -588,12 +625,38 @@ namespace nxPinterest.Web.Controllers
         /// </summary>
         /// <param name="request">Form Data</param>
         /// <returns></returns>
-        public IActionResult UpdateSameTitleMediaFile(int mediaId)
+        public async Task<IActionResult> UpdateSameTitleMediaFile(int mediaId)
         {
             var media = this.userMediaManagementService.GetUserMediaAsync(mediaId).Result;
             if (media != null)
             {
                 EditMultiSelectImageViewModel vm = new EditMultiSelectImageViewModel();
+
+                List<ApplicationUser> user = this._context.Users.Where(c => c.Id.Equals(this.UserId)).ToList();
+                if (user == null || user.Count == 0) return RedirectToAction("LogOut", "Account");
+                vm.Discriminator = user[0].Discriminator;
+                vm.UserDispName = user[0].UserDispName;
+
+                //よく使用されているタグ候補
+                vm.TagList = await this.userMediaManagementService.GetOftenUseTagsAsyc(this.container_id, "", 30);
+
+                // get user containers
+                string container_ids = user[0].ContainerIds ?? "";
+                string[] containerArray = container_ids.Split(',');
+
+                if (containerArray.Length == 0 || containerArray[0] == "")
+                {
+                    vm.UserContainers = await this._context.UserContainer.Where(c => c.container_id == user[0].container_id).ToListAsync();
+                }
+                else
+                {
+                    var containerIds = containerArray
+                        .Where(x => int.TryParse(x, out _))
+                        .Select(int.Parse)
+                        .ToList();
+
+                    vm.UserContainers = await this._context.UserContainer.Where(c => containerIds.Contains(c.container_id)).ToListAsync();
+                }
                 vm.DetailsMediaId = mediaId;
                 vm.UserMediaList = this.userMediaManagementService.GetUserMediaSameTitleMediasAsync(media).Result;
 

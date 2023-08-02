@@ -42,7 +42,7 @@
             $.ajax({
                 url: "@Url.Action("getMedia", "UserAlbum")",
                 method: "Post",
-                data: { searchKey: $('#SearchKey').val() },
+                data: { searchKey: $('#SearchKey').val()},
                 success: function (sResult) {
                     window.images.push( sResult.userMediaList );
                     $.each(sResult.userMediaList, function(index, value) {

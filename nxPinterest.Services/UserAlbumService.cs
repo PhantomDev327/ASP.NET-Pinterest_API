@@ -195,10 +195,9 @@ namespace nxPinterest.Services
 
         public async Task<bool> DeleteAlbum(int albumId)
         {
-            await _userAlbumMediaRepository.DeleteUserAlbumMediaAsyncById(albumId);
-            var album = _userAlbumRepository.Delete(albumId);
-            this._unitOfWork.SaveChanges();
-            return album != null;
+            // await _userAlbumMediaRepository.DeleteUserAlbumMediaAsyncById(albumId);
+            int album = await _userAlbumRepository.DeleteAlbumIdByID(albumId);
+            return album != 0;
         }
 
 
@@ -221,9 +220,9 @@ namespace nxPinterest.Services
             }
         }
 
-        public async Task<IEnumerable<UserAlbumViewModel>> GetSharedAlbumByUser(string user_id)
+        public async Task<IEnumerable<UserAlbumViewModel>> GetSharedAlbumByUser(string user_id, string role)
         {
-            return await _userAlbumRepository.GetSharedAlbumByUser(user_id);
+            return await _userAlbumRepository.GetSharedAlbumByUser(user_id, role);
         }
     }
 }

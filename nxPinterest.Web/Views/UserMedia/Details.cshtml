@@ -178,6 +178,7 @@
                 method: "Post",
                 data: { pageIndex: window.page, media_id: media_id, searchKey: $('#SearchKey').val() },
                 success: function (sResult) {
+					window.images = [];
                     window.images.push( sResult.relatedUserMediaList );
                     $.each(sResult.relatedUserMediaList, function(index, value) {
                         appendData(value);

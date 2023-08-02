@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-
 namespace nxPinterest.Services.Models.Request
 {
     public class UserRegistrationRequest
@@ -17,5 +16,7 @@ namespace nxPinterest.Services.Models.Request
         public bool user_visibility { get; set; }
 
         public string UserDispName { get; set; }
+
+        public string Discriminator { get; set; }
     }
 }

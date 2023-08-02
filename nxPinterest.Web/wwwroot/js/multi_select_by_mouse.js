@@ -173,7 +173,11 @@ function MultiImageSelectByMouse(opts) {
         if (isClickPointImgEl(e)) {
             var mediaId = e.target.parentElement.id;
             let sizeIndex = document.getElementById("changeZoomRange").value;
-            window.location.href = "/UserMedia/Details?media_id=" + mediaId + "&size_index=" + sizeIndex;
+            if (e.target.parentElement.dataset.url) {
+                selectedAlbum(mediaId, e.target.parentElement.dataset.url);
+            } else {
+                window.location.href = "/UserMedia/Details?media_id=" + mediaId + "&size_index=" + sizeIndex;
+            }
         }
     });
 
@@ -349,19 +353,19 @@ function multiSelect() {
                 // 同様のチェックを shareMedia、downloadMedia、editMultiMedia、deleteMedia にも適用
                 var shareMedia = document.getElementById("shareMedia");
                 if (shareMedia) {
-                    shareMedia.className = "disabled - link";
+                    shareMedia.className = "disabled-link";
                 }
                 var downloadMedia = document.getElementById("downloadMedia");
                 if (downloadMedia) {
-                    downloadMedia.className = "disabled - link";
+                    downloadMedia.className = "disabled-link";
                 }
                 var editMultiMedia = document.getElementById("editMultiMedia");
                 if (editMultiMedia) {
-                    editMultiMedia.className = "disabled - link";
+                    editMultiMedia.className = "disabled-link";
                 }
                 var deleteMedia = document.getElementById("deleteMedia");
                 if (deleteMedia) {
-                    deleteMedia.className = "disabled - link";
+                    deleteMedia.className = "disabled-link";
                 }
             }
             // 要素を取得

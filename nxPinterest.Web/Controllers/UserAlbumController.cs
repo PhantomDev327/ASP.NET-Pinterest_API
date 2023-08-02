@@ -4,9 +4,14 @@ using Microsoft.AspNetCore.Mvc;
 using nxPinterest.Services.Models.Request;
 using System.Threading.Tasks;
 using nxPinterest.Services.Interfaces;
-using ImageMagick;
 using nxPinterest.Data.Models;
 using nxPinterest.Data.ViewModels;
+using nxPinterest.Web.Models;
+using System.Collections.Generic;
+using nxPinterest.Data;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace nxPinterest.Web.Controllers
 {
@@ -14,10 +19,15 @@ namespace nxPinterest.Web.Controllers
     public class UserAlbumController : BaseController
     {
         private readonly IUserAlbumService _userAlbumService;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ApplicationDbContext _context;
+        public const int pageSize = nxPinterest.Services.dev_Settings.pageSize_regist;
 
-        public UserAlbumController(IUserAlbumService userAlbumService)
+        public UserAlbumController(IUserAlbumService userAlbumService, UserManager<ApplicationUser> userManager, ApplicationDbContext context)
         {
             this._userAlbumService = userAlbumService;
+            this._userManager = userManager;
+            this._context = context;
         }
 
         [HttpPost]
@@ -25,15 +35,17 @@ namespace nxPinterest.Web.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
+            var user = await this._userManager.FindByIdAsync(this.UserId);
             model.AlbumUrl = GeneratePathUrl();
-            var result = await _userAlbumService.Create(model, UserId);
+            var result = await _userAlbumService.Create(model, UserId, user.container_id);
 
             return Ok(result);
         }
 
         public async Task<IActionResult> GetAlbums()
         {
-            var model = await _userAlbumService.GetAlbumUserByContainer(this.container_id);
+            var user = await this._userManager.FindByIdAsync(this.UserId);
+            var model = await _userAlbumService.GetAlbumUserByContainer(user.container_id);
 
             return PartialView("/Views/Shared/_ShowAlbum.cshtml", model);
         }
@@ -141,11 +153,83 @@ namespace nxPinterest.Web.Controllers
 
 
         [HttpPost]
-        public IActionResult Remove(string removeAlbumName)
+        public async Task<IActionResult> Remove(string removeAlbumName)
         {
-            var result = _userAlbumService.RemoveAlbum(removeAlbumName);
+            var result = await _userAlbumService.RemoveAlbum(removeAlbumName);
 
             return Ok(new { Success = true, Data = result.AlbumName });
+        }
+
+        public async Task<IActionResult> ShareManage(int pageIndex = 1)
+        {
+            ShareViewModel vm = new ShareViewModel();
+            List<ApplicationUser> user = this._context.Users.Where(c => c.Id.Equals(this.UserId)).ToList();
+            if (user == null || user.Count == 0) return RedirectToAction("LogOut", "Account");
+
+            var album = await _userAlbumService.GetSharedAlbumByUser(this.UserId, user[0].Discriminator);
+            vm.AlbumCommentList = album.Select(n=> new nxPinterest.Data.ViewModels.UserAlbumViewModel 
+            { 
+                AlbumName = n.AlbumName,
+                AlbumId = n.AlbumId,
+                AlbumUrl = $"{Request.Scheme}://{Request.Host}/{"shared"}/{n.AlbumUrl}",
+                AlbumCreatedat = n.AlbumCreatedat,
+                AlbumExpireDate = n.AlbumExpireDate,
+                Comment = n.Comment,
+                UserId = this._context.Users.Where(c => c.Id.Equals(n.UserId)).First().UserDispName
+            }).ToList();
+
+            vm.Discriminator = user[0].Discriminator;
+            vm.UserDispName = user[0].UserDispName;
+
+            int totalPages = (int)System.Math.Ceiling((decimal)(vm.AlbumCommentList.Count / (decimal)pageSize));
+            int skip = (pageIndex - 1) * pageSize;
+            int totalRecordCount = vm.AlbumCommentList.Count;
+
+            vm.AlbumCommentList = vm.AlbumCommentList.Skip(skip).Take(pageSize).ToList();
+            vm.PageIndex = pageIndex;
+            vm.TotalPages = totalPages;
+            vm.TotalRecords = totalRecordCount;
+
+            //よく使用されているアルバムの一覧 TODO
+            var sideAlbum = await _userAlbumService.GetAlbumUserByContainer(user[0].container_id);
+            vm.AlbumList = sideAlbum.Select(n => new nxPinterest.Data.ViewModels.UserAlbumViewModel
+            {
+                AlbumName = n.AlbumName,
+                AlbumUrl = n.AlbumUrl
+            }).ToList();
+
+            //登録画面で使用されているタグ候補
+            vm.ImageRegistrationVM.SuggestTagsList = vm.TagList;
+
+            // get user containers
+            string container_ids = user[0].ContainerIds ?? "";
+            string[] containerArray = container_ids.Split(',');
+
+            if (containerArray.Length == 0 || containerArray[0] == "")
+            {
+                vm.UserContainers = await this._context.UserContainer.Where(c => c.container_id == user[0].container_id).ToListAsync();
+            }
+            else
+            {
+                var containerIds = containerArray
+                    .Where(x => int.TryParse(x, out _))
+                    .Select(int.Parse)
+                    .ToList();
+
+                vm.UserContainers = await this._context.UserContainer.Where(c => containerIds.Contains(c.container_id)).ToListAsync();
+
+            }
+            vm.currentContainer = this.container_id;
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteAlbum(int albumID)
+        {
+            var result = await _userAlbumService.DeleteAlbum(albumID);
+
+            return Ok(new { success = result });
         }
     }
 }

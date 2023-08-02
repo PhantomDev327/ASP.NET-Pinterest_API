@@ -51,6 +51,12 @@
                         <i class="bi bi-person-gear fa-lg px-2"></i>
                     </div>
                     <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <span class="px-3">@Model.UserDispName</span>
+                        </li>
+                        <li>
+                            <hr />
+                        </li>
                         @if (Model.Discriminator == "SysAdmin")
                         {
                             <li>
@@ -73,8 +79,8 @@
                             </li>
                         }
                         <li>
-                            <a class="dropdown-item" href="@Url.Action("CommentManage", "UserAlbum")">
-                                <i class="bi bi-journal-album" data-toggle="tooltip" data-placement="bottom" title="コメント管理" style=""></i> コメント管理
+                            <a class="dropdown-item" href="@Url.Action("ShareManage", "UserAlbum")">
+                                <i class="bi bi-journal-album" data-toggle="tooltip" data-placement="bottom" title="共有リンクの管理" style=""></i> 共有リンクの管理
                             </a>
                         </li>
                         <li>

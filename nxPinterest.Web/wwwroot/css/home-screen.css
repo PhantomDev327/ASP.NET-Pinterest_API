@@ -505,3 +505,9 @@ img.company-banner {
     color: var(--bs-dropdown-link-color);
     text-decoration: none;
 }
+
+/* Album View text style */
+.album-title {
+    margin-top: -10px;
+    margin-bottom: 25px;
+}
