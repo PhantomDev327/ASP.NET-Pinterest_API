@@ -15,6 +15,10 @@ namespace nxPinterest.Web.Models
         public int SizeRange { get; set; }
         public IList<UserContainer> UserContainers { get; set; }
 
+        public int currentContainer { get; set; }
+
+        public bool AlbumMode { get; set; } = false;
+
 
     }
 }

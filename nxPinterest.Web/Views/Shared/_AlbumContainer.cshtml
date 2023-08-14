@@ -1,4 +1,4 @@
-﻿<div class="modal fade text-black" id="createUserMediaFolderModal" tabindex="-1" role="dialog" aria-labelledby="createUserMediaFolderModalTitle" aria-hidden="true">
+<div class="modal fade text-black" id="createUserMediaFolderModal" tabindex="-1" role="dialog" aria-labelledby="createUserMediaFolderModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header border-0">
@@ -105,32 +105,25 @@
     window.pageAlbum = 1;
     window.isFullImage = true;
     window.fullAlbumName = "";
-    window.fullAlbumID = 0;
     window.isLoadAlbum = false;
     window.images = new Array();
     window.imagesAlbum = new Array();
     window.itemWidth = 250;
+    window.itemHeight = 150;
     $(document).ready(function() {
         $(window).css('min-width', 500);
         initCol();
         if (window.isFullImage) {
-            loadImg();
+            loadAlbum();
         } else {
             loadImgByName(window.fullAlbumName);
         } 
-        $(window).scroll(function() {
-            if($(window).scrollTop() + $(window).height() == $(document).height()) {
-                if (window.isFullImage) {
-                    loadImg();
-                } 
-            }
-        });
         var timer = null;
         $(window).on('resize', function(){
             clearTimeout(timer);
             timer = setTimeout(function() {
                 if (window.isFullImage) {
-                    reloadImage();
+                    loadAlbum();
                 } 
             },300);
         });
@@ -157,25 +150,30 @@
     function reloadImage() {
         initCol();
         window.images.forEach(function (data) {
-            data.forEach(function (value) {
-                appendData(value);
-            });
+            appendData(data);
         });
     }
+
     function appendData(value) {
+        var newDivEl = document.createElement('div');
+
         var newImgEl = document.createElement('img');
-        var previewButtonEl = '<span class="previewButton" onclick="showPreviewImage(' + value.mediaId + ', \'' + value.mediaSmallUrl  + '\')"><i class="bi bi-zoom-in fa-lg px-2"></i></span>';
-        newImgEl.addEventListener('load', function() {
+        var newTitleEl = document.createElement('h6');
+        newTitleEl.innerHTML = value.albumName + '(' + value.imageCount +')';
+        newTitleEl.classList.add('album-title');
+        newTitleEl.classList.add('text-truncate');
+        newImgEl.addEventListener('load', function () {
             shortest = findShortestCol();
-            shortest.append('<figure id="'+value.mediaId+'"><figcaption><p class="title">'+value.mediaTitle+'</p><p class="description">'+value.mediaDescription+'</p></figcaption></figure>');
-            var figureItemEle = $('figure[id="' + value.mediaId + '"]');
+            shortest.append('<div id="' + value.albumId + '"></div>');
+            var newDivEl = $('div[id="' + value.albumId + '"]');
+            newDivEl.append('<figure id="'+value.albumId+'" data-url="'+ value.albumUrl + '" style="height:'+ window.itemHeight +'px;"><figcaption><p class="title">'+value.albumName+'</p></figcaption></figure>');
+            var figureItemEle = $('figure[id="' + value.albumId + '"]');
+                        
             figureItemEle.append(newImgEl);
-            figureItemEle.append(previewButtonEl);
+            newDivEl.append(newTitleEl);
         });
-        newImgEl.setAttribute('src', value.mediaThumbnailUrl);
-        newImgEl.setAttribute('alt', value.mediaFileName);
-        newImgEl.setAttribute('data-media-url', value.mediaUrl);
-        newImgEl.setAttribute('data-smallmedia-url', value.mediaSmallUrl);
+        newImgEl.setAttribute('src', value.albumThumbnailUrl);
+        newImgEl.setAttribute('alt', value.albumName); 
     }
 
     function findShortestCol() {
@@ -232,7 +230,9 @@
     function changeZoom() {
         var zoomSize = getCurrentZoomRange();
         var rangeWidth = 50;
+        var rangeHeight = 30;
         window.itemWidth = 100 + rangeWidth * zoomSize;
+        window.itemHeight = 60 + rangeHeight * zoomSize;
 
         var timer = null;
         clearTimeout(timer);
@@ -260,20 +260,5 @@
         }
         document.getElementById("changeZoomRange").value = zoomSize + 1;
         changeZoom();
-    }
-
-    function setThumbnail(thumbnail){
-        $.ajax({
-            url: "/UserAlbum/SetThumbnail",
-            method: "Post",
-            data: { thumbnail: thumbnail, albumName: window.fullAlbumName },
-            success: function (result) {
-                hideLoader();
-                if (!result.success) alert(result.message);
-            },
-            error: function () {
-                hideLoader();
-            }
-        });
     }
 </script>

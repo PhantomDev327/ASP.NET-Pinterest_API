@@ -66,7 +66,7 @@ namespace nxPinterest.Services
             try
             {
                 var query = this._context.UserMedia.AsNoTracking()
-                                     .Where(c => c.ContainerId == container_id && c.Status == 0 && c.Deleted == null);
+                                     .Where(c => c.ContainerId.Equals(container_id) && c.Status == 0 && c.Deleted == null);
 
                 //todo tagテーブルで検索に変更したい？どっちが早いか
                 if (!String.IsNullOrEmpty(searchKey))
@@ -252,7 +252,7 @@ namespace nxPinterest.Services
         /// </summary>
         /// <param name="request">Data</param>
         /// <param name="UserId">UserId current</param>
-        public void UploadMediaFile(ImageRegistrationRequests request, string UserId)
+        public IList<UserMedia> UploadMediaFile(ImageRegistrationRequests request, string UserId)
         {
             var files = request.Images;
             if (files == null)
@@ -265,6 +265,8 @@ namespace nxPinterest.Services
             // Login User
             var user = this._context.Users.Where(c => c.Id.Equals(UserId)).FirstOrDefault();
             string userContainerId = user.container_id.ToString();
+
+            IList<UserMedia> returnResult = new List<UserMedia>();
 
             // File Loop
             foreach (IFormFile file in files)
@@ -423,7 +425,7 @@ namespace nxPinterest.Services
                     userMedia.ContainerId = int.Parse(userContainerId);
                     userMedia.Status = 0;
                     userMedia.Uploaded = DateTime.Now;
-                    userMedia.Created = string.IsNullOrEmpty(takeDateString) ? null : DateTime.ParseExact(takeDateString, "yyyy/MM/dd HH:mm:ss", null);
+                    userMedia.Created = string.IsNullOrEmpty(takeDateString) ? DateTime.Now : DateTime.ParseExact(takeDateString, "yyyy/MM/dd HH:mm:ss", null);
                     userMedia.Tags = "";
                     userMedia.AITags = string.Join(",", aitagsString.Split("|").Where(s => s != "").Select(s => s.Substring(0, s.IndexOf(":"))));
 
@@ -436,6 +438,8 @@ namespace nxPinterest.Services
                     userMedia.Tags += aitagsString;
 
                     _context.UserMedia.Add(userMedia);
+
+                    returnResult.Add(userMedia);
 
                     // tagテーブル titleもtag(type=0)
                     UserMediaTags userMediaTags = new UserMediaTags();
@@ -498,6 +502,7 @@ namespace nxPinterest.Services
                     throw new Exception("SQL database への登録に失敗しました");
                 }
             }
+            return returnResult;
         }
 
         /// <summary>
@@ -667,7 +672,7 @@ namespace nxPinterest.Services
                     userMedia.ContainerId = int.Parse(userContainerId);
                     userMedia.Status = 0;
                     userMedia.Uploaded = DateTime.Now;
-                    userMedia.Created = string.IsNullOrEmpty(takeDateString) ? null : DateTime.ParseExact(takeDateString, "yyyy/MM/dd HH:mm:ss", null);
+                    userMedia.Created = string.IsNullOrEmpty(takeDateString) ? DateTime.Now : DateTime.ParseExact(takeDateString, "yyyy/MM/dd HH:mm:ss", null);
                     userMedia.Tags = "";
                     userMedia.AITags = string.Join(",", aitagsString.Split("|").Where(s => s != "").Select(s => s.Substring(0, s.IndexOf(":"))));
 

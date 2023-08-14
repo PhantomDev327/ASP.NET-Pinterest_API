@@ -15,5 +15,6 @@ namespace nxPinterest.Data.Repositories.Interfaces
 
         Task<int> GetAlmubMediaCount(int albumId);
         Task<int> DeleteUserAlbumMediaAsyncById(int albumId);
+        Task<IList<UserMediaAlbumViewModel>> GetMediaAlbumsAsync(int mediaID, Enums.AlbumType albumType); 
     }
 }

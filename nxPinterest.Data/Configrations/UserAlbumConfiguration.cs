@@ -46,6 +46,8 @@ public class UserAlbumConfiguration : IEntityTypeConfiguration<UserAlbum>
 
         builder.Property(e => e.AlbumExpireDate).HasColumnName("album_expiredate").HasDefaultValueSql("getdate()");
 
+        builder.Property(e => e.AlbumComment).HasColumnName("album_description").HasMaxLength(1000);
+
         builder.Property(e => e.AlbumCreatedat).HasColumnName("album_createdat").HasDefaultValueSql("getdate()");
 
         builder.Property(e => e.AlbumUpdatedat).HasColumnName("album_updatedat").HasDefaultValueSql("getdate()");

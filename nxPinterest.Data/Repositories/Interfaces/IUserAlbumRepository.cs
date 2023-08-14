@@ -12,7 +12,7 @@ namespace nxPinterest.Data.Repositories.Interfaces
 
         bool CheckExpiryDayAlbum(int albumId, DateTime? albumExpireDate);
 
-        Task<IEnumerable<UserAlbumViewModel>> GetAlbumUserByContainer(int container);
+        Task<IEnumerable<UserAlbumViewModel>> GetAlbumUserByContainer(int container, string searchKey="");
 
         Task<int> GetAlbumIdByPathUrl(string pathUrl);
 
@@ -22,6 +22,8 @@ namespace nxPinterest.Data.Repositories.Interfaces
 
         Task<bool> IsAlbumNameExist(string albumName);
 
-        Task<IEnumerable<UserAlbumViewModel>> GetSharedAlbumByUser(string user_id);
+        Task<IEnumerable<UserAlbumViewModel>> GetSharedAlbumByUser(string user_id, string role, int containerId);
+
+        Task<int> DeleteAlbumIdByID(int albumId);
     }
 }

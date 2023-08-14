@@ -1,6 +1,7 @@
-﻿<!DOCTYPE html>
-
-<html>
+﻿@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+<!DOCTYPE html>
+<html lang="ja">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -18,8 +19,7 @@
 <body class="loading" data-layout="detached" data-layout-config='{"leftSidebarCondensed":false,"darkMode":false, "showRightSidebarOnStart": true}'>
     <!-- Start Content-->
     <div class="container-fluid text-align-center">
-        @*<img class="company-banner" src="~/images/banner.png" />*@
-        <img width="400" class="company-banner" src="~/images/login-pinterest.png" />
+        <img id="logo" class="company-banner" width="400" src="/images/@Configuration.GetSection("Images")["login"]">
         <div class="wrapper">
             <div class="content-page">
                 @RenderBody()
@@ -28,6 +28,5 @@
     </div>
 
     @RenderSection("Scripts", required: false)    
-@*    <script src="~/js/multi_select_by_mouse.js" asp-append-version="true"></script>*@
 </body>
 </html>

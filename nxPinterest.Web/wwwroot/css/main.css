@@ -12,7 +12,7 @@ body {
 }
 .login-err-msg {
   position: absolute;
-  padding-top: 20px;
+  padding-top: 60px;
   font-size: 15px;
   left: 0;
   width: 100%;
@@ -240,4 +240,16 @@ width: 170px;
 
 #showPreviewImageModal #myCanvas {
   max-height: calc(80vh - 10px) !important;
+}
+
+.z-index-99 {
+    z-index: 99 !important;
+}
+
+.project_tags > a {
+  text-decoration: none;
+}
+
+.btn:hover {
+  background-color: #879099 !important;
 }

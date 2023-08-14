@@ -77,145 +77,39 @@
                 uploadMediaButtonEle.style.display = "unset";
             }
         });
-        function loadImg() {
+        async function loadImg() {
             showLoader();
             window.isFullImage = true;
-            $.ajax({
-                url: "@Url.Action("getMedia", "UserMedia")",
-                method: "Post",
-                data: { pageIndex: window.page, searchKey: $('#SearchKey').val() },
-                success: function (sResult) {
-                    window.images.push( sResult.userMediaList);
-                    $.each(sResult.userMediaList, function(index, value) {
-                        appendData(value);
-                    });
-                    window.page = window.page + 1;
-                    hideLoader();
-                },
-                error: function () {
-                    window.images.forEach(function (data) {
-                        data.forEach(function (value) {
+            if (window.page == 1 ) {
+                window.images = [];
+            }
+            await new Promise(function (resolve, reject) {
+                $.ajax({
+                    url: "@Url.Action("getMedia", "UserMedia")",
+                    method: "Post",
+                    data: { pageIndex: window.page, searchKey: $('#SearchKey').val()},
+                    success: function (sResult) {
+                        window.page = window.page + 1;
+                        let result = sResult.userMediaList;
+                        result = [...new Set(result)];
+                        result = result.filter((image, index, self) =>
+                            index === self.findIndex((t) => (
+                                t.mediaId === image.mediaId
+                            ))
+                        );
+                        window.images.push( result );
+                        $.each(result, function(index, value) {
                             appendData(value);
                         });
-                    });
-                    window.page = window.page + 1;
-                    hideLoader();
-                }
+                        hideLoader();
+                    },
+                    error: function () {
+                        hideLoader();
+                    }
+                });
             });
         }
 
         var image_count = 0;
-        function loadImgByName(albumname) {
-            window.isFullImage = false;
-            if (window.isLoadAlbum) return;
-            window.isLoadAlbum = true;
-            window.fullAlbumName = albumname;
-            window.selectedMediaIdList = [];
-            if (window.selectedMediaIdList.length === 0) {
-                // 要素を取得
-                var createMediaFolder = document.getElementById("createMediaFolder");
-
-                // 要素が存在するかどうかをチェック
-                if (createMediaFolder) {
-                    // 要素が存在する場合、classNameを変更
-                    createMediaFolder.className = "disabled-link";
-                }
-
-                // 同様のチェックを shareMedia と downloadMedia にも適用
-                var shareMedia = document.getElementById("shareMedia");
-                if (shareMedia) {
-                    shareMedia.className = "disabled-link";
-                }
-
-                var downloadMedia = document.getElementById("downloadMedia");
-                if (downloadMedia) {
-                    downloadMedia.className = "disabled-link";
-                }
-
-                //権限によって削除見れない　※削除だけではなく他もあり得るか TODO
-                //document.getElementById("deleteMedia").className = "disabled-link";
-                var targetElem = document.getElementById("deleteMedia");
-                //要素があれば差し込む
-                if (targetElem) {
-                    targetElem.className = "disabled-link"
-                }
-            }
-            showLoader();
-            $.ajax({
-                url: "@Url.Action("GetSelectedAlbums", "UserAlbum")",
-                method: "Post",
-                data: { pageIndex: window.pageAlbum, albumName: albumname },
-                success: function (result) {
-                    window.imagesAlbum.push(result.data.albums);
-                    $.each(result.data.albums, function (index, value) {
-                        appendData(value);
-                    });
-                    if(result.data.albums.length >= 0 ){
-                        image_count = result.data.albums.length;
-                        console.log('result.data.albums.length:' + image_count)
-                        document.getElementById("count__album").innerHTML = `${result.data.albums.length} 項目`;
-                        document.getElementById("album__date").innerHTML = dateToStr24H(new Date(result.data.albumCreateDate), 'Y年M月D日 h:m:s');
-                        renderContentIcon();
-                    }
-                    window.pageAlbum = window.pageAlbum + 1;
-                    hideLoader();
-                    window.isLoadAlbum = false;
-
-                },
-                error: function () {
-                    window.imagesAlbum.forEach(function (data) {
-                        data.forEach(function (value) {
-                            appendData(value);
-                        });
-                    });
-                    window.pageAlbum = window.pageAlbum + 1;
-                    hideLoader();
-                    window.isLoadAlbum = false;
-                }
-            });
-        }
-
-        function selectedAlbum(albumName, albumUrl) {
-            window.pageAlbum = 1;
-            window.imagesAlbum = new Array();
-            initCol();
-            renderContentAlbum(albumName,albumUrl);
-            loadImgByName(albumName);
-            var element = document.getElementById('navbarSearchAndTag');
-            if (element.classList.contains('show')) {
-                element.classList.remove("show");
-            }
-        }
-
-        function renderContentAlbum(albumName, albumUrl) {
-            $(".content_album").empty();
-            $("#blockGallery").before(`<div class="row content_album" style="padding: 15px; style="margin-left: 15px;">
-                                           <h2>
-                                                     <span id="album__name">${albumName}</span>
-                                           </h2>
-                                           <p><strong id="album__date"></strong>&nbsp&nbsp<strong id="count__album"></strong>
-                                           <strong style="color:#ffffff;">&nbsp&nbsp 共有する</strong>
-                                           <i style="color:#ffffff;cursor: pointer;" class="fa fa-copy" id="copyAlbum" data-albumurl="${albumUrl}" aria-hidden="true"></i></p>
-                                       </div> <div id="tooltipAlbumCopy" data-toggle="tooltip" data-placement="top" title="コピーされました。"></div>`);
-        }
-
-        function renderContentIcon() {
-        
-            $('#album__name').after(`<span class="px-2 my-1" id = "editMediaFolder"  style = "font-size: 0.995rem; cursor: pointer;" > <i class="bi bi-pencil-square" > </i></span >`);
-        }
-
-        function dateToStr24H(date, format) {
-            if (!format) {
-                format = 'Y/M/D h:m:s';
-            }
-            var hours = date.getHours();
-            format = format.replace(/Y/g, date.getFullYear());
-            format = format.replace(/M/g, (date.getMonth() + 1));
-            format = format.replace(/D/g, date.getDate());
-            format = format.replace(/h/g, hours);
-            format = format.replace(/m/g, date.getMinutes());
-            format = format.replace(/s/g, date.getSeconds());
-            return format;
-        }
     </script>
     }

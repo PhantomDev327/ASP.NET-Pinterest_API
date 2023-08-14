@@ -22,7 +22,7 @@ public class UserAlbum
 
     public string AlbumUrl { get; set; }
 
-    public string? AlbumComment { get; set; }
+    public string AlbumComment { get; set; }
 
     public AlbumType AlbumType { get; set; }
 

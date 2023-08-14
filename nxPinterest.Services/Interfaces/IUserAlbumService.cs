@@ -13,7 +13,7 @@ namespace nxPinterest.Services.Interfaces
 
         Task<string> CreateAlbumShare(CreateUserAlbumSharedRequest model, string userId);
 
-        Task<IEnumerable<UserAlbumViewModel>> GetAlbumUserByContainer(int container);
+        Task<IEnumerable<UserAlbumViewModel>> GetAlbumUserByContainer(int container, string searchKey ="");
 
         Task<int> GetAlbumIdByPathUrlAsync(string pathUrl);
 
@@ -31,8 +31,12 @@ namespace nxPinterest.Services.Interfaces
 
         Task<bool> RemoveMediaFromAlbum(int albumId, List<int> mediaIdList);
 
-        Task<IEnumerable<UserAlbumViewModel>> GetSharedAlbumByUser(string user_id);
+        Task<IEnumerable<UserAlbumViewModel>> GetSharedAlbumByUser(string user_id, string role, int containerId);
 
         Task<bool> DeleteAlbum(int albumId);
+
+        bool UpdateAlbumThumbnail(int albumId, UserAlbum model);
+
+        Task<IList<UserMediaAlbumViewModel>> GetMediaAlbumsAsync(int mediaId, Data.Enums.AlbumType albumType);
     }
 }

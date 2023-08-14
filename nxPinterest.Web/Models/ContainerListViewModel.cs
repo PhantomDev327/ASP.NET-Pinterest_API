@@ -7,7 +7,7 @@ using nxPinterest.Utils;
 
 namespace nxPinterest.Web.Models
 {
-    public class ContainerListViewModel
+    public class ContainerListViewModel : BaseViewModel
     {
         public IList<Data.Models.UserContainer> containerList { get; set; } = new List<Data.Models.UserContainer>();
         public int PageIndex { get; set; } = 1;

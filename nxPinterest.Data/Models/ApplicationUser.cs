@@ -29,5 +29,6 @@ namespace nxPinterest.Data.Models
 
         public virtual string UserDispName { get; set; }
         public virtual string ContainerIds { get; set; }
+        public virtual string? DisplayMode { get; set; }
     }
 }

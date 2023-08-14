@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using nxPinterest.Services.Models;
-using nxPinterest.Utils;
+﻿using System.Collections.Generic;
 
 namespace nxPinterest.Web.Models
 {
-    public class UserListViewModel
+    public class UserListViewModel : BaseViewModel
     {
         public IList<Data.Models.ApplicationUser> ApplicationUserList { get; set; } = new List<Data.Models.ApplicationUser>();
         public int PageIndex { get; set; } = 1;

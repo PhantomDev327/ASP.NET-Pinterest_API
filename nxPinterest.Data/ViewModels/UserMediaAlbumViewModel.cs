@@ -1,9 +1,9 @@
-﻿using nxPinterest.Data.Enums;
+using nxPinterest.Data.Enums;
 using System;
 
 namespace nxPinterest.Data.ViewModels
 {
-    public class UserAlbumViewModel
+    public class UserMediaAlbumViewModel
     {
         public int AlbumId { get; set; }
 
@@ -21,9 +21,10 @@ namespace nxPinterest.Data.ViewModels
 
         public string AlbumThumbnailUrl { get; set; }
         public DateTime? AlbumExpireDate { get; set; }
+        public DateTime? AlbumDetetedat { get; set; }
 
-        public int AlbumType { get; set; }
+        public AlbumType AlbumType { get; set; }
 
-        public string Comment { get; set; }
+        public int MediaID { get; set; }
     }
 }

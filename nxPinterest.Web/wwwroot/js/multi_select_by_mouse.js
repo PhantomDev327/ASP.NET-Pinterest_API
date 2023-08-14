@@ -14,37 +14,6 @@ let zoomLeftBuf = 0, zoomTopBuf = 0;
 const animationDuration = 500; // Duration of the zoom animation in milliseconds
 let startTime; // Start time of the animation
 
-function initCol() {
-    $("#thumbnail-container").empty();
-    var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-    if (width > 550) {
-        var itemWidth = window.itemWidth;
-        var col_num = getColNum(itemWidth);
-        var space = Math.floor((width % itemWidth) / 2) + 8;
-        for (var i = 1; i <= col_num; i++) {
-            var paddingItem = 4;
-            var padding = paddingItem * 2;
-            var leftSize = ((itemWidth - paddingItem) * (i - 1) + space);
-            $('#thumbnail-container').append('<div id="column-' + i + '" class="image-col" style="position:absolute; width:' + itemWidth + 'px; padding:' + padding + 'px;left:' + leftSize + 'px;"></div>');
-        }
-    } else {
-        var col_num = 6 - (window.itemWidth - 100) / 50;
-        var space = (col_num == 6 || col_num == 5) ? 8 : 10;
-        var itemWidth = (width - (space - 8) * (col_num - 1) - (space - 4) * 2) / col_num;
-        for (var i = 1; i <= col_num; i++) {
-            var paddingItem = 4;
-            var padding = paddingItem * 2;
-            var leftSize = (itemWidth * (i - 1) + (space - 4) + (space - 8) * (i - 1));
-            $('#thumbnail-container').append('<div id="column-' + i + '" class="image-col" style="position:absolute; width:' + itemWidth + 'px; padding:' + padding + 'px;left:' + leftSize + 'px;"></div>');
-        }
-    }
-}
-
-function getColNum(itemWidth) {
-    var col_num = Math.floor($(window).width() / itemWidth);
-    return col_num;
-}
-
 $(document).ready(function () {
     var timer = null;
     $(window).off('resize');
@@ -54,9 +23,7 @@ $(document).ready(function () {
             timer = setTimeout(function () {
                 if (window.isFullImage) {
                     reloadImage();
-                } else {
-                    reloadImageAlbum();
-                }
+                } 
             }, 300);
         }
     });
@@ -65,9 +32,7 @@ $(document).ready(function () {
         timer = setTimeout(function () {
             if (window.isFullImage) {
                 reloadImage();
-            } else {
-                reloadImageAlbum();
-            }
+            } 
         }, 300);
     });
 })
@@ -121,8 +86,10 @@ function MultiImageSelectByMouse(opts) {
             return;
         }
         var is_preview_span_el = e.target.nodeName.toLowerCase() === "span" && e.target.className === "previewButton";
+        var is_thumbnail_span_el = e.target.nodeName.toLowerCase() === "span" && e.target.className === "thumbnailButton";
         var is_preview_i_el = e.target.nodeName.toLowerCase() === "i" && e.target.parentElement.nodeName.toLowerCase() === "span" && e.target.parentElement.className === "previewButton";
-        return is_preview_span_el || is_preview_i_el
+        var is_thumbnail_i_el = e.target.nodeName.toLowerCase() === "i" && e.target.parentElement.nodeName.toLowerCase() === "span" && e.target.parentElement.className === "thumbnailButton";
+        return (is_preview_span_el || is_preview_i_el) || (is_thumbnail_span_el || is_thumbnail_i_el);
     }
 
     // mouseイベントをリスナー
@@ -173,7 +140,11 @@ function MultiImageSelectByMouse(opts) {
         if (isClickPointImgEl(e)) {
             var mediaId = e.target.parentElement.id;
             let sizeIndex = document.getElementById("changeZoomRange").value;
-            window.location.href = "/UserMedia/Details?media_id=" + mediaId + "&size_index=" + sizeIndex;
+            if (e.target.parentElement.dataset.url) {
+                goAlbum(mediaId);
+            } else {
+                window.location.href = "/UserMedia/Details?media_id=" + mediaId + "&size_index=" + sizeIndex;
+            }
         }
     });
 
@@ -311,6 +282,22 @@ function multiSelect() {
             if (window.selectedMediaIdList.length > 0) {
                 selectedImageText = window.selectedMediaIdList.length + "項目を選択中";
                 console.log(selectedImageText);
+                if (window.selectedMediaIdList.length == 1 && window.fullAlbumName != "") {
+                    let id = window.selectedMediaIdList[0];
+                    let selectedImage = document.getElementById(id);
+                    for (var childNode of selectedImage.childNodes) {
+                        if (childNode.nodeName
+                            && childNode.nodeName.toLowerCase() === "img"
+                            && childNode.getAttribute("data-media-url")
+                        ) {
+                            if (childNode.getAttribute("data-smallmedia-url")) {
+                                selectedSmallMediaSrc = childNode.getAttribute("data-smallmedia-url");
+                            }
+                            let url = childNode.getAttribute("data-media-url");
+                            setThumbnail(url);
+                        }
+                    }
+                }
                 // 要素を取得
                 var createMediaFolder = document.getElementById("createMediaFolder");
 
@@ -349,19 +336,19 @@ function multiSelect() {
                 // 同様のチェックを shareMedia、downloadMedia、editMultiMedia、deleteMedia にも適用
                 var shareMedia = document.getElementById("shareMedia");
                 if (shareMedia) {
-                    shareMedia.className = "disabled - link";
+                    shareMedia.className = "disabled-link";
                 }
                 var downloadMedia = document.getElementById("downloadMedia");
                 if (downloadMedia) {
-                    downloadMedia.className = "disabled - link";
+                    downloadMedia.className = "disabled-link";
                 }
                 var editMultiMedia = document.getElementById("editMultiMedia");
                 if (editMultiMedia) {
-                    editMultiMedia.className = "disabled - link";
+                    editMultiMedia.className = "disabled-link";
                 }
                 var deleteMedia = document.getElementById("deleteMedia");
                 if (deleteMedia) {
-                    deleteMedia.className = "disabled - link";
+                    deleteMedia.className = "disabled-link";
                 }
             }
             // 要素を取得
@@ -741,6 +728,7 @@ function showPreviewImage(mediaId, mediaUrl) {
 
     draw();
 }
+
 
 function showOtherPreviewImage(type) {
     const figureIds = [];

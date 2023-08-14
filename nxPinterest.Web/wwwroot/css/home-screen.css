@@ -143,6 +143,8 @@ img.company-banner {
         grid-row: 1 / -1;
         grid-column: 1;
         transition: 1s;
+        object-fit: cover;
+        height: 100%;
     }
 
 .thumbnail-container img {
@@ -504,4 +506,10 @@ img.company-banner {
 .header-item, .header-item:hover {
     color: var(--bs-dropdown-link-color);
     text-decoration: none;
+}
+
+/* Album View text style */
+.album-title {
+    margin-top: -10px;
+    margin-bottom: 25px;
 }

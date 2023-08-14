@@ -24,19 +24,22 @@ namespace nxPinterest.Web.Controllers
         public const int pageSize = nxPinterest.Services.dev_Settings.displayMaxItems_search;
         private readonly IUserMediaManagementService userMediaManagementService;
         private readonly IUserAlbumService userAlbumService;
+        private readonly IUserManagementService userService;
         private readonly ApplicationDbContext _context;
         //private CosmosDbService _cosmosDbService;
 
         public HomeController(ILogger<HomeController> logger,
                               ApplicationDbContext context,
                               IUserMediaManagementService userMediaManagementService,
-                              IUserAlbumService userAlbumService
+                              IUserAlbumService userAlbumService,
+                              IUserManagementService userService
                               )
         {
             _logger = logger;
             _context = context;
             this.userMediaManagementService = userMediaManagementService;
             this.userAlbumService = userAlbumService;
+            this.userService = userService;
             //_cosmosDbService = new CosmosDbService();
         }
 
@@ -46,23 +49,23 @@ namespace nxPinterest.Web.Controllers
         /// <param name="pageIndex"></param>
         /// <param name="searchKey"></param>
         /// <returns></returns>
-        public async Task<IActionResult> Index(int container = 0, int pageIndex = 1, string searchKey = "")
+        public async Task<IActionResult> Index(int pageIndex = 1, string searchKey = "")
         {
             HomeViewModel vm = new HomeViewModel();
 
             //nxPinterest.Services.CognitiveSearchService cognitiveSearchService = new Services.CognitiveSearchService();
 
             List<ApplicationUser> user = this._context.Users.Where(c => c.Id.Equals(this.UserId)).ToList();
+            if (user[0].DisplayMode != null && user[0].DisplayMode.Equals("ALBUM")) 
+            {
+                string redirectUrl = string.Concat("/Home/Album?pageIndex=", pageIndex, "&searchKey=", searchKey);
+                return Redirect(redirectUrl);
+            }
             if (user == null || user.Count == 0) return RedirectToAction("LogOut", "Account");
 
             int skip = (pageIndex - 1) * pageSize;
 
-            if (container == 0)
-            {
-                container = user[0].container_id;
-            }
-
-            this.container_id = container;
+            int container = user[0].container_id;
             
             //画面のajaxで取得と表示をしている ViewModelのListを未使用のためコメント
             //vm.UserMediaList = await this.userMediaManagementService.SearchUserMediaAsync(searchKey, user[0].container_id);
@@ -85,7 +88,7 @@ namespace nxPinterest.Web.Controllers
             vm.SizeRange = 3;
 
             //よく使用されているタグ候補
-            vm.TagList = await this.userMediaManagementService.GetOftenUseTagsAsyc(this.container_id, searchKey, 30);
+            vm.TagList = await this.userMediaManagementService.GetOftenUseTagsAsyc(user[0].container_id, searchKey, 30);
 
             // get user containers
             string container_ids = user[0].ContainerIds ?? "";
@@ -109,19 +112,115 @@ namespace nxPinterest.Web.Controllers
                             .Where(t => t.container_visibility == true)
                             .ToListAsync();*/
             //よく使用されているアルバムの一覧 TODO
-           var album = await userAlbumService.GetAlbumUserByContainer(this.container_id);
+           var album = await userAlbumService.GetAlbumUserByContainer(container);
            vm.AlbumList = album.Select(n=> new nxPinterest.Data.ViewModels.UserAlbumViewModel
            {
                AlbumName = n.AlbumName,
-               AlbumUrl = n.AlbumUrl
+               AlbumUrl = n.AlbumUrl,
+               AlbumId = n.AlbumId
            }).ToList();
 
-            vm.currentContainer = this.container_id;
+            vm.currentContainer = container;
 
             //登録画面で使用されているタグ候補
             vm.ImageRegistrationVM.SuggestTagsList = vm.TagList;
 
             return View(vm);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangeContainerID(int container)
+        {
+            int containerID = await this.userService.UpdateUserContainerAsync(this.UserId, container);
+            return Json(new { success = true });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangeViewMode(int ViewMode)
+        {
+            int containerID = await this.userService.UpdateUserViewModeAsync(this.UserId, ViewMode);
+            return Json(new { success = true });
+        }
+
+        public async Task<IActionResult> Album(int pageIndex = 1, string searchKey = "")
+        {
+            HomeViewModel vm = new HomeViewModel();
+
+            //nxPinterest.Services.CognitiveSearchService cognitiveSearchService = new Services.CognitiveSearchService();
+
+            List<ApplicationUser> user = this._context.Users.Where(c => c.Id.Equals(this.UserId)).ToList();
+            if (user == null || user.Count == 0) return RedirectToAction("LogOut", "Account");
+
+            int skip = (pageIndex - 1) * pageSize;
+
+            int container = user[0].container_id;
+            
+            vm.PageIndex = pageIndex;
+            //vm.TotalPages = totalPages;
+            vm.SearchKey = searchKey;
+            //vm.TotalRecords = totalRecordCount;
+            vm.Discriminator = user[0].Discriminator;
+            vm.UserDispName = user[0].UserDispName;
+
+            vm.SizeRange = 3;
+
+            //よく使用されているタグ候補
+            vm.TagList = await this.userMediaManagementService.GetOftenUseTagsAsyc(user[0].container_id, searchKey, 30);
+
+            // get user containers
+            string container_ids = user[0].ContainerIds ?? "";
+            string[] containerArray = container_ids.Split(',');
+
+            if (containerArray.Length == 0 || containerArray[0] == "")
+            {
+                vm.UserContainers = await this._context.UserContainer.Where(c => c.container_id == user[0].container_id).ToListAsync();
+            }
+            else
+            {
+                var containerIds = containerArray
+                    .Where(x => int.TryParse(x, out _))
+                    .Select(int.Parse)
+                    .ToList();
+
+                vm.UserContainers = await this._context.UserContainer.Where(c => containerIds.Contains(c.container_id)).ToListAsync();
+            }
+
+            /*vm.UserContainers = await this._context.UserContainer
+                            .Where(t => t.container_visibility == true)
+                            .ToListAsync();*/
+            //よく使用されているアルバムの一覧 TODO
+            var album = await userAlbumService.GetAlbumUserByContainer(container);
+            vm.AlbumList = album.Select(n => new nxPinterest.Data.ViewModels.UserAlbumViewModel
+            {
+                AlbumName = n.AlbumName,
+                AlbumUrl = n.AlbumUrl,
+                AlbumThumbnailUrl = n.AlbumThumbnailUrl,
+                AlbumId = n.AlbumId
+            }).ToList();
+
+            vm.currentContainer = container;
+
+            //登録画面で使用されているタグ候補
+            vm.ImageRegistrationVM.SuggestTagsList = vm.TagList;
+            vm.AlbumMode = true;
+            return View(vm);
+        }
+        [HttpPost]
+        public async Task<IActionResult> getAlbum(string searchKey = "")
+        {
+            HomeViewModel vm = new HomeViewModel();
+            List<ApplicationUser> user = this._context.Users.Where(c => c.Id.Equals(this.UserId)).ToList();
+            
+            var album = await userAlbumService.GetAlbumUserByContainer(user[0].container_id,searchKey);
+            vm.AlbumList = album.Select(n => new nxPinterest.Data.ViewModels.UserAlbumViewModel
+            {
+                AlbumName = n.AlbumName,
+                AlbumUrl = n.AlbumUrl,
+                AlbumThumbnailUrl = n.AlbumThumbnailUrl,
+                ImageCount = n.ImageCount,
+                AlbumId = n.AlbumId
+            }).ToList();
+            return Json(vm);
         }
     }
 }

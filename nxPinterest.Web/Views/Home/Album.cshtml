@@ -1,0 +1,91 @@
+﻿@model HomeViewModel
+@{
+    ViewData["Title"] = "TOP";
+
+    bool hasNextPage = (Model.PageIndex < Model.TotalPages);
+    bool hasPreviousPage = (Model.PageIndex > 1);
+
+    var prevDisabled = !hasPreviousPage ? "disabled" : "";
+    var nextDisabled = !hasNextPage ? "disabled" : "";
+    string searchKey = Model.SearchKey;
+    //bool hasPagination = Model.TotalRecords > nxPinterest.Services.dev_Settings.pageSize_regist;
+}
+
+@section Styles {
+    <link href="~/lib/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <link href="~/css/albums/index.css" rel="stylesheet" />
+}
+
+<script>
+    function RegiterUserMediaFile() {
+        $('#image-viewer-modal').remove();
+        $('#image-registration-modal').modal('show');
+    }
+    document.getElementById("changeZoomRange").value = localStorage.getItem("zoomSize");
+</script>
+
+<div id="blockGallery" tabindex="0">
+    <div class="m-3">
+        <div class="content gallery" id="contentGallery">
+            <div class="thumbnail-container" id="thumbnail-container">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@{
+    await Html.RenderPartialAsync("/Views/Shared/_AlbumContainer.cshtml", Model.ImageRegistrationVM);
+}
+@{
+    await Html.RenderPartialAsync("/Views/Shared/_ImageRegistration.cshtml", Model.ImageRegistrationVM);
+}
+@{
+    await Html.RenderPartialAsync("/Views/Shared/_EditAlbum.cshtml");
+}
+@{
+    await Html.RenderPartialAsync("/Views/Shared/_RemoveAlbum.cshtml");
+}
+
+@section Scripts{
+    <script src="~/lib/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
+    <script src="~/lib/bootstrap-datepicker/locales/bootstrap-datepicker.ja.min.js"></script>
+    <script src="~/js/user-album/index.js"></script>
+    <script src="~/js/shared-user-album/index.js"></script>
+    <script>
+        var album = new userAlbumController();
+        var shareAlbum = new shareUserAlbumMediaController();
+        album.initialize();
+        shareAlbum.initialize();
+        
+        async function loadAlbum() {
+            showLoader();
+            window.isFullImage = true;
+            await new Promise(function (resolve, reject) { 
+                $.ajax({
+                    url: "@Url.Action("getAlbum", "Home")",
+                    method: "Post",
+                    data: { searchKey: $('#SearchKey').val()},
+                    success: function (sResult) {
+                        window.images = [];
+                        window.images = sResult.albumList;
+                        console.log(window.images);
+                        window.images = [...new Set(window.images)];
+                        window.images = window.images.filter((image, index, self) =>
+                            index === self.findIndex((t) => (
+                                t.albumName === image.albumName
+                            ))
+                        );
+                        window.images.forEach(function (data) {
+                            appendData(data);
+                        });
+                        hideLoader();
+                    },
+                    error: function () {
+                        hideLoader();
+                    }
+                });
+            });
+        }
+    </script>
+}

@@ -33,12 +33,12 @@ namespace nxPinterest.Data.Repositories
             return diff.Days > 0;
         }
 
-        public async Task<IEnumerable<UserAlbumViewModel>> GetAlbumUserByContainer(int container_id)
+        public async Task<IEnumerable<UserAlbumViewModel>> GetAlbumUserByContainer(int container_id, string searchKey)
         {
 
             if (container_id == 0) return new List<UserAlbumViewModel>();
 
-            var result = await Context.UserAlbums.Select(n => new UserAlbumViewModel
+            var result = await Context.UserAlbums.Where(a => a.AlbumVisibility == true).Select(n => new UserAlbumViewModel
             {
                 ContainerId = n.ContainerId,
                 AlbumName = n.AlbumName,
@@ -47,8 +47,20 @@ namespace nxPinterest.Data.Repositories
                 AlbumUrl = n.AlbumUrl,
                 AlbumType = (int)n.AlbumType,
                 AlbumThumbnailUrl = n.AlbumThumbnailUrl
-            }).Where(n => n.ContainerId == container_id && n.AlbumType == (int)Data.Enums.AlbumType.Album).OrderByDescending(n => n.AlbumCreatedat).ToListAsync();
+            }).Where(n => n.ContainerId == container_id && n.AlbumType == (int)Data.Enums.AlbumType.Album).OrderBy(n => n.AlbumName).ToListAsync();
 
+            if (!string.IsNullOrWhiteSpace(searchKey)) {
+                result = await Context.UserAlbums.Where(a => a.AlbumVisibility == true).Select(n => new UserAlbumViewModel
+                {
+                    ContainerId = n.ContainerId,
+                    AlbumName = n.AlbumName,
+                    AlbumId = n.AlbumId,
+                    AlbumCreatedat = n.AlbumCreatedat,
+                    AlbumUrl = n.AlbumUrl,
+                    AlbumType = (int)n.AlbumType,
+                    AlbumThumbnailUrl = n.AlbumThumbnailUrl
+                }).Where(n => n.ContainerId == container_id && n.AlbumType == (int)Data.Enums.AlbumType.Album && n.AlbumName.Contains(searchKey)).OrderBy(n => n.AlbumName).ToListAsync();
+            }
             foreach ( var item in result )
             {
                 item.ImageCount = await _userAlbumMediaRepository.GetAlmubMediaCount(item.AlbumId);
@@ -63,7 +75,7 @@ namespace nxPinterest.Data.Repositories
 
             if (string.IsNullOrWhiteSpace(pathUrl)) return albumId;
 
-            var result = await Context.UserAlbums.Select(n => new UserAlbum
+            var result = await Context.UserAlbums.Where(a => a.AlbumVisibility == true).Select(n => new UserAlbum
             {
                 AlbumId = n.AlbumId,
                 AlbumUrl = n.AlbumUrl,
@@ -82,7 +94,7 @@ namespace nxPinterest.Data.Repositories
         {
             if (string.IsNullOrEmpty(albumName)) return (0, null);
 
-            var result = Context.UserAlbums.Select(n => new
+            var result = Context.UserAlbums.Where(a => a.AlbumVisibility == true).Select(n => new
             {
                 n.AlbumName,
                 n.AlbumId
@@ -95,7 +107,7 @@ namespace nxPinterest.Data.Repositories
         {
             if (string.IsNullOrEmpty(albumName)) return 0;
 
-            var result = await Context.UserAlbums.Select(n => new
+            var result = await Context.UserAlbums.Where(a => a.AlbumVisibility == true).Select(n => new
             {
                 n.AlbumName,
                 n.AlbumId
@@ -120,11 +132,11 @@ namespace nxPinterest.Data.Repositories
         public async Task<bool> IsAlbumNameExist(string albumName)
         {
             return await Context.UserAlbums
-                .Where(x => x.AlbumName==albumName)
+                .Where(x => x.AlbumName == albumName && x.AlbumVisibility == true)
                 .AnyAsync();
         }
 
-        public async Task<IEnumerable<UserAlbumViewModel>> GetSharedAlbumByUser(string userId)
+        public async Task<IEnumerable<UserAlbumViewModel>> GetSharedAlbumByUser(string userId, string role, int containerId)
         {
 
             if (string.IsNullOrEmpty(userId)) return new List<UserAlbumViewModel>();
@@ -133,7 +145,7 @@ namespace nxPinterest.Data.Repositories
 
             if (user is null) return new List<UserAlbumViewModel>();
 
-            var result = await Context.UserAlbums.Select(n => new UserAlbumViewModel
+            var result = await Context.UserAlbums.Where(a => a.AlbumVisibility == true).Select(n => new UserAlbumViewModel
             {
                 ContainerId = n.ContainerId,
                 AlbumName = n.AlbumName,
@@ -145,7 +157,23 @@ namespace nxPinterest.Data.Repositories
                 AlbumExpireDate = n.AlbumExpireDate,
                 UserId = n.UserId,
                 Comment = n.AlbumComment
-            }).Where(n => n.AlbumType == (int)Data.Enums.AlbumType.AlbumShare && n.UserId.Equals(userId)).OrderByDescending(n => n.AlbumCreatedat).ToListAsync();
+            }).Where(n => n.AlbumType == (int)Data.Enums.AlbumType.AlbumShare && n.UserId.Equals(userId) && n.ContainerId == containerId).OrderByDescending(n => n.AlbumCreatedat).ToListAsync();
+
+            if (role == "SysAdmin" || role == "ContainerAdmin") {
+                result = await Context.UserAlbums.Where(a => a.AlbumVisibility == true).Select(n => new UserAlbumViewModel
+                {
+                    ContainerId = n.ContainerId,
+                    AlbumName = n.AlbumName,
+                    AlbumId = n.AlbumId,
+                    AlbumCreatedat = n.AlbumCreatedat,
+                    AlbumUrl = n.AlbumUrl,
+                    AlbumType = (int)n.AlbumType,
+                    AlbumThumbnailUrl = n.AlbumThumbnailUrl,
+                    AlbumExpireDate = n.AlbumExpireDate,
+                    UserId = n.UserId,
+                    Comment = n.AlbumComment
+                }).Where(n => n.AlbumType == (int)Data.Enums.AlbumType.AlbumShare && n.ContainerId == containerId).OrderByDescending(n => n.AlbumCreatedat).ToListAsync();
+            }
 
             foreach (var item in result)
             {
@@ -153,6 +181,18 @@ namespace nxPinterest.Data.Repositories
             }
 
             return result != null ? result : new List<UserAlbumViewModel>();
+        }
+
+        public async Task<int> DeleteAlbumIdByID(int albumId)
+        {
+
+            var album = await Context.UserAlbums.FindAsync(albumId);
+            album.AlbumVisibility = false;
+            album.AlbumDeletedat = DateTime.Now;
+            this.Context.UserAlbums.Update(album);
+            await Context.SaveChangesAsync();
+
+            return album.AlbumId;
         }
     }
 }

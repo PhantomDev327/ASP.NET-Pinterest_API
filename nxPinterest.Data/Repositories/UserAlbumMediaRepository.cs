@@ -67,5 +67,22 @@ namespace nxPinterest.Data.Repositories
             Context.UserAlbumMedias.RemoveRange(ret);
             return Context.SaveChangesAsync();
         }
+
+        public async Task<IList<UserMediaAlbumViewModel>> GetMediaAlbumsAsync(int mediaID, Enums.AlbumType albumType)
+        {
+            var data = await Context.UserAlbumMedias.OrderByDescending(x => x.AlbumMediaCreatedat)
+                   .Join(Context.UserAlbums, p => p.AlbumId, i => i.AlbumId, (p, i) => new UserMediaAlbumViewModel
+                   {
+                       AlbumId = p.AlbumId,
+                       AlbumName = i.AlbumName,
+                       MediaID = p.UserMediaId,
+                       AlbumType = i.AlbumType,
+                       ImageCount = i.AlbumCount,
+                       AlbumUrl = i.AlbumUrl,
+                       AlbumDetetedat = i.AlbumDeletedat
+                   }).Where(n => n.MediaID == mediaID && n.AlbumDetetedat == null && n.AlbumType == albumType).ToListAsync();
+
+            return data;
+        }
     }
 }

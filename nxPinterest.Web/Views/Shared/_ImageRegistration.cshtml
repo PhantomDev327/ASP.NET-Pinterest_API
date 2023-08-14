@@ -18,6 +18,7 @@
                                         <input type="hidden" name="Title" id="title_image" />
                                         <input type="hidden" name="Description" id="description_image" />
                                         <input type="hidden" name="OriginalTags" id="project_tags_image" />
+                                        <input type="hidden" name="SaveMode" id="save_mode_image" />
                                         <input type="hidden" name="BtnName" id="btn_name" />
                                     </div>
                                 </form>
@@ -27,7 +28,7 @@
                     </div>
 
                     <div class="col-12 col-md-6">
-                        <input type="text" class="form-control input-control input-title px-0" placeholder="写真のタイトル" asp-for="Title" />
+                        <input type="text" class="form-control input-control input-title px-0 mb-0" placeholder="写真のタイトル" asp-for="Title"/>
                         <div class="form-text text-danger mb-3" id="title-validation">
                             @Html.ValidationMessageFor(c => c.Title)
                         </div>
@@ -50,6 +51,12 @@
                             </div>
                             @*<p class="tag-text" style="color: #adb5bd; ">タグ</p>*@
                             <input data-role="tagsinput" asp-for="OriginalTags" />
+                        </div>
+                        <div class="my-3">
+                            <div class="form-group form-check">
+                                <input type="checkbox" class="form-check-input" asp-for="SaveMode">
+                                <label class="form-check-label text-dark" for="SaveMode">アルバムを同時に作成</label>
+                            </div>
                         </div>
                         @*
                         <input hidden asp-for="PhotoTags" />
@@ -121,6 +128,7 @@
                 $("#description_image").val($("#Description").val());
                 $("#project_tags_image").val($("#OriginalTags").val());
                 $("#btn_name").val("upload");
+                $("#save_mode_image").val($("#SaveMode").is(":checked"));
 
 
                 if ($("#upfiles").val() == "") {
@@ -165,6 +173,7 @@
                 $("#description_image").val($("#Description").val());
                 $("#project_tags_image").val($("#OriginalTags").val());
                 $("#btn_name").val("kobetsu");
+                $("#save_mode_image").val($("#SaveMode").is(":checked"));
 
                 if ($("#upfiles").val() == "") {
                     $('#image-validation').text("写真を選択してください。");
