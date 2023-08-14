@@ -143,6 +143,8 @@ img.company-banner {
         grid-row: 1 / -1;
         grid-column: 1;
         transition: 1s;
+        object-fit: cover;
+        height: 100%;
     }
 
 .thumbnail-container img {

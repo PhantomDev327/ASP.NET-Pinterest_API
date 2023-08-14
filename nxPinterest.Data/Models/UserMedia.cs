@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using nxPinterest.Data.ViewModels;
 
 namespace nxPinterest.Data.Models
 {
@@ -32,10 +33,11 @@ namespace nxPinterest.Data.Models
 
         [NotMapped]
         public string tagsJson { get; set; }
-
         public DateTime DateTimeUploaded { get; set; }
         public virtual ApplicationUser User { get; set; }
-
-        public List<UserAlbumMedia> UserAlbumMedias { get; set; } = new List<UserAlbumMedia>();
+        [NotMapped]
+        public IList<UserMediaAlbumViewModel> MediaAlbums { get; set; } = new List<UserMediaAlbumViewModel>();
+        [NotMapped]
+        public IList<UserMediaAlbumViewModel> MediaSharedAlbums { get; set; } = new List<UserMediaAlbumViewModel>();
     }
 }

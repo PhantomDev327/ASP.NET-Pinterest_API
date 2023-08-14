@@ -249,3 +249,7 @@ width: 170px;
 .project_tags > a {
   text-decoration: none;
 }
+
+.btn:hover {
+  background-color: #879099 !important;
+}

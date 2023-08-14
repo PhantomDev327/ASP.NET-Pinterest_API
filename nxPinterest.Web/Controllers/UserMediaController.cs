@@ -109,12 +109,16 @@ namespace nxPinterest.Web.Controllers
             try
             {
                 DetailsViewModel vm = new DetailsViewModel();
-                var user = await this.userManager.FindByIdAsync(this.UserId);
-                var media = await this.userMediaManagementService.GetUserMediaAsync(media_id);
+                var user = await userManager.FindByIdAsync(this.UserId);
+                var media = await userMediaManagementService.GetUserMediaAsync(media_id);
                 if (media != null)
                 {
+                    var mediaUser = await userManager.FindByIdAsync(media.UserId);
+                    media.User = mediaUser;
+                    media.MediaAlbums = await userAlbumService.GetMediaAlbumsAsync(media_id, Data.Enums.AlbumType.Album);
+                    media.MediaSharedAlbums = await userAlbumService.GetMediaAlbumsAsync(media_id, Data.Enums.AlbumType.AlbumShare);
                     vm.UserMediaDetail = media;
-                    vm.SameTitleUserMediaList = await this.userMediaManagementService.GetUserMediaSameTitleMediasAsync(media);
+                    vm.SameTitleUserMediaList = await userMediaManagementService.GetUserMediaSameTitleMediasAsync(media);
                     //画面のajaxで取得している
                     //vm.RelatedUserMediaList = await this.userMediaManagementService.GetUserMediaRelatedMediasAsync(media);
 
@@ -160,17 +164,18 @@ namespace nxPinterest.Web.Controllers
                         vm.UserContainers = await this._context.UserContainer.Where(c => containerIds.Contains(c.container_id)).ToListAsync();
                     }
                     //よく使用されているタグ候補
-                    vm.TagList = await this.userMediaManagementService.GetOftenUseTagsAsyc(this.container_id, searchKey, 30);
+                    vm.TagList = await this.userMediaManagementService.GetOftenUseTagsAsyc(user.container_id, searchKey, 30);
 
                     //よく使用されているアルバムの一覧 TODO
-                    var album = await userAlbumService.GetAlbumUserByContainer(this.container_id);
+                    var album = await userAlbumService.GetAlbumUserByContainer(user.container_id);
                     vm.AlbumList = album.Select(n => new nxPinterest.Data.ViewModels.UserAlbumViewModel
                     {
                         AlbumName = n.AlbumName,
-                        AlbumUrl = n.AlbumUrl
+                        AlbumUrl = n.AlbumUrl,
+                        AlbumId = n.AlbumId
                     }).ToList();
 
-                    vm.currentContainer = this.container_id;
+                    vm.currentContainer = user.container_id;
 
                     //return PartialView("/Views/Home/Details.cshtml", vm);
                     return View("/Views/UserMedia/Details.cshtml", vm);
@@ -281,7 +286,8 @@ namespace nxPinterest.Web.Controllers
                 vm.AlbumList = album.Select(n=> new nxPinterest.Data.ViewModels.UserAlbumViewModel
                 {
                     AlbumName = n.AlbumName,
-                    AlbumUrl = n.AlbumUrl
+                    AlbumUrl = n.AlbumUrl,
+                    AlbumId = n.AlbumId
                 }).ToList();
 
                 vm.currentContainer = user.container_id;
@@ -432,7 +438,7 @@ namespace nxPinterest.Web.Controllers
         [HttpPost]
         [DisableRequestSizeLimit]
         [RequestFormLimits(MultipartBodyLengthLimit = long.MaxValue, ValueLengthLimit = int.MaxValue)]
-        public IActionResult UploadMediaFile(ImageRegistrationRequests request)
+        public async Task<IActionResult> UploadMediaFile(ImageRegistrationRequests request)
         {
             // Validate param
             if (!ModelState.IsValid)
@@ -464,13 +470,31 @@ namespace nxPinterest.Web.Controllers
                     individual.ImageInfoList.Add(imageInfo);
                     CreateImageDirectory();
                 }
-                return UploadImageFileHidden(individual);
+                return await UploadImageFileHidden(individual);
             }
-
             // Store
             try
             {
-                userMediaManagementService.UploadMediaFile(request, UserId);
+                IList<UserMedia> mediaList = userMediaManagementService.UploadMediaFile(request, UserId);
+                if (request.SaveMode)
+                {
+                    List<UserAlbumMediaRequest> albumMediaRequestList = new List<UserAlbumMediaRequest>();
+                    foreach (var media in mediaList)
+                    {
+                        UserAlbumMediaRequest albumMediaRequest = new UserAlbumMediaRequest();
+                        albumMediaRequest.UserMediaId = media.MediaId;
+                        albumMediaRequest.MediaFileName = media.MediaFileName;
+                        albumMediaRequest.MediaUrl = media.MediaUrl;
+                        albumMediaRequest.MediaThumbnailUrl = media.MediaThumbnailUrl;
+                        albumMediaRequestList.Add(albumMediaRequest);
+                    }
+                    var user = await this.userManager.FindByIdAsync(this.UserId);
+                    CreateUserAlbumRequest model = new CreateUserAlbumRequest();
+                    model.AlbumUrl = GeneratePathUrl();
+                    model.UserAlbumMedias = albumMediaRequestList;
+                    model.AlbumName = request.Title;
+                    var result = await userAlbumService.Create(model, UserId, user.container_id);
+                }
             }
             catch (Exception ex)
             {
@@ -569,10 +593,10 @@ namespace nxPinterest.Web.Controllers
         /// <param name="request">Form Data</param>
         /// <returns></returns>
         [HttpPost]
-        public IActionResult UploadImageFileHidden(IndividualImageRegisterViewModel request)
+        public async Task<IActionResult> UploadImageFileHidden(IndividualImageRegisterViewModel request)
         {
             request.imageInfoListSize = request.ImageInfoList.Count;
-
+            
             // UserIDでフォルダを作成
             string path = "./wwwroot/images/temp/" + this.UserId;
             string path2 = "/images/temp/" + this.UserId + "/";
@@ -597,6 +621,37 @@ namespace nxPinterest.Web.Controllers
                     request.ImageInfoList[i].url = path2 + imgInfo.Name;
                 }
             }
+            List<ApplicationUser> user = this._context.Users.Where(c => c.Id.Equals(this.UserId)).ToList();
+            request.Discriminator = user[0].Discriminator;
+            request.UserDispName = user[0].UserDispName;
+
+            //よく使用されているアルバムの一覧 TODO
+            var sideAlbum = await userAlbumService.GetAlbumUserByContainer(user[0].container_id);
+            request.AlbumList = sideAlbum.Select(n => new nxPinterest.Data.ViewModels.UserAlbumViewModel
+            {
+                AlbumName = n.AlbumName,
+                AlbumUrl = n.AlbumUrl
+            }).ToList();
+
+            // get user containers
+            string container_ids = user[0].ContainerIds ?? "";
+            string[] containerArray = container_ids.Split(',');
+
+            if (containerArray.Length == 0 || containerArray[0] == "")
+            {
+                request.UserContainers = await this._context.UserContainer.Where(c => c.container_id == user[0].container_id).ToListAsync();
+            }
+            else
+            {
+                var containerIds = containerArray
+                    .Where(x => int.TryParse(x, out _))
+                    .Select(int.Parse)
+                    .ToList();
+
+                request.UserContainers = await this._context.UserContainer.Where(c => containerIds.Contains(c.container_id)).ToListAsync();
+
+            }
+            request.currentContainer = user[0].container_id;
 
             return this.View("~/Views/UserMedia/IndividualImageRegistration.cshtml", request);
         }
@@ -638,7 +693,7 @@ namespace nxPinterest.Web.Controllers
                 vm.UserDispName = user[0].UserDispName;
 
                 //よく使用されているタグ候補
-                vm.TagList = await this.userMediaManagementService.GetOftenUseTagsAsyc(this.container_id, "", 30);
+                vm.TagList = await this.userMediaManagementService.GetOftenUseTagsAsyc(user[0].container_id, "", 30);
 
                 // get user containers
                 string container_ids = user[0].ContainerIds ?? "";

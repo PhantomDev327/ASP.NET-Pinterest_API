@@ -33,14 +33,14 @@
         <div class="">
         <form class="p-3" method="post" asp-action="NormalUserRegister" asp-controller="Account">
             <div class="col-lg-12  mb-3 row">
-                <div class="col-lg-12 col-md-12 col-sm-12 mb-3">
+                <div class="col-lg-5 col-md-12 col-sm-12 mb-3">
                     <label for="username" style="margin-bottom: 0.5rem;">名前</label>
                     <input type="text" class="form-control" asp-for="UserDispName" value="">
                     <input type="hidden" class="form-control" asp-for="container_id">
                 </div>
             </div>
             <div class="col-lg-12 mb-3 row">
-                <div class="col-lg-12 col-md-12 col-sm-12 mb-3">
+                <div class="col-lg-5 col-md-12 col-sm-12 mb-3">
                     <label for="exampleInputEmail1" style="margin-bottom: 0.5rem;">メールアドレス</label>
                     <input type="email" class="form-control" asp-for="Email">
                 </div>
@@ -52,7 +52,7 @@
                 </div>
             </div>*@
             <div class="col-lg-12 mb-3 row">
-                <div class="col-lg-12 col-md-12 col-sm-12 mb-3">
+                <div class="col-lg-5 col-md-12 col-sm-12 mb-3">
                     <label for="role" style="margin-bottom: 0.5rem;">権限</label>
                     <select class="form-select"  asp-for="Discriminator">
                         <option selected>一般</option>
@@ -62,7 +62,21 @@
                 </div>
             </div>
             <div class="col-lg-12 mb-3 row">
-                <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="col-lg-5 col-md-12 col-sm-12 mb-3">
+                    <label for="role" style="margin-bottom: 0.5rem;">にデフォルトビュ</label>
+                    <br/>
+                        <div class="form-check form-check-inline">
+                            <input type="radio" id="customRadio3" asp-for="AlbumMode" class="form-check-input" value=true>
+                            <label class="form-check-label" for="customRadio3">アルバムモード</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input type="radio" id="customRadio4" asp-for="AlbumMode" class="form-check-input" value=false>
+                            <label class="form-check-label" for="customRadio4">フォトモード</label>
+                        </div>
+                </div>
+            </div>
+            <div class="col-lg-12 mb-3 row">
+                <div class="col-lg-5 col-md-12 col-sm-12">
                     @*<button type="button" class="col-4 btn btn-light" style="border-color: #dbdbdb !important;" onclick="window.location='@Url.Action("NormalUserList","account")';">一覧に戻る</button>*@
                     @*<button type="submit" class="col-4 btn btn-primary" id="btn-register">登録</button>*@
                     @*編集ボタン機能*@

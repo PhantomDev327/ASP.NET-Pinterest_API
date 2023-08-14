@@ -19,5 +19,7 @@ function showLoader() {
     $('.indicator-loader').show();
 }
 function hideLoader() {
-    $('.indicator-loader').fadeOut("slow");
+    setTimeout(function () {
+        $('.indicator-loader').fadeOut("slow");
+    }, 1100);
 }

@@ -234,8 +234,10 @@ var pageSharedAlbumController = function () {
 				return;
 			}
 			var is_preview_span_el = e.target.nodeName.toLowerCase() === "span" && e.target.className === "previewButton";
+			var is_thumbnail_span_el = e.target.nodeName.toLowerCase() === "span" && e.target.className === "thumbnailButton";
 			var is_preview_i_el = e.target.nodeName.toLowerCase() === "i" && e.target.parentElement.nodeName.toLowerCase() === "span" && e.target.parentElement.className === "previewButton";
-			return is_preview_span_el || is_preview_i_el
+			var is_thumbnail_i_el = e.target.nodeName.toLowerCase() === "i" && e.target.parentElement.nodeName.toLowerCase() === "span" && e.target.parentElement.className === "thumbnailButton";
+			return (is_preview_span_el || is_preview_i_el) || (is_thumbnail_span_el || is_thumbnail_i_el);
 		}
 
 		// mouseイベントをリスナー
@@ -483,11 +485,6 @@ var pageSharedAlbumController = function () {
 				window.isLoadImage = false;
 			},
 			error: function () {
-				window.images.forEach(function (data) {
-					data.forEach(function (value) {
-						appendData(value);
-					});
-				});
 				window.page = window.page + 1;
 				hideLoader();
 				window.isLoadImage = false;

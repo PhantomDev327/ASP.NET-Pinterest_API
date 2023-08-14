@@ -21,6 +21,11 @@ namespace nxPinterest.Services
         {
             return await _userRepository.UpdateContainerAsync(UserId, UserContainer);
         }
+
+        public async Task<int> UpdateUserViewModeAsync(string UserId, int ViewMode)
+        {
+            return await _userRepository.UpdateUserViewModeAsync(UserId, ViewMode);
+        }
         
     }
 }

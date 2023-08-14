@@ -84,13 +84,30 @@ figure.selection-border {
     display: none;
 }
 
+.thumbnailButton {
+    position: absolute;
+    cursor: pointer;
+    bottom: 5px;
+    left: 5px;
+    display: none;
+}
+
 @media (max-width: 414px) {
     .thumbnail-container figure .previewButton {
+        display: -webkit-box !important;
+    }
+
+    .thumbnail-container figure .thumbnailButton {
         display: -webkit-box !important;
     }
 }
 
 .thumbnail-container figure:hover .previewButton {
+    display: -webkit-box;
+    z-index: 1;
+}
+
+.thumbnail-container figure:hover .thumbnailButton {
     display: -webkit-box;
     z-index: 1;
 }
@@ -167,3 +184,5 @@ figure #canvasPlusButton {
 .carousel-control-prev {
     left: calc(7% - 19px) !important;
 }
+
+

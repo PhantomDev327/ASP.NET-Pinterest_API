@@ -20,5 +20,6 @@ namespace nxPinterest.Services.Models.Request
         public string UserCreated { get; set; }
         public DateTime DateTimeUploaded { get; set; } = DateTime.Now;
         public string BtnName { get; set; }
+        public bool SaveMode { get; set; } = false;
     }
 }

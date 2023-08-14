@@ -30,5 +30,6 @@ namespace nxPinterest.Web.Models
 
         public string BtnName { get; set; }
         public IList<string> SuggestTagsList { get; set; }
+        public bool SaveMode { get; set; } = false;
     }
 }

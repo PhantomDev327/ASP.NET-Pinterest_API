@@ -143,9 +143,9 @@ namespace nxPinterest.Services
             }
         }
 
-        public async Task<IEnumerable<UserAlbumViewModel>> GetAlbumUserByContainer(int container)
+        public async Task<IEnumerable<UserAlbumViewModel>> GetAlbumUserByContainer(int container, string searchKey="")
         {
-            return await _userAlbumRepository.GetAlbumUserByContainer(container);
+            return await _userAlbumRepository.GetAlbumUserByContainer(container, searchKey);
         }
 
         public async Task<int> GetAlbumIdByPathUrlAsync(string pathUrl)
@@ -220,9 +220,34 @@ namespace nxPinterest.Services
             }
         }
 
-        public async Task<IEnumerable<UserAlbumViewModel>> GetSharedAlbumByUser(string user_id, string role)
+        public async Task<IEnumerable<UserAlbumViewModel>> GetSharedAlbumByUser(string user_id, string role, int containerId)
         {
-            return await _userAlbumRepository.GetSharedAlbumByUser(user_id, role);
+            return await _userAlbumRepository.GetSharedAlbumByUser(user_id, role,containerId);
+        }
+
+        public bool UpdateAlbumThumbnail(int albumId, UserAlbum model)
+        {
+            try
+            {
+                var updateProps = new List<Expression<Func<UserAlbum, object>>>
+                {
+                    x => x.AlbumUpdatedat,
+                    x => x.AlbumThumbnailUrl
+                };  
+
+                var result = _userAlbumRepository.Update(model, updateProps);
+                _unitOfWork.SaveChanges();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<IList<UserMediaAlbumViewModel>> GetMediaAlbumsAsync(int mediaId, Data.Enums.AlbumType albumType)
+        {
+            return await _userAlbumMediaRepository.GetMediaAlbumsAsync(mediaId, albumType);
         }
     }
 }

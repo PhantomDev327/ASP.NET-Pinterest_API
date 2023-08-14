@@ -105,6 +105,7 @@
     window.pageAlbum = 1;
     window.isFullImage = true;
     window.fullAlbumName = "";
+    window.fullAlbumID = 0;
     window.isLoadAlbum = false;
     window.images = new Array();
     window.imagesAlbum = new Array();
@@ -116,7 +117,7 @@
             loadImg();
         } else {
             loadImgByName(window.fullAlbumName);
-        }
+        } 
         $(window).scroll(function() {
             if($(window).scrollTop() + $(window).height() == $(document).height()) {
                 if (window.isFullImage) {
@@ -130,9 +131,7 @@
             timer = setTimeout(function() {
                 if (window.isFullImage) {
                     reloadImage();
-                } else {
-                    reloadImageAlbum();
-                }
+                } 
             },300);
         });
         document.getElementById("changeZoomRange").value = localStorage.getItem("zoomSize");
@@ -163,14 +162,6 @@
             });
         });
     }
-    function reloadImageAlbum() {
-        initCol();
-        window.imagesAlbum.forEach(function (data) {
-            data.forEach(function (value) {
-                appendData(value);
-            });
-        });
-    }
     function appendData(value) {
         var newImgEl = document.createElement('img');
         var previewButtonEl = '<span class="previewButton" onclick="showPreviewImage(' + value.mediaId + ', \'' + value.mediaSmallUrl  + '\')"><i class="bi bi-zoom-in fa-lg px-2"></i></span>';
@@ -186,6 +177,7 @@
         newImgEl.setAttribute('data-media-url', value.mediaUrl);
         newImgEl.setAttribute('data-smallmedia-url', value.mediaSmallUrl);
     }
+
     function findShortestCol() {
         var count = $("#thumbnail-container").children().length;
         var shortest = $("#column-1");
@@ -247,9 +239,7 @@
         timer = setTimeout(function () {
             if (window.isFullImage) {
                 reloadImage();
-            } else {
-                reloadImageAlbum();
-            }
+            } 
         }, 300);
         localStorage.setItem('zoomSize', zoomSize);
     }
@@ -270,5 +260,20 @@
         }
         document.getElementById("changeZoomRange").value = zoomSize + 1;
         changeZoom();
+    }
+
+    function setThumbnail(thumbnail){
+        $.ajax({
+            url: "/UserAlbum/SetThumbnail",
+            method: "Post",
+            data: { thumbnail: thumbnail, albumName: window.fullAlbumName },
+            success: function (result) {
+                hideLoader();
+                if (!result.success) alert(result.message);
+            },
+            error: function () {
+                hideLoader();
+            }
+        });
     }
 </script>

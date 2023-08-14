@@ -78,15 +78,15 @@
                 </div>*@
                 @if (Model.AlbumMode)
                 {
-                    <a class="header-item" href="@Url.Action("Index", "home", new { container = Model.currentContainer })">
+                    <span onclick="goViewMode(true, 0)" role="button">
                         <i class="bi bi-images fa-lg px-2" data-toggle="tooltip" data-placement="bottom" title="写真ビューモード"></i>
-                    </a>
+                    </span>
                 }
                 else
                 {
-                    <a class="header-item" href="@Url.Action("Album", "home", new { container = Model.currentContainer })">
+                    <span onclick="goViewMode(false, 1)" role="button">
                         <i class="bi bi-journals fa-lg px-2" data-toggle="tooltip" data-placement="bottom" title="アルバムビューモード"></i>
-                    </a>
+                    </span>
                 }
 
                 <div class="form-inline mx-2">
@@ -150,9 +150,9 @@
                         @foreach (var container in Model.UserContainers)
                         {
                             <li>
-                                <a class="dropdown-item" href="@(Model.AlbumMode ? Url.Action("Album", "home", new { container = container.container_id }) : Url.Action("Index", "home", new { container = container.container_id }) )">
+                                <span class="dropdown-item" onclick='goHome(@(Model.AlbumMode ? 0 : 1), @container.container_id)'>
                                     <i class="bi bi-collection" data-toggle="tooltip" data-placement="bottom" title="@container.container_name"></i> @container.container_name @(container.container_id == Model.currentContainer ? "(選択中)" : "")
-                                </a>
+                                </span>
                             </li>
                         }
                         <li>
@@ -219,7 +219,7 @@
 
     <div style="margin-top: 3.7rem">
         @*        <div id="navbarSearchAndTag" class="collapse collapse-horizontal show" style="position:fixed;left:0;top:3.7rem;">
-        *@        <div id="navbarSearchAndTag" class="collapse collapse-horizontal     " style="position:fixed;left:0;top:3.7rem;z-index:1;">
+        *@        <div id="navbarSearchAndTag" class="collapse collapse-horizontal     " style="position:fixed;left:0;top:3.7rem;z-index:2;">
             @*            <div class="p-3 bg-dark" style="width:8rem;height:calc(100vh - 3.7rem);overflow-y:auto" id="tagArea">
             *@            <div class="p-3 bg-dark" style="height:calc(100vh - 3.7rem);overflow-y:auto" id="tagArea">
                 <div>
@@ -243,7 +243,7 @@
                     {
                         @foreach (var album in @Model.AlbumList)
                         {
-                            <div onclick="selectedAlbum('@album.AlbumName','@album.AlbumUrl')" style="margin:5px; cursor: pointer">@album.AlbumName</div>
+                            <div onclick="goAlbum('@album.AlbumId')" style="margin:5px; cursor: pointer">@album.AlbumName</div>
                         }
                     }
                 </div>
@@ -262,6 +262,53 @@
         $(document).ready(function () {
             document.getElementById("changeZoomRange").value = localStorage.getItem("zoomSize");
         });
+
+        function goHome(action, container){
+            $.ajax({
+                url: "/Home/ChangeContainerID",
+                type: "post",
+                dataType: "json",
+                data: {
+                    container: container
+                },
+                cache: false,
+                success: function (result) {
+                    if (result.success) {
+                        if (action) {
+                            window.location.href = '@Url.Action("Index", "home")';
+                        } else { 
+                            window.location.href = '@Url.Action("Album", "home")';
+                        }
+                    } 
+                },
+            });
+        }
+
+        function goViewMode(action, viewMode) {
+            $.ajax({
+                url: "/Home/ChangeViewMode",
+                type: "post",
+                dataType: "json",
+                data: {
+                    ViewMode: viewMode
+                },
+                cache: false,
+                success: function (result) {
+                    if (result.success) {
+                        if (action) {
+                            window.location.href = '@Url.Action("Index", "home")';
+                        } else {
+                            window.location.href = '@Url.Action("Album", "home")';
+                        }
+                    }
+                },
+            });
+        }
+
+        function goAlbum(albumID)
+        {
+            window.location.href = `/UserAlbum/Details?albumID=${albumID}`;
+        }
     </script>
     <script src="~/js/search_tags.js" asp-append-version="true"></script>
     <script src="~/js/multi_select_by_mouse.js" asp-append-version="true"></script>

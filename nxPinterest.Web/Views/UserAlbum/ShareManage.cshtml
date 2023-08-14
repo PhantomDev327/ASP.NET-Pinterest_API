@@ -37,7 +37,8 @@
             <br />
         }
     </div>
-    <table class="table table-dark table-striped table-hover text-center" id="table1" style="padding: 20px; padding-left: 10px;">
+    <div id="tooltipAlbumCopy" data-toggle="tooltip" data-placement="top" title="コピーされました。"></div>
+    <table class="table table-dark table-striped table-hover" id="table1" style="padding: 20px; padding-left: 10px;">
         <thead>
             <tr>
                 <th scope="col"></th>
@@ -45,13 +46,14 @@
                 <th scope="col" class="col-2">共有者</th>
                 <th scope="col" class="col-4">コメント</th>
                 <th scope="col" class="col-2">期限</th>
-                <th scope="col" class="col-2">共有URL</th>
+                <th scope="col" class="col-1">共有URL</th>
+                <th scope="col"></th>
             </tr>
         </thead>
         <tbody>
             @foreach (var album in Model.AlbumCommentList)
             {
-                <tr class="userEdit">
+                <tr>
                     <td>
                         <span role="button" title="削除" class="px-1">
                             <a class="header-item delete-btn">
@@ -64,23 +66,17 @@
                     <td> @album.Comment </td>
                     <td> @album.AlbumExpireDate.Value.ToString("yyyy-MM-dd") </td>
                     <td>
-                        <div class="row">
-                            <div class="col-11 text-truncate">
-                                <a class="header-item" href='@album.AlbumUrl' title="リンク">
-                                    @album.AlbumUrl
-                                </a>
-                            </div>
-                            <div class="col-1">
-                                <span role="button" class="px-1" data-toggle="tooltip" data-placement="top" title="コピーする">
-                                    <a class="header-item copyLinkMedia" data-link="@album.AlbumUrl">
-                                        <i class="fa fa-copy" data-link="@album.AlbumUrl"></i>
-                                    </a>
-                                </span>
-                            </div>
-                        </div>
-                        <div id="tooltipAlbumCopy" data-toggle="tooltip" data-placement="top" title="コピーされました。"></div>
+                        <a class="header-item text-truncate" href='@album.AlbumUrl' title="リンク">
+                            @album.AlbumUrl
+                        </a>
                     </td>
-                    <td class="album_id" hidden> @album.AlbumId </td>
+                    <td>
+                        <span role="button" data-toggle="tooltip" class="px-1" data-placement="top" title="コピーする">
+                            <a class="header-item copyLinkMedia" data-link="@album.AlbumUrl">
+                                <i class="fa fa-copy" data-link="@album.AlbumUrl"></i>
+                            </a>
+                        </span>
+                    </td>
                 </tr>
             }
         </tbody>

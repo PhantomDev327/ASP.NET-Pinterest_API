@@ -5,6 +5,10 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 
 	UserMedia userMedia = Model.UserMediaDetail;
+
+	userMedia.Uploaded = userMedia.Uploaded ?? DateTime.Now;
+	userMedia.Created = userMedia.Uploaded ?? DateTime.Now;
+	userMedia.Modified = userMedia.Uploaded ?? DateTime.Now;
 }
 <script src="~/lib/bootstrap-tagsinput/bootstrap-tagsinput.min.js" asp-append-version="true"></script>
 <script>
@@ -36,7 +40,7 @@
 								<ul class="dropdown_list">
 								@if (Model.Discriminator == "SysAdmin" || Model.Discriminator == "ContainerAdmin")
 								{
-									<li class="dropdown_item"><a href="" class="dropdown_item-link" id="dropdown_item-editg3">×プロパティ</a></li>
+									<li class="dropdown_item"><span class="dropdown_item-link" id="dropdown_item-detail">プロパティ</span></li>
 									<li class="dropdown_item"><a href="/UserMedia/Edit?media_id=@userMedia.MediaId" class="dropdown_item-link" id="dropdown_item-edit">編集</a></li>
 									<li class="dropdown_item"><a href="/UserMedia/UpdateSameTitleMediaFile?mediaId=@userMedia.MediaId" class="dropdown_item-link" id="dropdown_item-editg">同名一括編集</a></li>
 									<li class="dropdown_item"><a href="javascript:deleteUserMedia(@userMedia.MediaId)" class="dropdown_item-link" id="dropdown_item-del">削除</a></li>
@@ -46,8 +50,8 @@
 								
 								@if (Model.Discriminator == "SysAdmin" || Model.Discriminator == "ContainerAdmin" || Model.Discriminator == "ApplicationUser")
 								{
-									<li class="dropdown_item"><a href="" class="dropdown_item-link" id="dropdown_item-editg1">×共有</a></li>
-									<li class="dropdown_item"><a href="" class="dropdown_item-link" id="dropdown_item-editg2">×アルバムへ追加</a></li>
+									<li class="dropdown_item"><span class="dropdown_item-link" id="dropdown_item-share">共有</span></li>
+									<li class="dropdown_item"><a href="" class="dropdown_item-link" id="dropdown_item-album">アルバムへ追加</a></li>
 								}
 								</ul>
 							</div>
@@ -99,7 +103,7 @@
 							<input type="button" value="すべて表示" class="btn btn-default btn-save" id="show-all-btn">
 						}
 					<input hidden asp-for="@userMedia.MediaId" name="MediaId" />
-					
+					<input hidden asp-for="@userMedia.MediaFileName" name="MediaFileName" />
 				</div>
 			</div>			
 		</div>
@@ -108,7 +112,7 @@
 	<div id="blockGallery" tabindex="0" class="multiImageSelect-noselect">
         <div class="m-3">
             <div class="content gallery" id="contentGallery">
-                <br />
+				<br />
                 <h5>似ている画像</h5>
                 <br/>
                 <div class="thumbnail-container" id="thumbnail-container">
@@ -120,56 +124,300 @@
     @{
         await Html.RenderPartialAsync("/Views/Shared/_ImageContainer.cshtml");
     }
-
+	<div class="modal fade text-black modal-lg" id="showDetailModal" tabindex="-1" role="dialog" aria-labelledby="showDetailModalTitle" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+				<div class="modal-body" id="detailFolderContent">
+					<div class="row py-2">
+						<div class="col-12">写真のタイトル</div>
+						<div class="col-12 text-break">@userMedia.MediaTitle</div>
+					</div>
+					<div class="row py-2">
+						<div class="col-12">説明</div>
+						<div class="col-12 text-break">@userMedia.MediaDescription</div>
+					</div>
+					<div class="row py-2">
+						<div class="col-12">コンテナ名</div>
+						<div class="col-12 text-break">
+							@foreach (var container in Model.UserContainers)
+							{
+								@(container.container_id == userMedia.ContainerId ? container.container_name : "")
+							}
+						</div>
+					</div>
+					<div id="tooltipUrlCopy" class="text-center" style="display: none;">
+						<span class="text-center bg-black text-white px-2" style="border-radius: 3px;">
+							コピーされました
+						</span>
+					</div>
+					<div class="row py-2">
+						<div class="col-12">オリジナル</div>
+						<div class="col-12 text-break">
+							@userMedia.MediaUrl
+							<a class="header-item copyLinkUrl" data-link="@userMedia.MediaUrl">
+                                <i class="fa fa-copy" data-link="@userMedia.MediaUrl"></i>
+                            </a>
+						</div>
+					</div>
+					<div class="row py-2">
+						<div class="col-12">Webサイズ</div>
+						<div class="col-12 text-break">
+							@userMedia.MediaSmallUrl
+							<a class="header-item copyLinkUrl" data-link="@userMedia.MediaSmallUrl">
+                                <i class="fa fa-copy" data-link="@userMedia.MediaSmallUrl"></i>
+                            </a>
+						</div>
+					</div>
+					<div class="row py-2">
+						<div class="col-12">サムネイル</div>
+						<div class="col-12 text-break">
+							@userMedia.MediaThumbnailUrl
+							<a class="header-item copyLinkUrl" data-link="@userMedia.MediaThumbnailUrl">
+                                <i class="fa fa-copy" data-link="@userMedia.MediaThumbnailUrl"></i>
+                            </a>
+						</div>
+					</div>
+					<div class="row py-2">
+						<div class="col-12">登録者</div>
+						<div class="col-12 text-break">@userMedia.User.UserDispName</div>
+					</div>
+					<div class="row py-2">
+						<div class="col-12">タグ</div>
+						<div class="col-12 text-break">
+							@foreach (var tag in @Model.OriginalTagsList)
+							{
+								<div style="display:inline-block;color:#fff;background-color: #343a40;padding:5px;border-radius:3px;margin-right:3px;margin-bottom:3px;">#@tag</div>
+							}
+						</div>
+					</div>
+					<div class="row py-2">
+						<div class="col-12">AIが付けたタグ</div>
+						<div class="col-12 text-break">
+							@foreach (var tag in @Model.AITagsList)
+							{
+								<div style="display:inline-block;color:#343a40;background-color: #cccccc;padding:5px;border-radius:3px;margin-right:3px;margin-bottom:3px;">#@tag</div>
+							}
+						</div>
+					</div>
+					<div class="row py-2">
+						<div class="col-12">アルバム登録されている数 (@userMedia.MediaAlbums.Count)</div>
+						<div class="col-12 text-break">
+							@foreach (var album in @userMedia.MediaAlbums)
+							{
+								<div style="display:inline-block;color:#fff;background-color: rgb(27, 35, 82);padding:5px;border-radius:3px;margin-right:3px;margin-bottom:3px;">
+									<a href='@Url.Action("Details", "UserAlbum", new {albumID=album.AlbumId})' style="color:#fff;">@album.AlbumName</a>
+								</div>
+							}
+						</div>
+					</div>
+					<div class="row py-2">
+						<div class="col-12">シェアされた数</div>
+						<div class="col-12 text-break">
+							@userMedia.MediaSharedAlbums.Count
+						</div>
+					</div>
+					<div class="row py-2">
+						<div class="col-12">撮影日</div>
+						<div class="col-12 text-break">@userMedia.Created.Value.ToString("yyyy-MM-dd hh:mm:ss")</div>
+					</div>
+					<div class="row py-2">
+						<div class="col-12">アップロード日</div>
+						<div class="col-12 text-break">@userMedia.Uploaded.Value.ToString("yyyy-MM-dd hh:mm:ss")</div>
+					</div>
+					<div class="row py-2">
+						<div class="col-12">更新日</div>
+						<div class="col-12 text-break">@userMedia.Modified.Value.ToString("yyyy-MM-dd hh:mm:ss")</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
-<script>
-	function deleteUserMedia(mediaId) {
-		$.ajax({
-			url: "@Url.Action("DeleteById", "UserMedia", new { media_id = Model.UserMediaDetail.MediaId })",
-            method: "Post",
-            //data: { media_id : mediaId },
-			processData: false,
-			contentType: false,
-			success: function (sResponse) {
-				window.location = '@Url.Action("Index","Home")';
-			}
-		});
-	}
-	$('#show-all-btn').on('click', function() {
-	    $('.slider label').removeClass('hide-lable');
-	    $(this).css('display', 'none');
-	});
-	$('.slider input').on('click', function() {
-	    var media_id = $(this).val();
-		$.ajax({
-	        url: "@Url.Action("DetailsAjax", "UserMedia")",
-	        method: "Post",
-	        data: { media_id: media_id},
-	        success: function (sResult) {
-	            console.log(sResult);
-				$('#main-image').attr('src', sResult.userMediaDetail.mediaSmallUrl);
-	            $('#dropdown_item-edit').attr('href',"/UserMedia/Edit?media_id=" + sResult.userMediaDetail.mediaId);
-	            $('#dropdown_item-del').attr('href',"deleteUserMedia("+sResult.userMediaDetail.mediaId+")");
-	            $('#dropdown_item-down').attr('href',sResult.userMediaDetail.mediaUrl);
-	            $('.image-detail-col h5').html(sResult.userMediaDetail.mediaTitle);
-				$('.image-detail-col .media_desc').html(sResult.userMediaDetail.mediaDescription);
-	            $('.project_tags').empty();
-				$.each(sResult.originalTagsList, function(index, value) {
-                    var url = '/' + "?searchKey=" + value;
-	                $('.project_tags').append('<a href='+url+'><div style="display:inline-block;color:#fff;background-color: #343a40;padding:10px 20px 10px 20px;border-radius:3px;margin-right:7px;margin-bottom:7px;">'+value +'</div></a>');
-	            });
-	        }
-		});
-	});
-	//ボタンがクリックされたらis-openを付加する
-	$('#dropdown_btn').on('click', function() {
-		this.classList.toggle('is-open');
-	});	
-</script>
-
 @section Scripts{
-    <script>
+	<script src="~/lib/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
+	<script src="~/lib/bootstrap-datepicker/locales/bootstrap-datepicker.ja.min.js"></script>
+	<script>
+		function deleteUserMedia(mediaId) {
+			$.ajax({
+				url: "@Url.Action("DeleteById", "UserMedia", new { media_id = Model.UserMediaDetail.MediaId })",
+				method: "Post",
+				//data: { media_id : mediaId },
+				processData: false,
+				contentType: false,
+				success: function (sResponse) {
+					window.location = '@Url.Action("Index","Home")';
+				}
+			});
+		}
+		$(".copyLinkUrl").click(e => {
+            e.preventDefault();
+            const $copyLink = e.target.dataset.link;
+            let listener = (e) => {
+                let clipboard = e.clipboardData;
+                clipboard.setData('text/plain', $copyLink);
+                e.preventDefault();
+            };
+            document.addEventListener('copy', listener, false);
+            const copyResult = document.execCommand('copy');
+            document.removeEventListener('copy', listener, false);
+            showTooltipCopy();
+            // remove all ranges after copy
+            window.getSelection().removeAllRanges();
+            return copyResult;
+        });
+
+        function showTooltipCopy() {
+			$('#tooltipUrlCopy').show();
+            setTimeout(function () {
+                $('#tooltipUrlCopy').hide();
+            }, 1000);
+        };
+
+		$('#show-all-btn').on('click', function() {
+			$('.slider label').removeClass('hide-lable');
+			$(this).css('display', 'none');
+		});
+		$('.slider input').on('click', function() {
+			var media_id = $(this).val();
+			$.ajax({
+				url: "@Url.Action("DetailsAjax", "UserMedia")",
+				method: "Post",
+				data: { media_id: media_id},
+				success: function (sResult) {
+					console.log(sResult);
+					$('#main-image').attr('src', sResult.userMediaDetail.mediaSmallUrl);
+					$('#dropdown_item-edit').attr('href',"/UserMedia/Edit?media_id=" + sResult.userMediaDetail.mediaId);
+					$('#dropdown_item-del').attr('href',"deleteUserMedia("+sResult.userMediaDetail.mediaId+")");
+					$('#dropdown_item-down').attr('href',sResult.userMediaDetail.mediaUrl);
+					$('.image-detail-col h5').html(sResult.userMediaDetail.mediaTitle);
+					$('.image-detail-col .media_desc').html(sResult.userMediaDetail.mediaDescription);
+					$('.project_tags').empty();
+					$.each(sResult.originalTagsList, function(index, value) {
+						var url = '/' + "?searchKey=" + value;
+						$('.project_tags').append('<a href='+url+'><div style="display:inline-block;color:#fff;background-color: #343a40;padding:10px 20px 10px 20px;border-radius:3px;margin-right:7px;margin-bottom:7px;">'+value +'</div></a>');
+					});
+				}
+			});
+		});
+		//ボタンがクリックされたらis-openを付加する
+		$('#dropdown_btn').on('click', function() {
+			this.classList.toggle('is-open');
+		});	
+
+		$('#dropdown_item-share').click((e)=>{
+			e.preventDefault();
+			$('#shareUserMediaFileModal').modal('show');
+			showHiddenFooterModalShare(false);
+			document.getElementById("shareUserMediaFileLink").value = "";
+			$("#expireDate").datepicker().datepicker("setDate", (new Date()).getDate()+7);
+		});
+
+		$('body').on('click', '#sharedAlbumMedia', function (e) {
+            e.preventDefault();
+            var $albumMedias = [{UserMediaId: $("#userMedia_MediaId").val(),MediaFileName: $("#userMedia_MediaFileName").val()}];
+            if (!window.selectedAlbumMediaList || $albumMedias.length === 0) {
+                alert("写真を選択してください。");
+                return;
+            }
+
+            var currentDate = new Date();
+            var $getExpireDate = $("#expireDate").val();
+            var $chooseDate = new Date($getExpireDate);
+
+            var comment = $("#comment").val();
+
+            if (formatDate($chooseDate) < formatDate(currentDate)) {
+                alert("共有期限は未来の日付を設定してください。");
+                return;
+            }
+
+            $.ajax({
+                url: "/UserAlbum/CreateShareUserMedia",
+                type: "post",
+                dataType: "json",
+                data: {
+                    AlbumExpireDate: formatDate($chooseDate.toLocaleString()),
+                    UserAlbumMedias: $albumMedias,
+                    AlbumComment: comment
+                },
+                cache: false,
+                success: function (result) {
+                    if (result.success) {
+                        document.getElementById("shareUserMediaFileLink").value = result.data;
+                        showHiddenFooterModalShare(true);
+                        document.getElementById("shareUserMediaFileLink").readOnly = true;
+                    } else {
+                        alert("保存できませんでした。");
+                    }
+                },
+                error: function () {
+                    alert("エラーが発生し、保存できませんでした。");
+                }
+            });
+
+        });
+
+		$("body").on("click", "#copyLinkMedia", function(e) {
+                e.preventDefault();
+                const $copyLink = document.getElementById("shareUserMediaFileLink");
+                let listener = (e) => {
+                    let clipboard = e.clipboardData;
+                    clipboard.setData('text/plain', $copyLink.value);
+                    e.preventDefault();
+                };
+                document.addEventListener('copy', listener, false);
+                const copyResult = document.execCommand('copy');
+                document.removeEventListener('copy', listener, false);
+                mesageTooltipCopy();
+                // remove all ranges after copy
+                window.getSelection().removeAllRanges();
+                return copyResult;
+        });
+
+		$('#dropdown_item-album').click((e)=>{
+			e.preventDefault();
+            LoadAlbums();
+		});
+
+		$('body').on('click', '#createUserMediaFolderButton', function (e) {
+            e.preventDefault();
+            var $albumMedias = [{UserMediaId: $("#userMedia_MediaId").val(),MediaFileName: $("#userMedia_MediaFileName").val()}];
+            if (!window.selectedAlbumMediaList || $albumMedias.length === 0) {
+                alert("please choose the image !");
+                return;
+            }
+            var $albumName = $('#createUserMediaFolderName').val();
+            if ($albumName === '' || $albumName == null) {
+                alert("アルバム名を指定してください");
+                return;
+            }
+
+            $.ajax({
+                url: "/UserAlbum/Create",
+                type: "post",
+                dataType: "json",
+                data: {
+                    AlbumName: $albumName,
+                    UserAlbumMedias: $albumMedias
+                },
+                cache: false,
+                success: function (result) {
+                    if (result) {
+                        $('#createUserMediaFolderModal').modal('hide');
+                    }
+                },
+                error: function () {
+                    alert("保存に失敗しました");
+                }
+            });
+
+        });
+
+		$('#dropdown_item-detail').click((e)=>{
+			$('#showDetailModal').modal('show');
+		});
+
         function loadImg() {
             showLoader();
             var media_id = $('#userMedia_MediaId').val();
@@ -188,5 +436,55 @@
                 }
             });
         }
+
+		function showHiddenFooterModalShare(parameters) {
+			if (parameters) {
+				document.getElementById("footerUserMediaLink").style.display = 'block';
+			} else {
+				document.getElementById("footerUserMediaLink").style.display = 'none';
+			}		
+		}
+
+		function formatDate(date) {
+			var d = new Date(date),
+				month = '' + (d.getMonth() + 1),
+				day = '' + d.getDate(),
+				year = d.getFullYear();
+
+			if (month.length < 2)
+				month = '0' + month;
+			if (day.length < 2)
+				day = '0' + day;
+
+			return [year, month, day].join('-');
+		}
+
+		function mesageTooltipCopy() {
+            $('#tooltipCopy').tooltip('toggle');
+            $('.tooltip').addClass('tooltip-top');
+            setTimeout(function () {
+                $('#tooltipCopy').tooltip('hide');
+            }, 1000);
+        };
+
+		function LoadAlbums() {
+			$.ajax({
+				url: "/UserAlbum/GetAlbums",
+				type: "GET",
+				cache: !0,
+				datatype: "html",
+				success: function (response) {
+					$("#mediaFolderContent").html(response);
+					$('#createUserMediaFolderModal').modal('show');
+			
+				},
+				failure: function (response) {
+					alert(response.responseText);
+				},
+				error: function (response) {
+					alert(response.responseText);
+				}
+			});
+		}
     </script>
     }

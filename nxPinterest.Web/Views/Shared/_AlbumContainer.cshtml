@@ -109,6 +109,7 @@
     window.images = new Array();
     window.imagesAlbum = new Array();
     window.itemWidth = 250;
+    window.itemHeight = 150;
     $(document).ready(function() {
         $(window).css('min-width', 500);
         initCol();
@@ -116,16 +117,14 @@
             loadAlbum();
         } else {
             loadImgByName(window.fullAlbumName);
-        }
+        } 
         var timer = null;
         $(window).on('resize', function(){
             clearTimeout(timer);
             timer = setTimeout(function() {
                 if (window.isFullImage) {
                     loadAlbum();
-                } else {
-                    reloadImageAlbum();
-                }
+                } 
             },300);
         });
         document.getElementById("changeZoomRange").value = localStorage.getItem("zoomSize");
@@ -151,19 +150,10 @@
     function reloadImage() {
         initCol();
         window.images.forEach(function (data) {
-            data.forEach(function (value) {
-                appendData(value);
-            });
+            appendData(data);
         });
     }
-    function reloadImageAlbum() {
-        initCol();
-        window.imagesAlbum.forEach(function (data) {
-            data.forEach(function (value) {
-                appendAlbumData(value);
-            });
-        });
-    }
+
     function appendData(value) {
         var newDivEl = document.createElement('div');
 
@@ -174,32 +164,16 @@
         newTitleEl.classList.add('text-truncate');
         newImgEl.addEventListener('load', function () {
             shortest = findShortestCol();
-            shortest.append('<div id="' + value.albumName + '"></div>');
-            var newDivEl = $('div[id="' + value.albumName + '"]');
-            newDivEl.append('<figure id="'+value.albumName+'" data-url="'+ value.albumUrl + '"><figcaption><p class="title">'+value.albumName+'</p></figcaption></figure>');
-            var figureItemEle = $('figure[id="' + value.albumName + '"]');
+            shortest.append('<div id="' + value.albumId + '"></div>');
+            var newDivEl = $('div[id="' + value.albumId + '"]');
+            newDivEl.append('<figure id="'+value.albumId+'" data-url="'+ value.albumUrl + '" style="height:'+ window.itemHeight +'px;"><figcaption><p class="title">'+value.albumName+'</p></figcaption></figure>');
+            var figureItemEle = $('figure[id="' + value.albumId + '"]');
                         
             figureItemEle.append(newImgEl);
             newDivEl.append(newTitleEl);
         });
         newImgEl.setAttribute('src', value.albumThumbnailUrl);
         newImgEl.setAttribute('alt', value.albumName); 
-    }
-
-    function appendAlbumData(value) {
-        var newImgEl = document.createElement('img');
-        var previewButtonEl = '<span class="previewButton" onclick="showPreviewImage(' + value.mediaId + ', \'' + value.mediaSmallUrl  + '\')"><i class="bi bi-zoom-in fa-lg px-2"></i></span>';
-        newImgEl.addEventListener('load', function() {
-            shortest = findShortestCol();
-            shortest.append('<figure id="'+value.mediaId+'"><figcaption><p class="title">'+value.mediaTitle+'</p><p class="description">'+value.mediaDescription+'</p></figcaption></figure>');
-            var figureItemEle = $('figure[id="' + value.mediaId + '"]');
-            figureItemEle.append(newImgEl);
-            figureItemEle.append(previewButtonEl);
-        });
-        newImgEl.setAttribute('src', value.mediaThumbnailUrl);
-        newImgEl.setAttribute('alt', value.mediaFileName);
-        newImgEl.setAttribute('data-media-url', value.mediaUrl);
-        newImgEl.setAttribute('data-smallmedia-url', value.mediaSmallUrl);
     }
 
     function findShortestCol() {
@@ -256,16 +230,16 @@
     function changeZoom() {
         var zoomSize = getCurrentZoomRange();
         var rangeWidth = 50;
+        var rangeHeight = 30;
         window.itemWidth = 100 + rangeWidth * zoomSize;
+        window.itemHeight = 60 + rangeHeight * zoomSize;
 
         var timer = null;
         clearTimeout(timer);
         timer = setTimeout(function () {
             if (window.isFullImage) {
                 reloadImage();
-            } else {
-                reloadImageAlbum();
-            }
+            } 
         }, 300);
         localStorage.setItem('zoomSize', zoomSize);
     }

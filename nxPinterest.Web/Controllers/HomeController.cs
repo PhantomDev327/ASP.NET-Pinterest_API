@@ -49,23 +49,23 @@ namespace nxPinterest.Web.Controllers
         /// <param name="pageIndex"></param>
         /// <param name="searchKey"></param>
         /// <returns></returns>
-        public async Task<IActionResult> Index(int container = 0, int pageIndex = 1, string searchKey = "")
+        public async Task<IActionResult> Index(int pageIndex = 1, string searchKey = "")
         {
             HomeViewModel vm = new HomeViewModel();
 
             //nxPinterest.Services.CognitiveSearchService cognitiveSearchService = new Services.CognitiveSearchService();
 
             List<ApplicationUser> user = this._context.Users.Where(c => c.Id.Equals(this.UserId)).ToList();
+            if (user[0].DisplayMode != null && user[0].DisplayMode.Equals("ALBUM")) 
+            {
+                string redirectUrl = string.Concat("/Home/Album?pageIndex=", pageIndex, "&searchKey=", searchKey);
+                return Redirect(redirectUrl);
+            }
             if (user == null || user.Count == 0) return RedirectToAction("LogOut", "Account");
 
             int skip = (pageIndex - 1) * pageSize;
 
-            if (container == 0)
-            {
-                container = user[0].container_id;
-            }
-
-            container = await this.userService.UpdateUserContainerAsync(user[0].Id, container);
+            int container = user[0].container_id;
             
             //画面のajaxで取得と表示をしている ViewModelのListを未使用のためコメント
             //vm.UserMediaList = await this.userMediaManagementService.SearchUserMediaAsync(searchKey, user[0].container_id);
@@ -88,7 +88,7 @@ namespace nxPinterest.Web.Controllers
             vm.SizeRange = 3;
 
             //よく使用されているタグ候補
-            vm.TagList = await this.userMediaManagementService.GetOftenUseTagsAsyc(this.container_id, searchKey, 30);
+            vm.TagList = await this.userMediaManagementService.GetOftenUseTagsAsyc(user[0].container_id, searchKey, 30);
 
             // get user containers
             string container_ids = user[0].ContainerIds ?? "";
@@ -116,7 +116,8 @@ namespace nxPinterest.Web.Controllers
            vm.AlbumList = album.Select(n=> new nxPinterest.Data.ViewModels.UserAlbumViewModel
            {
                AlbumName = n.AlbumName,
-               AlbumUrl = n.AlbumUrl
+               AlbumUrl = n.AlbumUrl,
+               AlbumId = n.AlbumId
            }).ToList();
 
             vm.currentContainer = container;
@@ -127,7 +128,21 @@ namespace nxPinterest.Web.Controllers
             return View(vm);
         }
 
-        public async Task<IActionResult> Album(int container = 0, int pageIndex = 1, string searchKey = "")
+        [HttpPost]
+        public async Task<IActionResult> ChangeContainerID(int container)
+        {
+            int containerID = await this.userService.UpdateUserContainerAsync(this.UserId, container);
+            return Json(new { success = true });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangeViewMode(int ViewMode)
+        {
+            int containerID = await this.userService.UpdateUserViewModeAsync(this.UserId, ViewMode);
+            return Json(new { success = true });
+        }
+
+        public async Task<IActionResult> Album(int pageIndex = 1, string searchKey = "")
         {
             HomeViewModel vm = new HomeViewModel();
 
@@ -138,24 +153,8 @@ namespace nxPinterest.Web.Controllers
 
             int skip = (pageIndex - 1) * pageSize;
 
-            if (container == 0)
-            {
-                container = user[0].container_id;
-            }
-
-            container = await this.userService.UpdateUserContainerAsync(user[0].Id, container);
-
-            //画面のajaxで取得と表示をしている ViewModelのListを未使用のためコメント
-            //vm.UserMediaList = await this.userMediaManagementService.SearchUserMediaAsync(searchKey, user[0].container_id);
-
-            //int totalPages = (int)System.Math.Ceiling((decimal)(vm.UserMediaList.Count / (decimal)pageSize));
-            //int totalRecordCount = vm.UserMediaList.Count;
-
-            //ViewBag.ItemCount = vm.UserMediaList.Count;
-            //ViewBag.UserDispName = user[0].UserDispName;
-
-            //vm.UserMediaList = vm.UserMediaList.Skip(skip).Take(pageSize).ToList();
-
+            int container = user[0].container_id;
+            
             vm.PageIndex = pageIndex;
             //vm.TotalPages = totalPages;
             vm.SearchKey = searchKey;
@@ -166,7 +165,7 @@ namespace nxPinterest.Web.Controllers
             vm.SizeRange = 3;
 
             //よく使用されているタグ候補
-            vm.TagList = await this.userMediaManagementService.GetOftenUseTagsAsyc(this.container_id, searchKey, 30);
+            vm.TagList = await this.userMediaManagementService.GetOftenUseTagsAsyc(user[0].container_id, searchKey, 30);
 
             // get user containers
             string container_ids = user[0].ContainerIds ?? "";
@@ -195,7 +194,8 @@ namespace nxPinterest.Web.Controllers
             {
                 AlbumName = n.AlbumName,
                 AlbumUrl = n.AlbumUrl,
-                AlbumThumbnailUrl = n.AlbumThumbnailUrl
+                AlbumThumbnailUrl = n.AlbumThumbnailUrl,
+                AlbumId = n.AlbumId
             }).ToList();
 
             vm.currentContainer = container;
@@ -205,19 +205,20 @@ namespace nxPinterest.Web.Controllers
             vm.AlbumMode = true;
             return View(vm);
         }
-
-        public async Task<IActionResult> getAlbum()
+        [HttpPost]
+        public async Task<IActionResult> getAlbum(string searchKey = "")
         {
             HomeViewModel vm = new HomeViewModel();
             List<ApplicationUser> user = this._context.Users.Where(c => c.Id.Equals(this.UserId)).ToList();
             
-            var album = await userAlbumService.GetAlbumUserByContainer(user[0].container_id);
+            var album = await userAlbumService.GetAlbumUserByContainer(user[0].container_id,searchKey);
             vm.AlbumList = album.Select(n => new nxPinterest.Data.ViewModels.UserAlbumViewModel
             {
                 AlbumName = n.AlbumName,
                 AlbumUrl = n.AlbumUrl,
                 AlbumThumbnailUrl = n.AlbumThumbnailUrl,
                 ImageCount = n.ImageCount,
+                AlbumId = n.AlbumId
             }).ToList();
             return Json(vm);
         }

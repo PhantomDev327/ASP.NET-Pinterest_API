@@ -862,7 +862,8 @@ namespace nxPinterest.Web.Controllers
             vm.AlbumList = album.Select(n=> new nxPinterest.Data.ViewModels.UserAlbumViewModel
             {
                 AlbumName = n.AlbumName,
-                AlbumUrl = n.AlbumUrl
+                AlbumUrl = n.AlbumUrl,
+                AlbumId = n.AlbumId
             }).ToList();
 
             vm.currentContainer = user.container_id;
@@ -915,7 +916,8 @@ namespace nxPinterest.Web.Controllers
             vm.AlbumList = album.Select(n=> new nxPinterest.Data.ViewModels.UserAlbumViewModel
             {
                 AlbumName = n.AlbumName,
-                AlbumUrl = n.AlbumUrl
+                AlbumUrl = n.AlbumUrl,
+                AlbumId = n.AlbumId
             }).ToList();
 
             vm.currentContainer = user.container_id;
@@ -1008,7 +1010,8 @@ namespace nxPinterest.Web.Controllers
             vm.AlbumList = album.Select(n=> new nxPinterest.Data.ViewModels.UserAlbumViewModel
             {
                 AlbumName = n.AlbumName,
-                AlbumUrl = n.AlbumUrl
+                AlbumUrl = n.AlbumUrl,
+                AlbumId = n.AlbumId
             }).ToList();
 
             vm.currentContainer = user.container_id;
@@ -1127,7 +1130,8 @@ namespace nxPinterest.Web.Controllers
             vm.AlbumList = album.Select(n=> new nxPinterest.Data.ViewModels.UserAlbumViewModel
             {
                 AlbumName = n.AlbumName,
-                AlbumUrl = n.AlbumUrl
+                AlbumUrl = n.AlbumUrl,
+                AlbumId = n.AlbumId
             }).ToList();
 
             vm.currentContainer = user.container_id;
@@ -1181,7 +1185,8 @@ namespace nxPinterest.Web.Controllers
             vm.AlbumList = album.Select(n=> new nxPinterest.Data.ViewModels.UserAlbumViewModel
             {
                 AlbumName = n.AlbumName,
-                AlbumUrl = n.AlbumUrl
+                AlbumUrl = n.AlbumUrl,
+                AlbumId = n.AlbumId
             }).ToList();
 
             vm.currentContainer = user.container_id;
@@ -1234,8 +1239,9 @@ namespace nxPinterest.Web.Controllers
                         container_id = vm.container_id,
                         PhoneNumber = vm.PhoneNumber,
                         Discriminator = Discriminator,
-                        Email = vm.Email
-                    });
+                        Email = vm.Email,
+                        DisplayMode = vm.AlbumMode ? "ALBUM" : ""
+                    }); ;
 
                     if (result.Succeeded)
                     {
@@ -1348,7 +1354,8 @@ namespace nxPinterest.Web.Controllers
             vm.AlbumList = album.Select(n=> new nxPinterest.Data.ViewModels.UserAlbumViewModel
             {
                 AlbumName = n.AlbumName,
-                AlbumUrl = n.AlbumUrl
+                AlbumUrl = n.AlbumUrl,
+                AlbumId = n.AlbumId
             }).ToList();
 
             vm.currentContainer = login.container_id;

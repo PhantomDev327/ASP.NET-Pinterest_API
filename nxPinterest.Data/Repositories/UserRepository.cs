@@ -19,5 +19,14 @@ namespace nxPinterest.Data.Repositories
             await Context.SaveChangesAsync();
             return user.container_id;
         }
+
+        public async Task<int> UpdateUserViewModeAsync(string userId, int ViewMode)
+        {
+            ApplicationUser user = await Context.Users.FindAsync(userId);
+            user.DisplayMode = ViewMode == 0 ? " " : "ALBUM";
+            this.Context.Users.Update(user);
+            await Context.SaveChangesAsync();
+            return ViewMode;
+        }
     }
 }

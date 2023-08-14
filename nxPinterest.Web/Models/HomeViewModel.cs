@@ -14,6 +14,7 @@ namespace nxPinterest.Web.Models
         public int PageIndex { get; set; } = 1;
         public int TotalPages { get; set; }
         public int TotalRecords { get; set; }
+        public int CurrentAlbum { get; set; }    
     }
 
 }
