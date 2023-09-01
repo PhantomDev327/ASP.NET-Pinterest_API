@@ -57,7 +57,7 @@
             <tbody>
                 @foreach (var applicationUser in Model.ApplicationUserList)
                 {
-                    <tr class="userEdit">
+                    <tr class="userEdit" data-id="@applicationUser.Id">
                         <td id="email"> @applicationUser.Email </td>
                         <td> @applicationUser.UserDispName </td>
                         <td>  @{if(@applicationUser.Discriminator=="ApplicationUser") { <span>一般</span> } else {<span>管理者</span>}} </td>
@@ -72,29 +72,29 @@
         @{
         if (hasPagination)
         {
-            <div class="section-pagination" id="sectionPagination">
-                <div style="text-align:center">
-                    <span style="color:dimgrey">@Model.PageIndex / @Model.TotalPages ページ (@ViewBag.ItemCount 件)</span>
+                <div class="section-pagination" id="sectionPagination">
+                    <div style="text-align:center">
+                        <span style="color:dimgrey">@Model.PageIndex / @Model.TotalPages ページ (@ViewBag.ItemCount 件)</span>
+                    </div>
+
+                    <a href="@Url.Action("NormalUserList", "Account", new { pageIndex = 1})" class="btn btn-secondary @prevDisabled">
+                        最初
+                    </a>
+
+
+                    <a href="@Url.Action("NormalUserList", "Account", new { pageIndex = (Model.PageIndex - 1)})" class="btn btn-secondary @prevDisabled">
+                        前へ
+                    </a>
+
+
+                    <a href="@Url.Action("NormalUserList", "Account", new { pageIndex = (Model.PageIndex + 1)})" class="btn btn-secondary @nextDisabled">
+                        次へ
+                    </a>
+
+                    <a href="@Url.Action("NormalUserList", "Account", new { pageIndex = Model.TotalPages})" class="btn btn-secondary @nextDisabled">
+                        最後
+                    </a>
                 </div>
-
-                <a href="@Url.Action("NormalUserList", "Account", new { pageIndex = 1})" class="btn btn-secondary @prevDisabled">
-                    最初
-                </a>
-
-
-                <a href="@Url.Action("NormalUserList", "Account", new { pageIndex = (Model.PageIndex - 1)})" class="btn btn-secondary @prevDisabled">
-                    前へ
-                </a>
-
-
-                <a href="@Url.Action("NormalUserList", "Account", new { pageIndex = (Model.PageIndex + 1)})" class="btn btn-secondary @nextDisabled">
-                    次へ
-                </a>
-
-                <a href="@Url.Action("NormalUserList", "Account", new { pageIndex = Model.TotalPages})" class="btn btn-secondary @nextDisabled">
-                    最後
-                </a>
-            </div>
             }
         }
     </div>
@@ -103,8 +103,8 @@
 
 <script>
         $('.userEdit').on('click', function () {
-            var emailTxt = $(this).closest('tr').find('#email').text();
-            var url = '@Url.Action("NormalUserEdit","account")' + "?email=" + emailTxt;
+            var id = $(this).closest('tr').attr("data-id");
+            var url = '@Url.Action("NormalUserEdit","account")' + "?id=" + id;
             window.location = url;
         });
         $('.userregister').on('click', function () {

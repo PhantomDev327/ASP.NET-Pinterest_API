@@ -1,22 +1,61 @@
-﻿namespace nxPinterest.Services
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
+
+namespace nxPinterest.Services
 {
     public class dev_Settings
     {
+        private readonly IWebHostEnvironment _env;
 
+        public dev_Settings(IWebHostEnvironment env)
+        {
+            _env = env;
+        }
         // ConnectionStrings of Microsoft SQL database (loac or Azure) is in "appsetting.json".
 
         // Computer Vision API (Cognitive Services) key and endpoint
         // public const string computervision_subscriptionKey = "17556dc1c6e046ad8a5a3b187056aeee";
-        public const string computervision_subscriptionKey = "630430d7b6604c089a205c663f000a7a";
+        // public const string computervision_subscriptionKey = "630430d7b6604c089a205c663f000a7a";
+        public string computervision_subscriptionKey
+        {
+            get
+            {
+                if (_env.IsDevelopment())
+                {
+                    return "630430d7b6604c089a205c663f000a7a";
+                }
+                else
+                {
+                    return "630430d7b6604c089a205c663f000a7a";
+                }
+            }
+        }
         // public const string computervision_endpoint = "https://pinteresttest.cognitiveservices.azure.com/";
-        public const string computervision_endpoint = "https://starse-computer-vision.cognitiveservices.azure.com/";
+        // public const string computervision_endpoint = "https://starse-computer-vision.cognitiveservices.azure.com/";
+        public string computervision_endpoint
+        {
+            get
+            {
+                if (_env.IsDevelopment())
+                {
+                    return "https://starse-computer-vision.cognitiveservices.azure.com/";
+                }
+                else
+                {
+                    return "https://starse-computer-vision.cognitiveservices.azure.com/";
+                }
+            }
+        }
         public const string computervision_language = "ja";
 
         // Cognitive Search API (Cognitive Services) admin key and indexs
         // public const string cognitivesearch_adminApiKey = "66369D72061A0D03FF963060DFE15F07";
-        public const string cognitivesearch_adminApiKey = "5F153DAB6496395EDC671C41DE65FCF8";
+         public const string cognitivesearch_adminApiKey = "5F153DAB6496395EDC671C41DE65FCF8";
+
+   
         // public const string cognitivesearch_endpoint = "https://nxsearchtest.search.windows.net";
         public const string cognitivesearch_endpoint = "https://starse-search-service.search.windows.net";
+        
         public const string cognitivesearch_index_SQL = "azuresql-usermedia-index";
         public const string cognitivesearch_index_Cosmos = "azurecosmos-usermedia-index";
         public const string cognitivesearch_index_Table = "azuretable-usermedia-index";
@@ -25,8 +64,10 @@
         // Azure Storage account
         // public const string storage_accountName = "pinteresttest";
         public const string storage_accountName = "starsestorage";
+        
         // public const string storage_accountKey = "dnQo3qvSaASRb29UQKsn9yGvzyD+J6lj1B4joQVRWIJRe8h2upude5ZoeWmo2moJHvUYayGaUM3bxMsGKnktfg==";
         public const string storage_accountKey = "eueGm+b3p+BPDuhFmZ5q6HZc1dqSxLAGe/GTu0WHWzq7Zswr5E6zRka5p2w1IetvSCEAt+Mgdiy+pWSeOss6yg==";
+        
         // public const string storage_connectionString = "DefaultEndpointsProtocol=https;AccountName=pinteresttest;AccountKey=dnQo3qvSaASRb29UQKsn9yGvzyD+J6lj1B4joQVRWIJRe8h2upude5ZoeWmo2moJHvUYayGaUM3bxMsGKnktfg==;EndpointSuffix=core.windows.net";
         public const string storage_connectionString = "DefaultEndpointsProtocol=https;AccountName=starsestorage;AccountKey=eueGm+b3p+BPDuhFmZ5q6HZc1dqSxLAGe/GTu0WHWzq7Zswr5E6zRka5p2w1IetvSCEAt+Mgdiy+pWSeOss6yg==;EndpointSuffix=core.windows.net";
 

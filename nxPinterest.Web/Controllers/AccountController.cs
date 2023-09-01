@@ -1088,7 +1088,7 @@ namespace nxPinterest.Web.Controllers
             vm2.ApplicationUserList = this._context.Users.Where(c => c.Id.Equals(this.UserId)).ToList();
 
             vm.ApplicationUserList = (this._context.Users
-                                    .Where(c => c.container_id.Equals(vm2.ApplicationUserList.First().container_id))).ToList();
+                        .Where(c => c.ContainerIds.Contains(user.container_id.ToString()) || c.container_id == user.container_id)).ToList();
 
             int totalPages = (int)System.Math.Ceiling((decimal)(vm.ApplicationUserList.Count / (decimal)pageSize));
             int skip = (pageIndex - 1) * pageSize;
@@ -1214,21 +1214,39 @@ namespace nxPinterest.Web.Controllers
                     ApplicationUser u = await this._userManager.FindByEmailAsync(vm.Email);
                     if(u != null)
                     {
-                        TempData["custom-validation-message"] = "User Already Exit";
-                        return this.View("~/Views/Account/NormalUserRegister.cshtml", vm);
+                        if ( !String.IsNullOrEmpty(u.ContainerIds)) {
+                            if (u.ContainerIds.Contains(loginUser.container_id.ToString()))
+                            {
+                                TempData["custom-validation-message"] = "User Already Exit";
+                                return Redirect("/Account/NormalUserList");
+                            }
+                            u.ContainerIds = String.Concat(u.ContainerIds, ",", loginUser.container_id);
+                        } else
+                        {
+                            u.ContainerIds = loginUser.container_id.ToString();
+                        }
+
+                        
+                        var update = await this._userManager.UpdateAsync(u);
+                        if (update.Succeeded)
+                        {
+                            TempData["custom-validation-success-message"] = "User has been successfully registered.";
+                            return Redirect("/Account/NormalUserList");
+                        }
+                        throw new Exception(update.Errors.FirstOrDefault().Description);
                     }
                     //権限変換
                     string Discriminator;
                     if (vm.Discriminator == "一般")
-					{
+                    {
                         Discriminator = "ApplicationUser";
                     }
                     else if (vm.Discriminator == "閲覧")
                     {
                         Discriminator = "BworseUser";
                     }
-					else
-					{
+                    else
+                    {
                         Discriminator = "ContainerAdmin";
                     }
                     var result = await this._userManager.CreateAsync(new ApplicationUser()
@@ -1239,6 +1257,7 @@ namespace nxPinterest.Web.Controllers
                         container_id = vm.container_id,
                         PhoneNumber = vm.PhoneNumber,
                         Discriminator = Discriminator,
+                        ContainerIds = loginUser.container_id.ToString(),
                         Email = vm.Email,
                         DisplayMode = vm.AlbumMode ? "ALBUM" : ""
                     }); ;
@@ -1307,7 +1326,7 @@ namespace nxPinterest.Web.Controllers
         /// </summary>
         /// <param name="email"></param>
         /// <returns></returns>
-        public async Task<IActionResult> NormalUserEdit(String email)
+        public async Task<IActionResult> NormalUserEdit(String id)
         {
             // コンテナ管理者のみ利用可能な機能
             var login = await this._userManager.FindByIdAsync(this.UserId);
@@ -1318,11 +1337,15 @@ namespace nxPinterest.Web.Controllers
             }
 
             Services.Models.Request.NormalUserRegistrationRequest vm = new Services.Models.Request.NormalUserRegistrationRequest();
-            String userEmail = email.Trim();
-            ApplicationUser user = await this._userManager.FindByEmailAsync(userEmail);
-            if (user == null) return View();
+            String UserId =  id.Trim();
+            ApplicationUser user = await this._userManager.FindByIdAsync(UserId);
+            if (user == null)
+            {
+                TempData["Message"] = "There is no User!";
+                return View("~/Views/Error/204.cshtml");
+            }
 
-            vm.Email = userEmail;
+            vm.Email = user.Email;
             vm.UserDispName = user.UserDispName;
             vm.container_id = user.container_id;
             vm.PhoneNumber = user.PhoneNumber;
@@ -1387,7 +1410,7 @@ namespace nxPinterest.Web.Controllers
                         user.UserDispName = vm.UserDispName;
                         user.PhoneNumber = vm.PhoneNumber;
                         user.user_visibility = vm.user_visibility;
-                        user.Discriminator = vm.Discriminator == "一般" ? "ApplicationUser" : (vm.Discriminator == "閲覧" ? "BrowseUser": "ContainerAdmin");
+                        user.Discriminator = vm.Discriminator == "一般" ? "ApplicationUser" : (vm.Discriminator == "表示のみ" ? "BrowseUser": "ContainerAdmin");
                     }
                     var update = await this._userManager.UpdateAsync(user);
                     if (update.Succeeded)

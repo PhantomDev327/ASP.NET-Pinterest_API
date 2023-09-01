@@ -56,7 +56,7 @@
 
                 <a class="navbar-brand mx-2" href="@Url.Action("Index", "Home")">
                     <img id="logo" width="40" src="/images/@Configuration.GetSection("Images")["header"]">
-                    <img id="logo-mobile" width="40" src="/@Configuration.GetSection("Images")["small"]">
+                    <img id="logo-mobile" width="40" src="/images/@Configuration.GetSection("Images")["small"]">
                 </a>
 
                 <nav class="navbar navbar-dark bg-dark">
@@ -217,7 +217,7 @@
         <span class="sr-only">Loading...</span>
     </div>
 
-    <div style="margin-top: 3.7rem">
+    <div class="main-home">
         @*        <div id="navbarSearchAndTag" class="collapse collapse-horizontal show" style="position:fixed;left:0;top:3.7rem;">
         *@        <div id="navbarSearchAndTag" class="collapse collapse-horizontal     " style="position:fixed;left:0;top:3.7rem;z-index:2;">
             @*            <div class="p-3 bg-dark" style="width:8rem;height:calc(100vh - 3.7rem);overflow-y:auto" id="tagArea">
@@ -234,11 +234,12 @@
                     }
                 </div>
                 <div>
-                    <p><i class="bi bi-journal-richtext"></i>アルバム</p>
+                    <p><i class="bi bi-journal-richtext"></i>アルバム
                     @if (Model.Discriminator == "SysAdmin" || Model.Discriminator == "ContainerAdmin" || Model.Discriminator == "ApplicationUser")
                     {
                         <i class="bi bi-plus-circle float-end createMediaFolder"></i>
                     }
+                    </p>
                     @if (@Model.AlbumList != null)
                     {
                         @foreach (var album in @Model.AlbumList)

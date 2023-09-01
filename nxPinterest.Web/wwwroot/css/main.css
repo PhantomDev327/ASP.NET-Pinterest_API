@@ -12,7 +12,7 @@ body {
 }
 .login-err-msg {
   position: absolute;
-  padding-top: 60px;
+  padding-top: 15px;
   font-size: 15px;
   left: 0;
   width: 100%;
@@ -182,7 +182,7 @@ width: 170px;
   /*}*/
 }
 
-@media only screen and (max-width:319px) {
+@media only screen and (max-width:600px) {
   .thumbnail-container .image-col {
     padding: 4px !important;
   }
@@ -202,6 +202,16 @@ width: 170px;
   }
 }
 
+.main-home{
+  margin-top: 3.7rem;
+}
+
+@media screen and (max-width: 600px) {
+  .main-home{
+      margin-top: 5.5rem;
+  }
+}
+
 @media only screen and (min-width: 360px) and (max-width: 499px) {
   .thumbnail-container .image-col {
     padding: 4px !important;
@@ -214,7 +224,7 @@ width: 170px;
 
 @media only screen and (min-width: 500px) and (max-width: 599px) {
   .thumbnail-container .image-col {
-    padding: 6px !important;
+    padding: 4px !important;
   }
 }
 
@@ -252,4 +262,7 @@ width: 170px;
 
 .btn:hover {
   background-color: #879099 !important;
+}
+.text-left {
+  text-align: left;
 }

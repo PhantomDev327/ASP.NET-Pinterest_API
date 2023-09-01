@@ -28,6 +28,8 @@ namespace nxPinterest.Web.Controllers
         private readonly ApplicationDbContext _context;
         //private CosmosDbService _cosmosDbService;
 
+        public static string NoIMGURL = "https://sozosya.blob.core.windows.net/pinterest/1/thumb/noimage.png";
+
         public HomeController(ILogger<HomeController> logger,
                               ApplicationDbContext context,
                               IUserMediaManagementService userMediaManagementService,

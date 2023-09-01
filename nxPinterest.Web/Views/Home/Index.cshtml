@@ -89,7 +89,6 @@
                     method: "Post",
                     data: { pageIndex: window.page, searchKey: $('#SearchKey').val()},
                     success: function (sResult) {
-                        window.page = window.page + 1;
                         let result = sResult.userMediaList;
                         result = [...new Set(result)];
                         result = result.filter((image, index, self) =>
@@ -98,9 +97,17 @@
                             ))
                         );
                         window.images.push( result );
-                        $.each(result, function(index, value) {
+                        window.images = window.images.flat().map(obj => ({...obj}));
+                        window.images = [...new Set(window.images)];
+                        window.images = window.images.filter((image, index, self) =>
+                            index === self.findIndex((t) => (
+                                t.mediaId === image.mediaId
+                            ))
+                        );
+                        $.each(result, function (index, value) {
                             appendData(value);
                         });
+                        window.page = window.page + 1;
                         hideLoader();
                     },
                     error: function () {
@@ -108,6 +115,7 @@
                     }
                 });
             });
+            hideLoader();
         }
 
         var image_count = 0;
