@@ -57,35 +57,5 @@
         var shareAlbum = new shareUserAlbumMediaController();
         album.initialize();
         shareAlbum.initialize();
-        
-        async function loadAlbum() {
-            showLoader();
-            window.isFullImage = true;
-            await new Promise(function (resolve, reject) { 
-                $.ajax({
-                    url: "@Url.Action("getAlbum", "Home")",
-                    method: "Post",
-                    data: { searchKey: $('#SearchKey').val()},
-                    success: function (sResult) {
-                        window.images = [];
-                        window.images = sResult.albumList;
-                        console.log(window.images);
-                        window.images = [...new Set(window.images)];
-                        window.images = window.images.filter((image, index, self) =>
-                            index === self.findIndex((t) => (
-                                t.albumName === image.albumName
-                            ))
-                        );
-                        window.images.forEach(function (data) {
-                            appendData(data);
-                        });
-                        hideLoader();
-                    },
-                    error: function () {
-                        hideLoader();
-                    }
-                });
-            });
-        }
     </script>
 }

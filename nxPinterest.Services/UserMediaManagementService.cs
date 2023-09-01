@@ -26,23 +26,27 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Metadata.Profiles.Exif;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Hosting;
 
 namespace nxPinterest.Services
 {
     public class UserMediaManagementService : IUserMediaManagementService
     {
         private readonly ILogger _logger;
+        private readonly IWebHostEnvironment _env;
         #region Field
         public ApplicationDbContext _context;
         private StorageBlobService _blobService;
         #endregion
 
         public UserMediaManagementService(ApplicationDbContext context,
-                                ILogger<UserMediaManagementService> logger)
+                                ILogger<UserMediaManagementService> logger,
+                                IWebHostEnvironment env)
         {
             _context = context;
             _blobService = new StorageBlobService();
             _logger = logger;
+            _env = env;
         }
 
         //public async Task<IList<UserMedia>> ListUserMediaAsyc(string userId = "")
@@ -368,7 +372,7 @@ namespace nxPinterest.Services
                 // Get tags by Computer Vision API
                 try
                 {
-                    ComputerVisionService cv = new ComputerVisionService();
+                    ComputerVisionService cv = new ComputerVisionService(_env);
                     // 1 patterns in the prototype
                     //tagsString = cv.GetImageTag_str(result.Result.Uri.ToString());
 
@@ -625,7 +629,7 @@ namespace nxPinterest.Services
                 // Get tags by Computer Vision API
                 try
                 {
-                    ComputerVisionService cv = new ComputerVisionService();
+                    ComputerVisionService cv = new ComputerVisionService(_env);
                     // 1 patterns in the prototype
                     //tagsString = cv.GetImageTag_str(result.Result.Uri.ToString());
 
@@ -852,7 +856,7 @@ namespace nxPinterest.Services
                 // Get tags by Computer Vision API
                 try
                 {
-                    ComputerVisionService cv = new ComputerVisionService();
+                    ComputerVisionService cv = new ComputerVisionService(_env);
 
                     aitagsString = cv.GetImageTag_str(userMedia.MediaSmallUrl);
                     if (String.IsNullOrEmpty(aitagsString))

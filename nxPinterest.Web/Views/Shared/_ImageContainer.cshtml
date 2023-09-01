@@ -135,7 +135,7 @@
             },300);
         });
         document.getElementById("changeZoomRange").value = localStorage.getItem("zoomSize");
-        changeZoom();
+        //changeZoom();
     });
     function getColNum(itemWidth) {
         var col_num = Math.floor($(window).width() / itemWidth);
@@ -146,36 +146,56 @@
         $("#thumbnail-container").empty();
         var col_num = getColNum(itemWidth);
         var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-        var space = Math.floor((width % itemWidth)/2) + 8;
-        for (var i = 1; i <= col_num; i++) {
-            var paddingItem = 4;
-            var padding = paddingItem * 2;
-            var leftSize = ((itemWidth - paddingItem) * (i - 1) + space);
-            $('#thumbnail-container').append('<div id="column-'+i+'" class="image-col" style="position:absolute; width:' + itemWidth +'px; padding:' + padding + 'px;left:'+ leftSize +'px;"></div>');
+        
+        if (width > 550) {
+            var itemWidth = window.itemWidth;
+            var col_num = getColNum(itemWidth);
+            var space = Math.floor((width % itemWidth) / 2) + 8;
+            for (var i = 1; i <= col_num; i++) {
+                var paddingItem = 4;
+                var padding = paddingItem * 2;
+                var leftSize = ((itemWidth - paddingItem) * (i - 1) + space);
+                $('#thumbnail-container').append('<div id="column-' + i + '" class="image-col" style="position:absolute; width:' + itemWidth + 'px; padding:' + padding + 'px;left:' + leftSize + 'px;"></div>');
+            }
+        } else {
+            var col_num = 6 - (window.itemWidth - 100) / 50;
+            var space = (col_num == 6 || col_num == 5) ? 8 : 10;
+            var itemWidth = (width - (space - 8) * (col_num - 1) - (space - 4) * 2) / col_num;
+            for (var i = 1; i <= col_num; i++) {
+                var paddingItem = 4;
+                var padding = paddingItem * 2;
+                var leftSize = (itemWidth * (i - 1) + (space - 4) + (space - 8) * (i - 1));
+                $('#thumbnail-container').append('<div id="column-' + i + '" class="image-col" style="position:absolute; width:' + itemWidth + 'px; padding:' + padding + 'px;left:' + leftSize + 'px;"></div>');
+            }
         }
     }
+
     function reloadImage() {
         initCol();
         window.images.forEach(function (data) {
-            data.forEach(function (value) {
-                appendData(value);
-            });
+            appendData(data);
         });
     }
+
     function appendData(value) {
         var newImgEl = document.createElement('img');
         var previewButtonEl = '<span class="previewButton" onclick="showPreviewImage(' + value.mediaId + ', \'' + value.mediaSmallUrl  + '\')"><i class="bi bi-zoom-in fa-lg px-2"></i></span>';
-        newImgEl.addEventListener('load', function() {
-            shortest = findShortestCol();
-            shortest.append('<figure id="'+value.mediaId+'"><figcaption><p class="title">'+value.mediaTitle+'</p><p class="description">'+value.mediaDescription+'</p></figcaption></figure>');
-            var figureItemEle = $('figure[id="' + value.mediaId + '"]');
-            figureItemEle.append(newImgEl);
-            figureItemEle.append(previewButtonEl);
-        });
-        newImgEl.setAttribute('src', value.mediaThumbnailUrl);
-        newImgEl.setAttribute('alt', value.mediaFileName);
-        newImgEl.setAttribute('data-media-url', value.mediaUrl);
-        newImgEl.setAttribute('data-smallmedia-url', value.mediaSmallUrl);
+        var duplicateImageEl =  $('figure[id="' + value.mediaId + '"]');
+        if(duplicateImageEl){
+            newImgEl.addEventListener('load', function() {
+                shortest = findShortestCol();
+                shortest.append('<figure id="'+value.mediaId+'"><figcaption><p class="title">'+value.mediaTitle+'</p><p class="description">'+value.mediaDescription+'</p></figcaption></figure>');
+                var figureItemEle = $('figure[id="' + value.mediaId + '"]');
+                figureItemEle.append(newImgEl);
+                figureItemEle.append(previewButtonEl);
+            });
+            newImgEl.setAttribute('src', value.mediaThumbnailUrl);
+            newImgEl.setAttribute('alt', value.mediaFileName);
+            newImgEl.setAttribute('data-media-url', value.mediaUrl);
+            newImgEl.setAttribute('data-smallmedia-url', value.mediaSmallUrl);
+        } else {
+            console.log("=====double image=====");
+        }
     }
 
     function findShortestCol() {
@@ -262,18 +282,5 @@
         changeZoom();
     }
 
-    function setThumbnail(thumbnail){
-        $.ajax({
-            url: "/UserAlbum/SetThumbnail",
-            method: "Post",
-            data: { thumbnail: thumbnail, albumName: window.fullAlbumName },
-            success: function (result) {
-                hideLoader();
-                if (!result.success) alert(result.message);
-            },
-            error: function () {
-                hideLoader();
-            }
-        });
-    }
+    
 </script>

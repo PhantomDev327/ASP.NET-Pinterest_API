@@ -21,5 +21,5 @@ function showLoader() {
 function hideLoader() {
     setTimeout(function () {
         $('.indicator-loader').fadeOut("slow");
-    }, 1100);
+    }, 1500);
 }

@@ -2,13 +2,8 @@
 @model nxPinterest.Web.Models.DetailsViewModel
 @{
     ViewData["Title"] = "画像選択";
-    Layout = "~/Views/Shared/_Layout.cshtml";
 
 	UserMedia userMedia = Model.UserMediaDetail;
-
-	userMedia.Uploaded = userMedia.Uploaded ?? DateTime.Now;
-	userMedia.Created = userMedia.Uploaded ?? DateTime.Now;
-	userMedia.Modified = userMedia.Uploaded ?? DateTime.Now;
 }
 <script src="~/lib/bootstrap-tagsinput/bootstrap-tagsinput.min.js" asp-append-version="true"></script>
 <script>
@@ -77,7 +72,7 @@
 						@userMedia.MediaDescription
 					</p>
 					<br />
-					<div class="slider" style="max-width:870px;">
+					<div class="slider">
 						<h6 style="color:#ccc;margin-left: 0%;">&quot; @userMedia.MediaTitle &quot; で登録されている他の画像 </h6>
 						<input type="radio" name="slide_switch" checked="checked" id="@userMedia.MediaId" value="@userMedia.MediaId"/>
 						<label for="@userMedia.MediaId" style="background-image:url('@userMedia.MediaThumbnailUrl');">
@@ -87,7 +82,7 @@
 						{
 							var userMediaThumbnail = Model.SameTitleUserMediaList[i];
 							string activeClass = userMediaThumbnail.MediaFileName.Equals(userMedia.MediaFileName) ? "active" : "";
-							string hide_lable = i > 13 ? "hide-lable" : "";
+							string hide_lable = i > 18 ? "hide-lable" : "";
 
 							@if(userMediaThumbnail.MediaId != userMedia.MediaId)
 							{
@@ -99,7 +94,7 @@
 						}
 										
 					</div>
-					@if (Model.SameTitleUserMediaList.Count() > 14) {
+					@if (Model.SameTitleUserMediaList.Count() > 20) {
 							<input type="button" value="すべて表示" class="btn btn-default btn-save" id="show-all-btn">
 						}
 					<input hidden asp-for="@userMedia.MediaId" name="MediaId" />
@@ -125,19 +120,19 @@
         await Html.RenderPartialAsync("/Views/Shared/_ImageContainer.cshtml");
     }
 	<div class="modal fade text-black modal-lg" id="showDetailModal" tabindex="-1" role="dialog" aria-labelledby="showDetailModalTitle" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
 			<div class="modal-content">
+				<div class="modal-header border-0">
+					<h5 class="modal-title w-100 text-left">@userMedia.MediaTitle のプロパティ</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
+				</div>
 				<div class="modal-body" id="detailFolderContent">
 					<div class="row py-2">
-						<div class="col-12">写真のタイトル</div>
-						<div class="col-12 text-break">@userMedia.MediaTitle</div>
-					</div>
-					<div class="row py-2">
-						<div class="col-12">説明</div>
+						<div class="col-12"><strong>説明</strong></div>
 						<div class="col-12 text-break">@userMedia.MediaDescription</div>
 					</div>
 					<div class="row py-2">
-						<div class="col-12">コンテナ名</div>
+						<div class="col-12"><strong>コンテナ名</strong></div>
 						<div class="col-12 text-break">
 							@foreach (var container in Model.UserContainers)
 							{
@@ -151,7 +146,7 @@
 						</span>
 					</div>
 					<div class="row py-2">
-						<div class="col-12">オリジナル</div>
+						<div class="col-12"><strong>オリジナル</strong></div>
 						<div class="col-12 text-break">
 							@userMedia.MediaUrl
 							<a class="header-item copyLinkUrl" data-link="@userMedia.MediaUrl">
@@ -160,7 +155,7 @@
 						</div>
 					</div>
 					<div class="row py-2">
-						<div class="col-12">Webサイズ</div>
+						<div class="col-12"><strong>Webサイズ</strong></div>
 						<div class="col-12 text-break">
 							@userMedia.MediaSmallUrl
 							<a class="header-item copyLinkUrl" data-link="@userMedia.MediaSmallUrl">
@@ -169,7 +164,7 @@
 						</div>
 					</div>
 					<div class="row py-2">
-						<div class="col-12">サムネイル</div>
+						<div class="col-12"><strong>サムネイル</strong></div>
 						<div class="col-12 text-break">
 							@userMedia.MediaThumbnailUrl
 							<a class="header-item copyLinkUrl" data-link="@userMedia.MediaThumbnailUrl">
@@ -178,11 +173,11 @@
 						</div>
 					</div>
 					<div class="row py-2">
-						<div class="col-12">登録者</div>
+						<div class="col-12"><strong>登録者</strong></div>
 						<div class="col-12 text-break">@userMedia.User.UserDispName</div>
 					</div>
 					<div class="row py-2">
-						<div class="col-12">タグ</div>
+						<div class="col-12"><strong>タグ</strong></div>
 						<div class="col-12 text-break">
 							@foreach (var tag in @Model.OriginalTagsList)
 							{
@@ -191,7 +186,7 @@
 						</div>
 					</div>
 					<div class="row py-2">
-						<div class="col-12">AIが付けたタグ</div>
+						<div class="col-12"><strong>AIが付けたタグ</strong></div>
 						<div class="col-12 text-break">
 							@foreach (var tag in @Model.AITagsList)
 							{
@@ -200,33 +195,36 @@
 						</div>
 					</div>
 					<div class="row py-2">
-						<div class="col-12">アルバム登録されている数 (@userMedia.MediaAlbums.Count)</div>
+						<div class="col-12"><strong>アルバム登録されている数</strong></div>
+						<div class="col-12 text-break">
+							@userMedia.MediaAlbums.Count
+						</div>
 						<div class="col-12 text-break">
 							@foreach (var album in @userMedia.MediaAlbums)
 							{
 								<div style="display:inline-block;color:#fff;background-color: rgb(27, 35, 82);padding:5px;border-radius:3px;margin-right:3px;margin-bottom:3px;">
-									<a href='@Url.Action("Details", "UserAlbum", new {albumID=album.AlbumId})' style="color:#fff;">@album.AlbumName</a>
+									<a href='@Url.Action("Details", "UserAlbum", new {albumID=album.AlbumId})' style="color:#fff;text-decoration: none;">@album.AlbumName</a>
 								</div>
 							}
 						</div>
 					</div>
 					<div class="row py-2">
-						<div class="col-12">シェアされた数</div>
+						<div class="col-12"><strong>シェアされた数</strong></div>
 						<div class="col-12 text-break">
-							@userMedia.MediaSharedAlbums.Count
+							@userMedia.MediaSharedAlbums.Count 回
 						</div>
 					</div>
 					<div class="row py-2">
-						<div class="col-12">撮影日</div>
-						<div class="col-12 text-break">@userMedia.Created.Value.ToString("yyyy-MM-dd hh:mm:ss")</div>
+						<div class="col-12"><strong>撮影日</strong></div>
+						<div class="col-12 text-break">@(userMedia.Created.HasValue ? userMedia.Created.Value.ToString("yyyy-MM-dd HH:mm:ss") : "")</div>
 					</div>
 					<div class="row py-2">
-						<div class="col-12">アップロード日</div>
-						<div class="col-12 text-break">@userMedia.Uploaded.Value.ToString("yyyy-MM-dd hh:mm:ss")</div>
+						<div class="col-12"><strong>アップロード日</strong></div>
+						<div class="col-12 text-break">@(userMedia.Uploaded.HasValue ? userMedia.Uploaded.Value.ToString("yyyy-MM-dd HH:mm:ss") : "")</div>
 					</div>
 					<div class="row py-2">
-						<div class="col-12">更新日</div>
-						<div class="col-12 text-break">@userMedia.Modified.Value.ToString("yyyy-MM-dd hh:mm:ss")</div>
+						<div class="col-12"><strong>更新日</strong></div>
+						<div class="col-12 text-break">@(userMedia.Modified.HasValue ? userMedia.Modified.Value.ToString("yyyy-MM-dd HH:mm:ss") : "")</div>
 					</div>
 				</div>
 			</div>

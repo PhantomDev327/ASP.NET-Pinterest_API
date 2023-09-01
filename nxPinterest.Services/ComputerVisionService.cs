@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 
 namespace nxPinterest.Services
 {
@@ -15,10 +16,11 @@ namespace nxPinterest.Services
         private static string subscriptionKey;
         private static string endpoint;
 
-        public ComputerVisionService()
+        public ComputerVisionService(IWebHostEnvironment env)
         {
-            subscriptionKey = dev_Settings.computervision_subscriptionKey;
-            endpoint = dev_Settings.computervision_endpoint;
+            dev_Settings devSetting = new dev_Settings(env);
+            subscriptionKey = devSetting.computervision_subscriptionKey;
+            endpoint = devSetting.computervision_endpoint;
             client = Authenticate(endpoint, subscriptionKey);
         }
 

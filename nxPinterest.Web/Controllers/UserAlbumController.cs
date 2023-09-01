@@ -176,6 +176,7 @@ namespace nxPinterest.Web.Controllers
                 Comment = n.Comment,
                 UserId = this._context.Users.Where(c => c.Id.Equals(n.UserId)).First().UserDispName
             }).ToList();
+            ViewBag.ItemCount = vm.AlbumCommentList.Count;
 
             vm.Discriminator = user[0].Discriminator;
             vm.UserDispName = user[0].UserDispName;

@@ -481,7 +481,6 @@ var pageSharedAlbumController = function () {
 					document.getElementById("error").innerText = "メッセージ";
 				}
 				window.page = window.page + 1;
-				hideLoader();
 				window.isLoadImage = false;
 			},
 			error: function () {
@@ -490,6 +489,7 @@ var pageSharedAlbumController = function () {
 				window.isLoadImage = false;
 			}
 		});
+		hideLoader();
 	}
 
 }

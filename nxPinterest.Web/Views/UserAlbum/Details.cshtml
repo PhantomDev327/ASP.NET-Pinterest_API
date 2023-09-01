@@ -138,7 +138,15 @@
         </div>
     </div>
 </div>
-
+<div class="modal fade" id="thumbnail-change-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="alert alert-success mb-0" role="alert">
+                サムネイルを変更しました
+            </div>
+        </div>
+    </div>
+</div>
 <iframe id="iframeDownload1" style="display: none"></iframe>
 <iframe id="iframeDownload2" style="display: none"></iframe>
 <iframe id="iframeDownload3" style="display: none"></iframe>
@@ -190,7 +198,6 @@
                 },300);
             });
             document.getElementById("changeZoomRange").value = localStorage.getItem("zoomSize");
-            changeZoom();
         });
         function loadImg() {
             selectedAlbum("@ViewData["albumName"]", "@ViewData["albumUrl"]");
@@ -292,7 +299,7 @@
                                                         <i class="fas fa-arrow-left fa-2x"></i>
                                                     </a>
                                                 </div>
-                                                <div class="row" style="padding: 15px;margin-left: 15px;">
+                                                <div class="row w-100" style="padding: 15px 30px 15px 30px;">
 
                                                     <h2 class="mx-4" style="z-index:1;margin-top:-6px;">
                                                         <span id="album__name">${albumName}</span>
@@ -329,7 +336,8 @@
                 data: { thumbnail: thumbnail, albumId: @ViewData["albumID"] },
                 success: function (result) {
                     hideLoader();
-                    if (!result.success) alert(result.message);
+                    $('#thumbnail-change-modal').modal('show');
+                    setTimeout(function(){$('#thumbnail-change-modal').modal('hide');}, 3000);
                 },
                 error: function () {
                     hideLoader();
@@ -339,7 +347,7 @@
 
         function appendAlbumData(value) {
             var newImgEl = document.createElement('img');
-            var thumbnailButtonEl = '<span class="thumbnailButton" onclick="setThumbnail(\'' + value.mediaThumbnailUrl  + '\')"><i class="bi bi-arrow-up-left-square fa-lg px-2"></i></span>';
+            var thumbnailButtonEl = '<span class="thumbnailButton" onclick="setThumbnail(\'' + value.mediaThumbnailUrl  + '\')"><i class="bi bi-image fa-lg px-2"></i></span>';
             var previewButtonEl = '<span class="previewButton" onclick="showPreviewImage(' + value.mediaId + ', \'' + value.mediaSmallUrl  + '\')"><i class="bi bi-zoom-in fa-lg px-2"></i></span>';
             newImgEl.addEventListener('load', function() {
                 shortest = findShortestCol();
@@ -366,12 +374,28 @@
             $("#thumbnail-container").empty();
             var col_num = getColNum(itemWidth);
             var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-            var space = Math.floor((width % itemWidth)/2) + 8;
-            for (var i = 1; i <= col_num; i++) {
-                var paddingItem = 4;
-                var padding = paddingItem * 2;
-                var leftSize = ((itemWidth - paddingItem) * (i - 1) + space);
-                $('#thumbnail-container').append('<div id="column-'+i+'" class="image-col" style="position:absolute; width:' + itemWidth +'px; padding:' + padding + 'px;left:'+ leftSize +'px;"></div>');
+            
+            if (width > 550) {
+                var itemWidth = window.itemWidth;
+                var col_num = getColNum(itemWidth);
+                var space = Math.floor((width % itemWidth) / 2) + 8;
+                for (var i = 1; i <= col_num; i++) {
+                    var paddingItem = 4;
+                    var padding = paddingItem * 2;
+                    var leftSize = ((itemWidth - paddingItem) * (i - 1) + space);
+                    $('#thumbnail-container').append('<div id="column-' + i + '" class="image-col" style="position:absolute; width:' + itemWidth + 'px; padding:' + padding + 'px;left:' + leftSize + 'px;"></div>');
+                }
+            } else {
+                var col_num = 6 - (window.itemWidth - 100) / 50;
+                var space = (col_num == 6 || col_num == 5) ? 8 : 10;
+                var itemWidth = (width - (space - 8) * (col_num - 1) - (space - 4) * 2) / col_num;
+                window.itemHeight = itemWidth * 0.6;
+                for (var i = 1; i <= col_num; i++) {
+                    var paddingItem = 4;
+                    var padding = paddingItem * 2;
+                    var leftSize = (itemWidth * (i - 1) + (space - 4) + (space - 8) * (i - 1));
+                    $('#thumbnail-container').append('<div id="column-' + i + '" class="image-col" style="position:absolute; width:' + itemWidth + 'px; padding:' + padding + 'px;left:' + leftSize + 'px;"></div>');
+                }
             }
         }
         function reloadImageAlbum() {

@@ -65,6 +65,7 @@ figure.selection-border {
 .range-area {
     white-space: nowrap;
     min-width: 100px;
+    text-align: center;
 }
 .range-area > * {
     vertical-align: middle;
@@ -97,8 +98,8 @@ figure.selection-border {
         display: -webkit-box !important;
     }
 
-    .thumbnail-container figure .thumbnailButton {
-        display: -webkit-box !important;
+    .thumbnailButton {
+        display: none;
     }
 }
 

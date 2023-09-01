@@ -293,8 +293,6 @@ function multiSelect() {
                             if (childNode.getAttribute("data-smallmedia-url")) {
                                 selectedSmallMediaSrc = childNode.getAttribute("data-smallmedia-url");
                             }
-                            let url = childNode.getAttribute("data-media-url");
-                            setThumbnail(url);
                         }
                     }
                 }

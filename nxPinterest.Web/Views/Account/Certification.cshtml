@@ -32,12 +32,7 @@
                     </div>
                 }*@
 
-                @if(ViewBag.Message != "")
-                {
-                    <div class="form-text text-danger login-err-msg">
-                        @ViewBag.Message
-                    </div>
-                }
+                
                 <input type="submit" value="ログイン" class="btn btn-default btn-login" />
                 @*<a class="text-color-default" href="/account/register">
                     <h5>新規登録</h5>
@@ -45,6 +40,12 @@
                 <a class="text-color-default" href="/account/forgotpassword">
                     <h5>パスワードをお忘れですか？</h5>
                 </a>
+                @if(ViewBag.Message != "")
+                {
+                    <div class="form-text text-danger login-err-msg">
+                        @ViewBag.Message
+                    </div>
+                }
             </form>
         </div>
     </div>
